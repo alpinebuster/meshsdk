@@ -1819,6 +1819,45 @@ export interface GridSettings extends ClassHandle {
   setFaceIdsWithPtr(_0: FaceIdSizeTBMap | null): void;
 }
 
+export interface ICPPairData extends ClassHandle {
+  distSq: number;
+  weight: number;
+  srcPoint: Vector3f;
+  srcNorm: Vector3f;
+  tgtPoint: Vector3f;
+  tgtNorm: Vector3f;
+  equals_(_0: ICPPairData): boolean;
+}
+
+export interface PointPair extends ICPPairData {
+  normalsAngleCos: number;
+  tgtOnBd: boolean;
+  srcVertId: VertId;
+  tgtCloseVert: VertId;
+  equals(_0: PointPair): boolean;
+}
+
+export interface IPointPairs extends ClassHandle {
+  getActive_(): BitSet;
+  setActive_(_0: BitSet): void;
+  size_(): number;
+}
+
+export interface PointPairs extends IPointPairs {
+  vec: VectorPointPair;
+  getActive(): BitSet;
+  setActive(_0: BitSet): void;
+  get(_0: number): PointPair;
+  size(): number;
+}
+
+export interface NumSum extends ClassHandle {
+  num: number;
+  sum: number;
+  opadd(_0: NumSum): NumSum;
+  rootMeanSqF(): number;
+}
+
 export interface ICP extends ClassHandle {
   setCosineLimit(_0: number): void;
   setDistanceLimit(_0: number): void;
@@ -1838,6 +1877,8 @@ export interface ICP extends ClassHandle {
   getNumActivePairs(): number;
   getMeanSqDistToPoint(): number;
   getMeanSqDistToPlane(): number;
+  getFlt2RefPairs(): PointPairs;
+  getRef2FltPairs(): PointPairs;
   calculateTransformation(): AffineXf3f;
   setParams(_0: ICPProperties): void;
   getParams(): ICPProperties;
@@ -4300,6 +4341,22 @@ export type MeshMeshSignedDistanceResult = {
   signedDist: number
 };
 
+export interface PointToPlaneAligningTransform extends ClassHandle {
+  prepare(): void;
+  clear(): void;
+  findBestRigidXf(): AffineXf3d;
+  findBestRigidScaleXf(): AffineXf3d;
+  calculateAmendment(): RigidScaleXf3d;
+  calculateAmendmentWithScale(): RigidScaleXf3d;
+  add(_0: Vector3f, _1: Vector3f, _2: Vector3f, _3: number): void;
+  addDouble(_0: Vector3d, _1: Vector3d, _2: Vector3d, _3: number): void;
+  findBestRigidXfFixedRotationAxis(_0: Vector3d): AffineXf3d;
+  findBestRigidXfOrthogonalRotationAxis(_0: Vector3d): AffineXf3d;
+  findBestTranslation(_0: Vector3d, _1: number): Vector3d;
+  calculateFixedAxisAmendment(_0: Vector3d): RigidScaleXf3d;
+  calculateOrthogonalAxisAmendment(_0: Vector3d): RigidScaleXf3d;
+}
+
 export interface IPointsToMeshProjector extends ClassHandle {
   updateMeshData(_0: Mesh | null): void;
   projectionsHeapBytes(_0: number): number;
@@ -4496,6 +4553,36 @@ export interface MeshEqualizeTriAreasParams extends MeshRelaxParams {
 export interface MeshApproxRelaxParams extends MeshRelaxParams {
   surfaceDilateRadius: number;
   type: RelaxApproxType;
+}
+
+export interface RigidScaleXf3f extends ClassHandle {
+  s: number;
+  a: Vector3f;
+  b: Vector3f;
+  rigidScaleXf(): AffineXf3f;
+  linearXf(): AffineXf3f;
+}
+
+export interface RigidScaleXf3d extends ClassHandle {
+  s: number;
+  a: Vector3d;
+  b: Vector3d;
+  rigidScaleXf(): AffineXf3d;
+  linearXf(): AffineXf3d;
+}
+
+export interface RigidXf3f extends ClassHandle {
+  a: Vector3f;
+  b: Vector3f;
+  rigidXf(): AffineXf3f;
+  linearXf(): AffineXf3f;
+}
+
+export interface RigidXf3d extends ClassHandle {
+  a: Vector3d;
+  b: Vector3d;
+  rigidXf(): AffineXf3d;
+  linearXf(): AffineXf3d;
 }
 
 export interface SegmPointf extends ClassHandle {
@@ -5138,6 +5225,14 @@ export interface VectorFaceFace extends ClassHandle {
   size(): number;
   get(_0: number): FaceFace | undefined;
   set(_0: number, _1: FaceFace): boolean;
+}
+
+export interface VectorPointPair extends ClassHandle {
+  push_back(_0: PointPair): void;
+  resize(_0: number, _1: PointPair): void;
+  size(): number;
+  get(_0: number): PointPair | undefined;
+  set(_0: number, _1: PointPair): boolean;
 }
 
 export interface VectorVectorMeshPiece extends ClassHandle {
@@ -8765,14 +8860,34 @@ interface EmbindModule {
   GridSettings: {
     new(): GridSettings;
   };
+  ICPPairData: {
+    new(): ICPPairData;
+  };
+  PointPair: {
+    new(): PointPair;
+  };
+  IPointPairs: {};
+  PointPairs: {
+    new(): PointPairs;
+    new(_0: PointPairs): PointPairs;
+  };
+  NumSum: {
+    new(): NumSum;
+  };
   ICP: {
     new(_0: MeshOrPoints, _1: MeshOrPoints, _2: AffineXf3f, _3: AffineXf3f, _4: VertBitSet, _5: VertBitSet): ICP;
     new(_0: MeshOrPoints, _1: MeshOrPoints, _2: AffineXf3f, _3: AffineXf3f, _4: number): ICP;
     new(_0: MeshOrPointsXf, _1: MeshOrPointsXf, _2: VertBitSet, _3: VertBitSet): ICP;
     new(_0: MeshOrPointsXf, _1: MeshOrPointsXf, _2: number): ICP;
   };
+  getNumSamples(_0: IPointPairs): number;
+  getNumActivePairs(_0: IPointPairs): number;
+  getMeanSqDistToPoint(_0: IPointPairs): number;
+  getMeanSqDistToPlane(_0: IPointPairs): number;
+  deactivateFarPairs(_0: IPointPairs, _1: number): number;
   ICPMethod: {Combined: ICPMethodValue<0>, PointToPoint: ICPMethodValue<1>, PointToPlane: ICPMethodValue<2>};
   ICPMode: {RigidScale: ICPModeValue<0>, AnyRigidXf: ICPModeValue<1>, OrthogonalAxis: ICPModeValue<2>, FixedAxis: ICPModeValue<3>, TranslationOnly: ICPModeValue<4>};
+  getICPStatusInfo(_0: number, _1: ICPExitType): string;
   ICPExitType: {NotStarted: ICPExitTypeValue<0>, NotFoundSolution: ICPExitTypeValue<1>, MaxIterations: ICPExitTypeValue<2>, MaxBadIterations: ICPExitTypeValue<3>, StopMsdReached: ICPExitTypeValue<4>};
   VertexIdentifier: {
     new(): VertexIdentifier;
@@ -9399,6 +9514,7 @@ interface EmbindModule {
   MeshOrPointsXf: {
     new(_0: MeshOrPoints, _1: AffineXf3f): MeshOrPointsXf;
   };
+  updatePointPairs(_0: PointPairs, _1: MeshOrPointsXf, _2: MeshOrPointsXf, _3: number, _4: number, _5: boolean): void;
   MeshPart: {
     new(_0: Mesh): MeshPart;
     new(_0: Mesh, _1: FaceBitSet | null): MeshPart;
@@ -9529,6 +9645,9 @@ interface EmbindModule {
   findSignedDistanceAB(_0: MeshPart, _1: MeshPart): MeshMeshSignedDistanceResult;
   findSignedDistanceWithTransform(_0: MeshPart, _1: MeshPart, _2: AffineXf3f | null): MeshMeshSignedDistanceResult;
   findSignedDistanceWithLimit(_0: MeshPart, _1: MeshPart, _2: AffineXf3f | null, _3: number): MeshMeshSignedDistanceResult;
+  PointToPlaneAligningTransform: {
+    new(): PointToPlaneAligningTransform;
+  };
   IPointsToMeshProjector: {};
   PointsToMeshProjector: {
     new(): PointsToMeshProjector;
@@ -9609,6 +9728,22 @@ interface EmbindModule {
   };
   MeshApproxRelaxParams: {
     new(): MeshApproxRelaxParams;
+  };
+  RigidScaleXf3f: {
+    new(): RigidScaleXf3f;
+    new(_0: Vector3f, _1: Vector3f, _2: number): RigidScaleXf3f;
+  };
+  RigidScaleXf3d: {
+    new(): RigidScaleXf3d;
+    new(_0: Vector3d, _1: Vector3d, _2: number): RigidScaleXf3d;
+  };
+  RigidXf3f: {
+    new(): RigidXf3f;
+    new(_0: Vector3f, _1: Vector3f): RigidXf3f;
+  };
+  RigidXf3d: {
+    new(): RigidXf3d;
+    new(_0: Vector3d, _1: Vector3d): RigidXf3d;
   };
   SegmPointf: {
     new(): SegmPointf;
@@ -9755,6 +9890,8 @@ interface EmbindModule {
   cutMeshWithPolylineImpl(_0: Mesh, _1: StdVectorf): any;
   cutMeshWithPolylineImplTest(_0: Mesh, _1: StdVectorf): any;
   cutAndExtrudeMeshWithPolylineImpl(_0: Mesh, _1: StdVectorf): any;
+  getSumSqDistToPoint(_0: IPointPairs, _1?: number): NumSum;
+  getSumSqDistToPlane(_0: IPointPairs, _1?: number): NumSum;
   StdVectord: {
     new(): StdVectord;
   };
@@ -9878,6 +10015,9 @@ interface EmbindModule {
     new(): VectorFaceFace;
   };
   findCollidingTriangles(_0: MeshPart, _1: MeshPart, _2: AffineXf3f | null, _3: boolean): VectorFaceFace;
+  VectorPointPair: {
+    new(): VectorPointPair;
+  };
   VectorVectorMeshPiece: {
     new(): VectorVectorMeshPiece;
   };
@@ -10782,6 +10922,7 @@ interface EmbindModule {
   fixUndercutsImpl(_0: Mesh, _1: Vector3f, _2: number, _3: number): any;
   fixUndercutsImplTest(_0: Mesh, _1: Vector3f, _2: number, _3: number): any;
   fixUndercutsImplThrows(_0: Mesh, _1: Vector3f, _2: number, _3: number): void;
+  getAligningXf(_0: PointToPlaneAligningTransform, _1: ICPMode, _2: number, _3: number, _4: Vector3f): AffineXf3f;
   closestPointOnLineSegm3f(_0: Vector3f, _1: LineSegm3f): Vector3f;
   createMaxillaGypsumBaseImpl(_0: Mesh, _1: EdgeId, _2: VertId, _3: Vector3f, _4: number, _5: number): any;
   createMaxillaGypsumBaseImplTest(_0: Mesh, _1: EdgeId, _2: VertId, _3: Vector3f, _4: number, _5: number): any;
