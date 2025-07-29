@@ -20,6 +20,7 @@
 #include <MRMesh/MRVector3.h>
 #include <MRMesh/MRVector4.h>
 #include <MRMesh/MRBox.h>
+#include <MRMesh/MRRigidXf3.h>
 #include <MRMesh/MRICP.h>
 #include <MRMesh/MRBuffer.h>
 #include <MRMesh/MRRingIterator.h>
@@ -885,6 +886,8 @@ EMSCRIPTEN_BINDINGS( VectorTypedModule )
 
 	register_vector<FaceFace>( "VectorFaceFace" );
 	register_vector<PointPair>( "VectorPointPair" );
+    register_vector<RigidXf3d>( "VectorRigidXf3d" );
+    register_vector<RigidXf3f>( "VectorRigidXf3f" );
 	///
 
 

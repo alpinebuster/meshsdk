@@ -6,7 +6,7 @@
 #include "MRMultiwayAligningTransform.h"
 #include "MRBitSetParallelFor.h"
 #include "MRAABBTreeObjects.h"
-#include "MRAABBTreeObjects.h"
+
 #include <algorithm>
 
 namespace MR
