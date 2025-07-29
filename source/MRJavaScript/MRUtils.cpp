@@ -1414,9 +1414,17 @@ EMSCRIPTEN_BINDINGS( FunctorTypedModule )
 
 
 	///
+	class_<std::function<void( int )>>( "VoidFunctorInt" )
+		.constructor<>()
+		.function( "opcall", &std::function<void( int )>::operator() );
+
 	class_<std::function<void( EdgeId, EdgeId )>>( "VoidFunctorEdgeIdEdgeId" )
 		.constructor<>()
 		.function( "opcall", &std::function<void( EdgeId, EdgeId )>::operator() );
+
+	class_<std::function<void( const Vector3f&, MeshOrPoints::ProjectionResult&, ObjId& )>>( "VoidFunctorVector3fProjectionResultObjId" )
+		.constructor<>()
+		.function( "opcall", &std::function<void( const Vector3f&, MeshOrPoints::ProjectionResult&, ObjId& )>::operator() );
 	///
 
 

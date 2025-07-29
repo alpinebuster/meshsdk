@@ -18,12 +18,12 @@ using namespace MR;
 EMSCRIPTEN_BINDINGS( ICPModule ) { 
     class_<ICPPairData>( "ICPPairData" )
         .constructor<>()
-        .property( "srcPoint", &ICPPairData::srcPoint )
-        .property( "srcNorm", &ICPPairData::srcNorm )
-        .property( "tgtPoint", &ICPPairData::tgtPoint )
-        .property( "tgtNorm", &ICPPairData::tgtNorm )
-        .property( "distSq", &ICPPairData::distSq )
-        .property( "weight", &ICPPairData::weight )
+        .property( "srcPoint_", &ICPPairData::srcPoint )
+        .property( "srcNorm_", &ICPPairData::srcNorm )
+        .property( "tgtPoint_", &ICPPairData::tgtPoint )
+        .property( "tgtNorm_", &ICPPairData::tgtNorm )
+        .property( "distSq_", &ICPPairData::distSq )
+        .property( "weight_", &ICPPairData::weight )
         
 		.function( "equals_", optional_override( [] ( const ICPPairData& self, const ICPPairData& other )
 		{

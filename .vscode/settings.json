@@ -121,7 +121,10 @@
 		"target": "cpp",
 		"barrier": "cpp",
 		"coroutine": "cpp",
-		"__locale": "cpp"
+		"__locale": "cpp",
+		"__bit_reference": "cpp",
+		"__functional_base": "cpp",
+		"__memory": "cpp"
 	},
 	"editor.fontSize": 13,
 	"editor.wordWrap": "on",

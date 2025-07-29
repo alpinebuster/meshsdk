@@ -6,6 +6,8 @@
 #include <MRMesh/MRVector3.h>
 #include <MRMesh/MRVector4.h>
 #include <MRMesh/MRBuffer.h>
+#include <MRMesh/MRMeshOrPoints.h>
+#include <MRMesh/MRMultiwayICP.h>
 #include <MRMesh/MRVector.h>
 
 #include "MRVector.h"
@@ -64,6 +66,21 @@ EMSCRIPTEN_BINDINGS( VectorModule )
     MRJS::bindTypedVector<Vector<int, TextureId>, TextureId>( "VectorIntTextureId" );
     MRJS::bindTypedVector<Vector<int, GraphVertId>, GraphVertId>( "VectorIntGraphVertId" );
     MRJS::bindTypedVector<Vector<int, GraphEdgeId>, GraphEdgeId>( "VectorIntGraphEdgeId" );
+    ///
+
+
+    ///
+    MRJS::bindTypedVector<Vector<MeshOrPointsXf, ObjId>, ObjId>( "VectorMeshOrPointsXfObjId" );
+
+    MRJS::bindTypedVector<Vector<ICPGroupPairs, ICPElementId>, ICPElementId>( "VectorICPGroupPairsICPElementId" );
+    MRJS::bindTypedVector<Vector<Vector<ICPGroupPairs, ICPElementId>, ICPElementId>, ICPElementId>( "VectorVectorICPGroupPairsICPElementId" );
+
+    MRJS::bindTypedVector<Vector<ICPPairsGrid, ICPLayer>, ICPLayer>( "VectorICPPairsGridICPLayer" );
+    MRJS::bindTypedVector<Vector<VertBitSet, ObjId>, ObjId>( "VectorVertBitSetObjId" );
+    MRJS::bindTypedVector<Vector<AffineXf3f, ObjId>, ObjId>( "VectorAffineXf3fObjId" );
+
+    MRJS::bindTypedVector<Vector<MultiObjsSamples, ICPElementId>, ICPElementId>( "VectorMultiObjsSamplesICPElementId" );
+    MRJS::bindTypedVector<Vector<Vector<MultiObjsSamples, ICPElementId>, ICPLayer>, ICPLayer>( "VectorVectorMultiObjsSamplesICPLayer" );
     ///
 
 
