@@ -725,7 +725,7 @@ bool BeginCustomStatePlugin( const char* label, bool* open, const CustomStatePlu
     const ImRect boundingBox( { window->Rect().Min.x + borderSize, window->Rect().Min.y + borderSize }, { window->Rect().Max.x - borderSize, window->Rect().Min.y + titleBarHeight - borderSize } );
 
     window->DrawList->PushClipRect( window->Rect().Min, window->Rect().Max );
-    window->DrawList->AddRectFilled( boundingBox.Min, boundingBox.Max, bgColor );
+    window->DrawList->AddRectFilled( boundingBox.Min, boundingBox.Max, bgColor,style.WindowRounding, ImDrawFlags_RoundCornersTop );
 
     if ( params.collapsed )
     {
@@ -1432,7 +1432,17 @@ PaletteChanges Palette(
     if ( UI::button( "Reset Palette", Vector2f( widthButton, 0 ) ) )
     {
         presetName = std::string();
+
+        // Preserve some state.
+        int numHistBuckets = palette.getNumHistogramBuckets();
+        bool discrPercentagesWasEnabled = palette.isDiscretizationPercentagesEnabled();
+
         palette = MR::Palette( Palette::DefaultColors );
+
+        // Restore state.
+        palette.setNumHistogramBuckets( numHistBuckets );
+        palette.enableDiscretizationPercentages( discrPercentagesWasEnabled );
+
         changes |= ImGui::PaletteChanges::All;
     }
     UI::setTooltipIfHovered( "Returns the palette to its default values", menuScaling );
