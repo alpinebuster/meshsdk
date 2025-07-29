@@ -1,8 +1,8 @@
 import meshlib.mrmeshpy as mrmeshpy
 
 # Load meshes
-meshFloating = mrmeshpy.loadMesh("meshA.stl")
-meshFixed = mrmeshpy.loadMesh("meshB.stl")
+meshFloating = mrmeshpy.loadMesh("../_assets/lower.stl")
+meshFixed = mrmeshpy.loadMesh("../_assets/upper.stl")
 
 # Prepare ICP parameters
 diagonal = meshFixed.getBoundingBox().diagonal()
@@ -26,3 +26,4 @@ print(icp.getLastICPInfo())
 
 # Save result
 mrmeshpy.saveMesh(meshFloating, "meshA_icp.stl")
+mrmeshpy.saveMesh(meshFixed, "meshB_icp.stl")
