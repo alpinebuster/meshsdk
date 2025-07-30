@@ -51,6 +51,7 @@
 #include <MRMesh/MRMultiwayICP.h>
 
 #include <MRVoxels/MRTeethMaskToDirectionVolume.h>
+#include <MRVoxels/MRRebuildMesh.h>
 
 #include "MRUtils.h"
 
@@ -1433,6 +1434,10 @@ EMSCRIPTEN_BINDINGS( FunctorTypedModule )
 	class_<std::function<void( const Vector3f&, MeshOrPoints::ProjectionResult&, ObjId& )>>( "VoidFunctorVector3fProjectionResultObjId" )
 		.constructor<>()
 		.function( "opcall", &std::function<void( const Vector3f&, MeshOrPoints::ProjectionResult&, ObjId& )>::operator() );
+
+	class_<std::function<void( SignDetectionMode )>>( "VoidFunctorSignDetectionMode" )
+		.constructor<>()
+		.function( "opcall", &std::function<void( SignDetectionMode )>::operator() );
 	///
 
 

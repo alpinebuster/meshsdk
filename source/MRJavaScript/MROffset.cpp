@@ -239,13 +239,6 @@ EMSCRIPTEN_BINDINGS( OffsetModule )
 		.constructor<>()
 		.property( "mode", &GeneralOffsetParameters::mode );
 
-	enum_<SignDetectionMode>( "SignDetectionMode" )
-		.value( "Unsigned", SignDetectionMode::Unsigned )
-		.value( "OpenVDB", SignDetectionMode::OpenVDB )
-		.value( "ProjectionNormal", SignDetectionMode::ProjectionNormal )
-		.value( "WindingRule", SignDetectionMode::WindingRule )
-		.value( "HoleWindingRule", SignDetectionMode::HoleWindingRule );
-
 
 	///
 	function( "suggestVoxelSize", &suggestVoxelSize );
