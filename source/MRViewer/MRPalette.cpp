@@ -352,7 +352,6 @@ void Palette::setDiscretizationNumber( int discretization )
         return;
 
     histogramDiscr_.reset();
-    histogramDiscr_.buckets.resize( discretization );
 
     parameters_.discretization = discretization;
     updateDiscretizatedColors_();
@@ -369,40 +368,23 @@ void Palette::setFilterType( FilterType type )
 
 void Palette::draw( const std::string& windowName, const ImVec2& pose, const ImVec2& size, bool onlyTopHalf )
 {
-    // Compute the max label pixel width.
-    float maxLabelWidth = 0.0f;
-    {
-        std::string textStorage;
-        for ( std::size_t i = 0; i < labels_.size(); i++ )
-        {
-            const char* text = getAdjustedLabelText_( i, onlyTopHalf, textStorage );
-            if ( !text )
-                continue;
-            auto textSize = ImGui::CalcTextSize( text ).x;
-            if ( textSize > maxLabelWidth )
-                maxLabelWidth = textSize;
-        }
-    }
-
-    const auto& style = ImGui::GetStyle();
     const auto menu = ImGuiMenu::instance();
     const auto& viewportSize = Viewport::get().getViewportRect();
 
     ImGui::SetNextWindowPos( pose, ImGuiCond_Appearing );
     ImGui::SetNextWindowSize( size, ImGuiCond_Appearing );
 
-    // Top-left window padding.
-    const ImVec2 windowPaddingA( style.WindowPadding.x, 0 );
-    // Bottom-right window padding.
-    const ImVec2 windowPaddingB( style.WindowPadding.x, 0 );
-
-    // Spacing between the labels and the colored rect.
-    const float labelToColoredRectSpacing = style.FramePadding.x;
-
-    // The min width of the colored rect.
-    const float minColoredRectWidth = 43.0f * menu->menu_scaling();
-
-    ImGui::SetNextWindowSizeConstraints( { windowPaddingA.x + maxLabelWidth + labelToColoredRectSpacing + minColoredRectWidth + windowPaddingB.x, 2 * ImGui::GetFontSize() }, { width( viewportSize ), height( viewportSize ) }, &resizeCallback_, ( void* )this );
+    const auto style = getStyleVariables_( menu->menu_scaling() );
+    const auto maxLabelWidth = getMaxLabelWidth_( onlyTopHalf );
+    const ImVec2 windowSizeMin {
+        style.windowPaddingA.x + maxLabelWidth + style.labelToColoredRectSpacing + style.minColoredRectWidth + style.windowPaddingB.x,
+        2 * ImGui::GetFontSize(),
+    };
+    const ImVec2 windowSizeMax {
+        width( viewportSize ),
+        height( viewportSize ),
+    };
+    ImGui::SetNextWindowSizeConstraints( windowSizeMin, windowSizeMax, &resizeCallback_, ( void* )this );
 
     auto paletteWindow = ImGui::FindWindowByName( windowName.c_str() );
 
@@ -458,57 +440,37 @@ void Palette::draw( const std::string& windowName, const ImVec2& pose, const ImV
 
 void Palette::draw( ImDrawList* drawList, float scaling, const ImVec2& pos, const ImVec2& size, bool onlyTopHalf ) const
 {
-    // Compute the max label pixel width.
-    float maxLabelWidth = 0.0f;
-    {
-        std::string textStorage;
-        for ( std::size_t i = 0; i < labels_.size(); i++ )
-        {
-            const char* text = getAdjustedLabelText_( i, onlyTopHalf, textStorage );
-            if ( !text )
-                continue;
-            auto textSize = ImGui::CalcTextSize( text ).x;
-            if ( textSize > maxLabelWidth )
-                maxLabelWidth = textSize;
-        }
-    }
-
-    const auto& style = ImGui::GetStyle();
-    // Top-left window padding.
-    const ImVec2 windowPaddingA( style.WindowPadding.x, 0 );
-    // Bottom-right window padding.
-    const ImVec2 windowPaddingB( style.WindowPadding.x, 0 );
-    // Spacing between the labels and the colored rect.
-    const float labelToColoredRectSpacing = style.FramePadding.x;
-    // The min width of the colored rect.
-    const float minColoredRectWidth = 32.0f * scaling;
+    const auto style = getStyleVariables_( scaling );
     // The max width of the colored rect.
-    const float maxColoredRectWidth = size.x - windowPaddingA.x - windowPaddingB.x - maxLabelWidth - labelToColoredRectSpacing;
+    const float maxColoredRectWidth = size.x - style.windowPaddingA.x - style.windowPaddingB.x - getMaxLabelWidth_( onlyTopHalf ) - style.labelToColoredRectSpacing;
     // The screen coordinates of the bottom-right corner of the colored rectangle.
-    const ImVec2 coloredRectEndPos( pos.x + size.x - windowPaddingB.x, pos.y + size.y - windowPaddingB.y );
+    const ImVec2 coloredRectEndPos( pos.x + size.x - style.windowPaddingB.x, pos.y + size.y - style.windowPaddingB.y );
     // The top-left corner.
-    const ImVec2 coloredRectPos( coloredRectEndPos.x - ( isHistogramEnabled() ? minColoredRectWidth : maxColoredRectWidth ), pos.y + windowPaddingA.y );
-    const ImVec2 coloredRectSize = coloredRectEndPos - coloredRectPos;
+    const ImVec2 coloredRectPos( coloredRectEndPos.x - ( isHistogramEnabled() ? style.minColoredRectWidth : maxColoredRectWidth ), pos.y + style.windowPaddingA.y );
     // The X coordinate of the right edge of the labels.
-    const float labelsRightSideX = coloredRectPos.x - labelToColoredRectSpacing;
+    const float labelsRightSideX = coloredRectPos.x - style.labelToColoredRectSpacing;
 
     // Draw histogram, below the labels.
     if ( isHistogramEnabled() && histogram_.maxEntry > 0 )
     {
+        #if 1
+        const int numSegmentsPerBucket = 1;
+        #else // Further split buckets. Till will be useful if we switch to non-linear interpolation.
         // We split each bucket into smaller segments for pretty interpolation.
         // This is the desired segment size (the max size, it can end up smaller).
         const int maxNumPixelsPerSegment = 4; // Intentionally not multiplying by GUI scale.
+        const int numSegmentsPerBucket = std::max( 1, ( std::max( 1, int( coloredRectEndPos.y - coloredRectPos.y ) / numBuckets ) + maxNumPixelsPerSegment - 1 ) / maxNumPixelsPerSegment );
+        #endif
 
         int numBuckets = getNumHistogramBuckets();
         if ( onlyTopHalf )
             numBuckets = (numBuckets + 1) / 2; // Lame, but we have to do this since `onlyTopHalf` is only known here, and not when filling the buckets.
 
-        int numSegmentsPerBucket = std::max( 1, ( std::max( 1, int( coloredRectSize.y ) / numBuckets ) + maxNumPixelsPerSegment - 1 ) / maxNumPixelsPerSegment );
 
         // How many points in total. The last bucket gets only one instead of `numSegmentsPerBucket`.
         int numPoints = numBuckets * numSegmentsPerBucket - numSegmentsPerBucket + 1;
 
-        const ImVec2 histPos( pos.x + windowPaddingA.x, coloredRectPos.y );
+        const ImVec2 histPos( pos.x + style.windowPaddingA.x, coloredRectPos.y );
         const ImVec2 histEndPos( coloredRectPos.x, coloredRectEndPos.y );
         const ImVec2 histSize = histEndPos - histPos;
 
@@ -544,12 +506,17 @@ void Palette::draw( ImDrawList* drawList, float scaling, const ImVec2& pos, cons
         { // First draw the background.
             const ImU32 bgColorInt = bgColor.getUInt32();
 
+            // Temporarily disable antialiasing, as it causes artefacts on some machines. Shouldn't be necesasry anyway.
+            const ImDrawListFlags oldFlags = drawList->Flags;
+            drawList->Flags &= ~ImDrawListFlags_AntiAliasedFill;
+            MR_FINALLY{ drawList->Flags = oldFlags; };
+
             ImVec2 prevPoint;
             for ( int i = 0; i < numPoints; i++ )
             {
                 ImVec2 point = round( getHistPoint( i ) );
 
-                if ( i > 0 )
+                if ( i > 0 && point.y != prevPoint.y )
                 {
                     drawList->PathLineTo( point );
                     drawList->PathLineTo( prevPoint );
@@ -983,6 +950,33 @@ const char* Palette::getAdjustedLabelText_( std::size_t labelIndex, bool onlyTop
     return labels_[labelIndex].text.c_str();
 }
 
+float Palette::getMaxLabelWidth_( bool onlyTopHalf ) const
+{
+    float maxLabelWidth = 0.0f;
+    std::string textStorage;
+    for ( std::size_t i = 0; i < labels_.size(); i++ )
+    {
+        const char* text = getAdjustedLabelText_( i, onlyTopHalf, textStorage );
+        if ( !text )
+            continue;
+        auto textSize = ImGui::CalcTextSize( text ).x;
+        if ( textSize > maxLabelWidth )
+            maxLabelWidth = textSize;
+    }
+    return maxLabelWidth;
+}
+
+Palette::StyleVariables Palette::getStyleVariables_( float scaling ) const
+{
+    const auto& style = ImGui::GetStyle();
+    return {
+        .windowPaddingA = { style.WindowPadding.x, 0 },
+        .windowPaddingB = { style.WindowPadding.x, 0 },
+        .labelToColoredRectSpacing = style.FramePadding.x,
+        .minColoredRectWidth = 43.0f * scaling,
+    };
+}
+
 void Palette::resizeCallback_( ImGuiSizeCallbackData* data )
 {
     // Currently this seems to be bugged and is called every frame.
@@ -1054,6 +1048,14 @@ void Palette::updateStats( const VertScalars& values, const VertBitSet& region, 
 
     if ( !isHistogramEnabled() && !isDiscretizationPercentagesEnabled() )
         return;
+
+    if ( isDiscretizationPercentagesEnabled() )
+    {
+        // Update the size of the histogram tracking per-color percentages.
+        // Can't use `parameters_.discretization` here, because the actual number of colors doesn't match that when the "central zone" mode is enabled.
+        // And I'm told `pixels.size() / 2` is the intended way to calculate that (`/ 2` because half of the texture is gray).
+        histogramDiscr_.buckets.resize( texture_.pixels.size() / 2 );
+    }
 
     for ( VertId v : region )
     {
