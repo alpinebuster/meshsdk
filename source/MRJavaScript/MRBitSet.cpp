@@ -2,6 +2,7 @@
 
 #include <MRMesh/MRId.h>
 #include <MRMesh/MRMeshFwd.h>
+#include <MRMesh/MRMultiwayICP.h>
 #include <MRMesh/MRBitSet.h>
 
 #include "MRBitSet.h"
@@ -24,68 +25,6 @@ EMSCRIPTEN_BINDINGS( __internalBoostDynamicBitsetModule )
 // `BitSet` base class bindings
 EMSCRIPTEN_BINDINGS( BitSetModule )
 {
-    class_<BitSet>( "BitSet" )
-        .smart_ptr<std::shared_ptr<BitSet>>( "BitSetSharedPtr" )
-        
-        .constructor<>()
-        .constructor<size_t>()
-        .constructor<size_t, bool>()
-        .class_function( "createFromValue", optional_override( [] ( size_t numBits, bool fillValue )
-        {
-            return BitSet( numBits, fillValue );
-        } ) )
-
-        // Basic operations
-        .function( "size", &BitSet::size )
-        .function( "count", &BitSet::count )
-        .function( "empty", &BitSet::empty )
-        .function( "clear", &BitSet::clear )
-
-        // Bit operations
-        .function( "test", &BitSet::test )
-        .function( "set", select_overload<BitSet & ( size_t, bool )>( &BitSet::set ) )
-        .function( "setAll", select_overload<BitSet & ( )>( &BitSet::set ) )
-        .function( "setRange", select_overload<BitSet & ( size_t, size_t, bool )>( &BitSet::set ) )
-        .function( "reset", select_overload<BitSet & ( size_t )>( &BitSet::reset ) )
-        .function( "resetAll", select_overload<BitSet & ( )>( &BitSet::reset ) )
-        .function( "resetRange", select_overload<BitSet & ( size_t, size_t )>( &BitSet::reset ) )
-        .function( "flip", select_overload<BitSet & ( size_t )>( &BitSet::flip ) )
-        .function( "flipAll", select_overload<BitSet & ( )>( &BitSet::flip ) )
-
-        // Search operations
-        .function( "find_first", &BitSet::find_first )
-        .function( "find_next", &BitSet::find_next )
-        .function( "find_last", &BitSet::find_last )
-        .function( "nthSetBit", &BitSet::nthSetBit )
-
-        // Collection operations
-        .function( "bitwiseAndAssign", select_overload<BitSet & ( const BitSet& )>( &BitSet::operator&= ), return_value_policy::reference() )
-        .function( "bitwiseOrAssign", select_overload<BitSet & ( const BitSet& )>( &BitSet::operator|= ), return_value_policy::reference() )
-        .function( "bitwiseXorAssign", select_overload<BitSet & ( const BitSet& )>( &BitSet::operator^= ), return_value_policy::reference() )
-        .function( "subtractAssign", select_overload<BitSet & ( const BitSet& )>( &BitSet::operator-= ), return_value_policy::reference() )
-        .function( "subtract", select_overload<BitSet & ( const BitSet&, int )>( &BitSet::subtract ), return_value_policy::reference() )
-
-        // Automatic resize operation
-        .function( "autoResizeSet", select_overload<void( size_t, bool )>( &BitSet::autoResizeSet ) )
-        .function( "autoResizeSetRange", select_overload<void( size_t, size_t, bool )>( &BitSet::autoResizeSet ) )
-        .function( "autoResizeTestSet", &BitSet::autoResizeTestSet )
-
-        // Memory related
-        .function( "heapBytes", &BitSet::heapBytes )
-        .function( "resize", &BitSet::resize )
-        .function( "resizeWithReserve", &BitSet::resizeWithReserve )
-        .function( "push_back", &BitSet::push_back )
-        .function( "pop_back", &BitSet::pop_back )
-
-        // ID range
-        .function( "backId", &BitSet::backId )
-        .function( "endId", &BitSet::endId )
-        .class_function( "beginId", &BitSet::beginId );
-}
-
-
-EMSCRIPTEN_BINDINGS( TypedBitSetModule )
-{
     // NOTE:
     // 
     // Interface 'FaceBitSet' incorrectly extends interface 'BitSet'.
@@ -96,6 +35,68 @@ EMSCRIPTEN_BINDINGS( TypedBitSetModule )
     // 
     // class_<FaceBitSet, base<BitSet>>( "FaceBitSet" )
     // 
+    class_<BitSet>( "BitSet" )
+        .smart_ptr<std::shared_ptr<BitSet>>( "BitSetSharedPtr" )
+        
+        .constructor<>()
+        .constructor<size_t>()
+        .constructor<size_t, bool>()
+        .class_function( "createFromValue_", optional_override( [] ( size_t numBits, bool fillValue )
+        {
+            return BitSet( numBits, fillValue );
+        } ) )
+
+        // Basic operations
+        .function( "size_", &BitSet::size )
+        .function( "count_", &BitSet::count )
+        .function( "empty_", &BitSet::empty )
+        .function( "clear_", &BitSet::clear )
+
+        // Bit operations
+        .function( "test_", &BitSet::test )
+        .function( "set_", select_overload<BitSet & ( size_t, bool )>( &BitSet::set ) )
+        .function( "setAll_", select_overload<BitSet & ( )>( &BitSet::set ) )
+        .function( "setRange_", select_overload<BitSet & ( size_t, size_t, bool )>( &BitSet::set ) )
+        .function( "reset_", select_overload<BitSet & ( size_t )>( &BitSet::reset ) )
+        .function( "resetAll_", select_overload<BitSet & ( )>( &BitSet::reset ) )
+        .function( "resetRange_", select_overload<BitSet & ( size_t, size_t )>( &BitSet::reset ) )
+        .function( "flip_", select_overload<BitSet & ( size_t )>( &BitSet::flip ) )
+        .function( "flipAll_", select_overload<BitSet & ( )>( &BitSet::flip ) )
+
+        // Search operations
+        .function( "find_first_", &BitSet::find_first )
+        .function( "find_next_", &BitSet::find_next )
+        .function( "find_last_", &BitSet::find_last )
+        .function( "nthSetBit_", &BitSet::nthSetBit )
+
+        // Collection operations
+        .function( "bitwiseAndAssign_", select_overload<BitSet & ( const BitSet& )>( &BitSet::operator&= ), return_value_policy::reference() )
+        .function( "bitwiseOrAssign_", select_overload<BitSet & ( const BitSet& )>( &BitSet::operator|= ), return_value_policy::reference() )
+        .function( "bitwiseXorAssign_", select_overload<BitSet & ( const BitSet& )>( &BitSet::operator^= ), return_value_policy::reference() )
+        .function( "subtractAssign_", select_overload<BitSet & ( const BitSet& )>( &BitSet::operator-= ), return_value_policy::reference() )
+        .function( "subtract_", select_overload<BitSet & ( const BitSet&, int )>( &BitSet::subtract ), return_value_policy::reference() )
+
+        // Automatic resize operation
+        .function( "autoResizeSet_", select_overload<void( size_t, bool )>( &BitSet::autoResizeSet ) )
+        .function( "autoResizeSetRange_", select_overload<void( size_t, size_t, bool )>( &BitSet::autoResizeSet ) )
+        .function( "autoResizeTestSet_", &BitSet::autoResizeTestSet )
+
+        // Memory related
+        .function( "heapBytes_", &BitSet::heapBytes )
+        .function( "resize_", &BitSet::resize )
+        .function( "resizeWithReserve_", &BitSet::resizeWithReserve )
+        .function( "push_back_", &BitSet::push_back )
+        .function( "pop_back_", &BitSet::pop_back )
+
+        // ID range
+        .function( "backId_", &BitSet::backId )
+        .function( "endId_", &BitSet::endId )
+        .class_function( "beginId_", &BitSet::beginId );
+}
+
+
+EMSCRIPTEN_BINDINGS( TypedBitSetModule )
+{
     bindTypedBitSet<FaceBitSet>( "FaceBitSet" );
     bindTypedBitSet<VertBitSet>( "VertBitSet" );
     bindTypedBitSet<EdgeBitSet>( "EdgeBitSet" );
@@ -108,6 +109,8 @@ EMSCRIPTEN_BINDINGS( TypedBitSetModule )
     bindTypedBitSet<TextureBitSet>( "TextureBitSet" );
     bindTypedBitSet<GraphVertBitSet>( "GraphVertBitSet" );
     bindTypedBitSet<GraphEdgeBitSet>( "GraphEdgeBitSet" );
+    
+    bindTypedBitSet<ICPElementBitSet>( "ICPElementBitSet" );
 }
 
 

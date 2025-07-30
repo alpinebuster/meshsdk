@@ -17,10 +17,10 @@ using namespace MR;
 namespace MRJS
 {
 
-template <typename IdType>
+template <typename KType, typename VType>
 void bindRawHashTypes(const std::string& suffix) {
-    using Key = IdType;
-    using Value = IdType;
+    using Key = KType;
+    using Value = VType;
 
     using Hash = phmap::priv::hash_default_hash<Key>;
     using Eq = phmap::priv::hash_default_eq<Key>;

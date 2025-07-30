@@ -20,18 +20,22 @@ using namespace MR;
 /// NOTE: Used to prevent `__phmap` type BindingError (just to make Emscripten happy :))!!!
 // TODO: optimize this
 EMSCRIPTEN_BINDINGS( __phmapInternalModule ) {
-    MRJS::bindRawHashTypes<EdgeId>( "EdgeId" );
-    MRJS::bindRawHashTypes<UndirectedEdgeId>( "UndirectedEdgeId" );
-    MRJS::bindRawHashTypes<FaceId>( "FaceId" );
-    MRJS::bindRawHashTypes<VertId>( "VertId" );
-    MRJS::bindRawHashTypes<PixelId>( "PixelId" );
-    MRJS::bindRawHashTypes<VoxelId>( "VoxelId" );
-    MRJS::bindRawHashTypes<RegionId>( "RegionId" );
-    MRJS::bindRawHashTypes<NodeId>( "NodeId" );
-    MRJS::bindRawHashTypes<ObjId>( "ObjId" );
-    MRJS::bindRawHashTypes<TextureId>( "TextureId" );
-    MRJS::bindRawHashTypes<GraphVertId>( "GraphVertId" );
-    MRJS::bindRawHashTypes<GraphEdgeId>( "GraphEdgeId" );
+    MRJS::bindRawHashTypes<EdgeId, EdgeId>( "EdgeId" );
+    MRJS::bindRawHashTypes<UndirectedEdgeId, UndirectedEdgeId>( "UndirectedEdgeId" );
+    MRJS::bindRawHashTypes<FaceId,FaceId>( "FaceId" );
+    MRJS::bindRawHashTypes<VertId, VertId>( "VertId" );
+    MRJS::bindRawHashTypes<PixelId, PixelId>( "PixelId" );
+    MRJS::bindRawHashTypes<VoxelId, VoxelId>( "VoxelId" );
+    MRJS::bindRawHashTypes<RegionId, RegionId>( "RegionId" );
+    MRJS::bindRawHashTypes<NodeId, NodeId>( "NodeId" );
+    MRJS::bindRawHashTypes<ObjId, ObjId>( "ObjId" );
+    MRJS::bindRawHashTypes<TextureId, TextureId>( "TextureId" );
+    MRJS::bindRawHashTypes<GraphVertId, GraphVertId>( "GraphVertId" );
+    MRJS::bindRawHashTypes<GraphEdgeId, GraphEdgeId>( "GraphEdgeId" );
+    
+    MRJS::bindRawHashTypes<UndirectedEdgeId, EdgeId>( "UndirectedEdgeIdEdgeId" );
+    MRJS::bindRawHashTypes<UndirectedEdgeId, int>( "UndirectedEdgeIdInt" );
+    MRJS::bindRawHashTypes<int, Box3i>( "IntBox3i" );
 }
 
 

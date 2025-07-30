@@ -48,6 +48,7 @@
 #include <MRMesh/MRMeshCollidePrecise.h>
 #include <MRMesh/MRConvexHull.h>
 #include <MRMesh/MRFaceFace.h>
+#include <MRMesh/MRMultiwayICP.h>
 
 #include <MRVoxels/MRTeethMaskToDirectionVolume.h>
 
@@ -912,6 +913,13 @@ EMSCRIPTEN_BINDINGS( VectorTypedModule )
     register_vector<std::vector<MeshTriPoint>>( "VectorVectorMeshTriPoint" );
 
 	register_vector<std::vector<FaceFace>>( "VectorVectorFaceFace" );
+
+	register_vector<Box3f>( "VectorBox3f" );
+	register_vector<Box3i>( "VectorBox3i" );
+	register_vector<Box3ll>( "VectorBox3ll" );
+	register_vector<Box3d>( "VectorBox3d" );
+
+	register_vector<ICPGroupPair>( "VectorICPGroupPair" );
 	///
 
 

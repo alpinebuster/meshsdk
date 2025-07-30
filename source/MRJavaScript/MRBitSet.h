@@ -4,9 +4,9 @@
 
 #include <MRPch/MRWasm.h>
 
-#include <MRMesh/MRBitSet.h>
-#include <MRMesh/MRId.h>
 #include <MRMesh/MRMeshFwd.h>
+#include <MRMesh/MRId.h>
+#include <MRMesh/MRBitSet.h>
 
 using namespace emscripten;
 using namespace MR;
@@ -33,7 +33,7 @@ using namespace MR;
 template<typename BitSetType>
 auto bindTypedBitSet( const std::string& className )
 {
-    auto cls = class_<BitSetType>( className.c_str() )
+    auto cls = class_<BitSetType, base<BitSet>>( className.c_str() )
         .template smart_ptr<std::shared_ptr<BitSetType>>( ( className + "SharedPtr" ).c_str() )
         .template constructor<>()
         .template constructor<size_t>()

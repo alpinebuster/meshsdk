@@ -10,7 +10,6 @@ using namespace MR;
 EMSCRIPTEN_BINDINGS( IdModule )
 {
     // Alternative functions for user-defined literals (JavaScript does not support user-defined literals)
-    // function("makeEdgeId", +[](int i) { return EdgeId{i}; });
     function( "makeEdgeId", static_cast< EdgeId( * )( int ) >( [] ( int i )
     {
         return EdgeId{ i };

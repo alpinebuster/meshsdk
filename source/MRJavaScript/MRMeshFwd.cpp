@@ -17,6 +17,7 @@
 #include <MRMesh/MRPointCloud.h>
 #include <MRMesh/MRProgressCallback.h>
 #include <MRMesh/MRMeshBuilderTypes.h>
+#include <MRMesh/MRMultiwayICP.h>
 #include <MRMesh/MRMeshFwd.h>
 
 #include "MRMeshFwd.h"
@@ -52,6 +53,8 @@ EMSCRIPTEN_BINDINGS( MeshFwdModule )
     ///
     MRJS::bindTypedId<EdgeId>( "EdgeId" );  // Using specialized versions
     MRJS::bindTypedId<VoxelId, size_t>( "VoxelId" );  // Using specialized versions
+
+    MRJS::bindTypedId<ICPElementId>( "ICPElementId" );
 
     MRJS::bindTypedId<UndirectedEdgeId>( "UndirectedEdgeId" );
     MRJS::bindTypedId<FaceId>( "FaceId" );
