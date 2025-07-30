@@ -130,5 +130,9 @@
 	"editor.wordWrap": "on",
 	"accessibility.verbosity.inlineChat": false,
 	"accessibility.verbosity.panelChat": false,
-	"editor.guides.bracketPairs": true
+	"editor.guides.bracketPairs": true,
+	"cSpell.words": [
+		"initializable",
+		"phmap"
+	]
 }

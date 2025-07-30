@@ -58,7 +58,7 @@ EMSCRIPTEN_BINDINGS( MultiwayICPModule )
     class_<ICPGroupPairs, base<IPointPairs>>( "ICPGroupPairs" )
         .property( "vec_", &ICPGroupPairs::vec )
         .function( "getVecConst_", optional_override( []( const ICPGroupPairs& self, size_t idx ) -> const ICPGroupPair& { return self.vec[idx]; } ) )
-        .function( "getVec_", optional_override( []( ICPGroupPairs& self, size_t idx ) ->  ICPGroupPair& { self.vec[idx]; } ) )
+        .function( "getVec_", optional_override( []( ICPGroupPairs& self, size_t idx ) ->  ICPGroupPair& { return self.vec[idx]; } ) )
         .function( "size_", &ICPGroupPairs::size );
 
 

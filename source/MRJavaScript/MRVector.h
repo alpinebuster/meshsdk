@@ -37,7 +37,6 @@ auto bindTypedVector( const std::string& className )
 {
     auto cls = class_<VecType>( className.c_str() )
         .template constructor<>()
-        .template constructor<size_t>()
         .template constructor<size_t, const typename VecType::value_type &>()
 
         .function( "size", &VecType::size )
@@ -45,10 +44,8 @@ auto bindTypedVector( const std::string& className )
         .function( "clear", &VecType::clear )
         .function( "capacity", &VecType::capacity )
         .function( "reserve", &VecType::reserve )
-    
-        .function( "resize", select_overload<void( size_t )>( &VecType::resize ) )
+
         .function( "resizeWithValue", select_overload<void( size_t, const typename VecType::value_type & )>( &VecType::resize ) )
-        .function( "resizeWithReserve", select_overload<void( size_t )>( &VecType::resizeWithReserve ) )
         .function( "resizeWithReserveAndValue", select_overload<void( size_t, const typename VecType::value_type & )>( &VecType::resizeWithReserve ) )
 
         .function( "get", select_overload<const typename VecType::const_reference & ( I ) const>( &VecType::operator[] ) )
@@ -87,7 +84,6 @@ auto bindTypedVector( const std::string& className )
         .function( "backId", &VecType::backId )
         .function( "endId", &VecType::endId )
 
-        .function( "autoResizeAt", &VecType::autoResizeAt, allow_raw_pointers() )
         .function( "autoResizeSetWithRange", select_overload<void( I, size_t, typename VecType::value_type )>( &VecType::autoResizeSet ) )
         .function( "autoResizeSet", select_overload<void( I, typename VecType::value_type )>( &VecType::autoResizeSet ) )
 
@@ -118,6 +114,14 @@ auto bindTypedVector( const std::string& className )
         {
             return a != b;
         } ) );
+    }
+
+    if constexpr ( std::default_initializable<typename VecType::value_type> )
+    {
+        cls.template constructor<size_t>();
+        cls.function( "resize", select_overload<void ( size_t )>( &VecType::resize ) )
+           .function( "resizeWithReserve", select_overload<void( size_t )>( &VecType::resizeWithReserve ) )
+           .function( "autoResizeAt", &VecType::autoResizeAt, allow_raw_pointers() );
     }
 
 	return cls;

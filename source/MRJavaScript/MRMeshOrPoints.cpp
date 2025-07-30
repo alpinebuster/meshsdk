@@ -57,6 +57,10 @@ EMSCRIPTEN_BINDINGS( MeshOrPointsModule )
 		.field( "closestVert", &MeshOrPoints::ProjectionResult::closestVert );
 
 	class_<MeshOrPointsXf>( "MeshOrPointsXf" )
+		///
+		// NOTE: default constructor of 'MeshOrPointsXf' is implicitly deleted because field 'obj' has no default constructor
+		// .constructor<>()
+		/// 
 		.constructor<const MeshOrPoints&, const AffineXf3f&>()
 		.property( "obj", &MeshOrPointsXf::obj )
 		.property( "xf", &MeshOrPointsXf::xf );
