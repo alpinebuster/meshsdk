@@ -577,7 +577,7 @@ function SidebarObject( editor ) {
 					-threeWorldDir.z,
 				)
 
-				const projectedMesh = editor.MeshSDK.findSilhouetteEdges( mesh, upDir );
+				const projectedMesh = editor.MeshSDK.findLookingSilhouetteConvexHull( mesh, upDir );
 				const result = editor.MeshSDK.exportMeshMemoryView( projectedMesh );
 				///
 
