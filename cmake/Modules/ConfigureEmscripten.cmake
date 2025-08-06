@@ -32,7 +32,18 @@ ELSE()
     set(MAXIMUM_MEMORY 4GB)
   ENDIF()
   string(JOIN " " MESHLIB_EMSCRIPTEN_EXE_LINKER_FLAGS ${MESHLIB_EMSCRIPTEN_EXE_LINKER_FLAGS}
+    ###
+    # REF: `https://emscripten.org/docs/tools_reference/settings_reference.html#environment`
+    # 
+    # ‘web’ - the normal web environment
+    # ‘webview’ - just like web, but in a webview like Cordova; considered to be same as “web” in almost every place
+    # ‘worker’ - a web worker environment
+    # ‘node’ - Node.js
+    # ‘shell’ - a JS shell like d8, js, or jsc
+    #
     "-s ENVIRONMENT=web,worker,node"
+    ###
+  
     #"-pthread"
     "-s PTHREAD_POOL_SIZE_STRICT=0"
     "-s PTHREAD_POOL_SIZE=navigator.hardwareConcurrency"
