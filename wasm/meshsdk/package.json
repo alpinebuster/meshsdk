@@ -1,6 +1,6 @@
 {
   "name": "@alpinebuster/meshsdk",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "MeshSDK - Mesh processing library writing in CPP with extra **PYTHON/C/C#/JS/TS** bindings.",
   "type": "module",
   "types": "lib/index.d.ts",
@@ -18,7 +18,7 @@
     "build:src": "tsc -p tsconfig.json",
     "build:bundle": "tsc -p tsconfig.bundle.json",
     "bundle": "node ./bundle.js",
-    "build": "npm run build:rollup && npm run build:bundle && npm run bundle && npm run build:src",
+    "build": "npm run build:bundle && npm run bundle && npm run build:src && npm run build:rollup",
     "prepare": "npm run build",
     "test": "jest"
   },
