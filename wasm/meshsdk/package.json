@@ -1,17 +1,24 @@
 {
   "name": "@alpinebuster/meshsdk",
-  "version": "0.7.6",
+  "version": "0.8.0",
   "description": "MeshSDK - Mesh processing library writing in CPP with extra **PYTHON/C/C#/JS/TS** bindings.",
   "type": "module",
+  "types": "lib/index.d.ts",
   "main": "lib/index.js",
   "browser": "lib/index.js",
-  "typings": "lib/index.d.ts",
+  "exports": {
+    ".": {
+      "browser": "./lib/web/index.js",
+      "node": "./lib/node/index.js",
+      "default": "./lib/index.js"
+    }
+  },
   "scripts": {
+    "build:rollup": "rollup -c",
     "build:src": "tsc -p tsconfig.json",
     "build:bundle": "tsc -p tsconfig.bundle.json",
     "bundle": "node ./bundle.js",
-    "build": "npm run build:bundle && npm run bundle && npm run build:src",
-    "bundle:sh": "./bundle.sh",
+    "build": "npm run build:rollup && npm run build:bundle && npm run bundle && npm run build:src",
     "prepare": "npm run build",
     "test": "jest"
   },
@@ -39,14 +46,18 @@
     "package.json"
   ],
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.6",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-typescript": "^12.1.4",
     "@types/emscripten": "^1.40.1",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.0.7",
     "jest": "^30.0.0",
     "prettier": "^3.5.3",
+    "rollup": "^4.46.2",
     "ts-jest": "^29.4.0",
     "ts-node": "^10.9.2",
     "tslib": "^2.8.1",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.2"
   }
 }
