@@ -40,3 +40,7 @@ wheelhouse/*
 examples/python-examples/*.stl
 examples/python-examples/*.obj
 examples/python-examples/*.ply
+/source/MeshLibC2/include
+/source/MeshLibC2/src
+/source/MeshLibC2/temp
+compile_commands.json

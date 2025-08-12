@@ -22,7 +22,7 @@ namespace FixUndercuts
 // 
 // if voxelSize == 0.0f it will be counted automatically
 [[deprecated( "Use fix( mesh, params )" )]]
-MRVOXELS_API Expected<void> fixUndercuts( Mesh& mesh, const Vector3f& upDirection, float voxelSize = 0.0f, float bottomExtension = 0.0f );
+MRVOXELS_API MR_BIND_IGNORE Expected<void> fixUndercuts( Mesh& mesh, const Vector3f& upDirection, float voxelSize = 0.0f, float bottomExtension = 0.0f );
 
 // Changes mesh:
 // Fills all holes first, then:
@@ -35,7 +35,7 @@ MRVOXELS_API Expected<void> fixUndercuts( Mesh& mesh, const Vector3f& upDirectio
 // 
 // if voxelSize == 0.0f it will be counted automatically
 [[deprecated( "Use fix( mesh, params )" )]]
-MRVOXELS_API Expected<void> fixUndercuts( Mesh& mesh, const FaceBitSet& selectedArea, const Vector3f& upDirection, float voxelSize = 0.0f, float bottomExtension = 0.0f );
+MRVOXELS_API MR_BIND_IGNORE Expected<void> fixUndercuts( Mesh& mesh, const FaceBitSet& selectedArea, const Vector3f& upDirection, float voxelSize = 0.0f, float bottomExtension = 0.0f );
 
 /// Parameters that is used to find undercuts
 struct FindParams
@@ -71,7 +71,7 @@ struct FixParams
     ProgressCallback cb;
 };
 
-/// Fixes undercut areas by building vertical walls under it, 
+/// Fixes undercut areas by building vertical walls under it,
 /// algorithm is performed in voxel space, so the mesh is completely rebuilt after this operation
 MRVOXELS_API Expected<void> fix( Mesh& mesh, const FixParams& params );
 
@@ -87,15 +87,15 @@ using UndercutMetric = std::function<double( const FaceBitSet&, const FindParams
 
 /// Adds to \param outUndercuts undercut faces
 [[deprecated( "Use find( mesh, params)" )]]
-MRVOXELS_API void findUndercuts( const Mesh& mesh, const Vector3f& upDirection, FaceBitSet& outUndercuts );
+MRVOXELS_API MR_BIND_IGNORE void findUndercuts( const Mesh& mesh, const Vector3f& upDirection, FaceBitSet& outUndercuts );
 /// Adds to \param outUndercuts undercut vertices
 [[deprecated( "Use find( mesh, params )" )]]
-MRVOXELS_API void findUndercuts( const Mesh& mesh, const Vector3f& upDirection, VertBitSet& outUndercuts );
+MRVOXELS_API MR_BIND_IGNORE void findUndercuts( const Mesh& mesh, const Vector3f& upDirection, VertBitSet& outUndercuts );
 
 /// Adds to \param outUndercuts undercut faces
 /// Returns summary metric of undercut faces
 [[deprecated( "Use find( mesh, params, metric )" )]]
-[[nodiscard]] MRVOXELS_API double findUndercuts( const Mesh& mesh, const Vector3f& upDirection, FaceBitSet& outUndercuts, const UndercutMetric& metric );
+[[nodiscard]] MRVOXELS_API MR_BIND_IGNORE double findUndercuts( const Mesh& mesh, const Vector3f& upDirection, FaceBitSet& outUndercuts, const UndercutMetric& metric );
 
 /// Adds undercuts to \param outUndercuts
 /// if metric is set returns metric of found undercuts, otherwise returns DBL_MAX
@@ -128,7 +128,7 @@ struct DistMapImproveDirectionParameters : ImproveDirectionParameters
 
 // Parallel finds best of several directions defined by ImproveDirectionParameters struct
 /// \note does not support wallAngle yet
-///                      ________ 
+///                      ________
 ///        Top view:    /  \__/  \-----> maximum radial line   Side view:  |    /    _/
 ///                    /  / \/ \  \                                        |   /   _/ - maxBaseAngle
 ///                   |--|------|--|                                       |  /  _/     difference between two angles is baseAngleStep

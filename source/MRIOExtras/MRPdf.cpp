@@ -4,8 +4,12 @@
 #include "MRMesh/MRImage.h"
 #include "MRMesh/MRStringConvert.h"
 #include "MRPch/MRSpdlog.h"
+#include "MRMesh/MRVector2.h"
+#include "MRMesh/MRUniqueTemporaryFolder.h"
+#include "MRMesh/MRImageSave.h"
 
 #include <fstream>
+#include <vector>
 
 #undef NOMINMAX
 
@@ -28,7 +32,7 @@ constexpr HPDF_REAL borderFieldRight = pageWidth - 10 * scaleFactor;
 constexpr HPDF_REAL borderFieldTop = pageHeight - 10 * scaleFactor;
 constexpr HPDF_REAL borderFieldBottom = 10 * scaleFactor;
 constexpr HPDF_REAL pageWorkWidth = borderFieldRight - borderFieldLeft;
-constexpr HPDF_REAL pageWorkHeight = borderFieldTop - borderFieldBottom;
+//constexpr HPDF_REAL pageWorkHeight = borderFieldTop - borderFieldBottom;
 
 constexpr HPDF_REAL spacing = 6 * scaleFactor;
 
@@ -36,8 +40,9 @@ constexpr HPDF_REAL textSpacing = 4 * scaleFactor;
 constexpr HPDF_REAL lineSpacingScale = 1.2f;
 
 constexpr HPDF_REAL labelHeight = 10 * scaleFactor;
-constexpr HPDF_REAL marksHeight = 10 * scaleFactor;
-constexpr HPDF_REAL marksWidth = 30 * scaleFactor;
+
+constexpr float tableCellPaddingX = 4 * scaleFactor;
+constexpr float tableCellPaddingY = 1 * scaleFactor;
 
 // count the number of rows with auto-transfer in mind for a given page (page, font and font size)
 int calcTextLinesCount( HPDF_Doc doc, HPDF_Page page, const std::string& text )
@@ -173,9 +178,98 @@ void Pdf::addTable( const std::vector<std::pair<std::string, float>>& table )
     addText_( resStr, TextParams::table( *this ) );
 }
 
+void Pdf::addPaletteStatsTable( const std::vector<PaletteRowStats>& paletteStats )
+{
+    if ( !state_->document )
+    {
+        spdlog::warn( "Can't add text to pdf page: no valid document" );
+        return;
+    }
 
-void Pdf::addImageFromFile( const std::filesystem::path& imagePath, const std::string& caption /*= {}*/,
-        const std::vector<std::pair<double, std::string>>& valuesMarks /*= {}*/ )
+    HPDF_Page_SetFontAndSize( state_->activePage, state_->tableFont, params_.textSize );
+
+    size_t longestMin = std::max_element( paletteStats.begin(), paletteStats.end(), [] ( const PaletteRowStats& lhv, const PaletteRowStats& rhv )
+    {
+        return lhv.rangeMin.length() < rhv.rangeMin.length();
+    } )->rangeMin.length();
+    size_t longestMax = std::max_element( paletteStats.begin(), paletteStats.end(), [] ( const PaletteRowStats& lhv, const PaletteRowStats& rhv )
+    {
+        return lhv.rangeMax.length() < rhv.rangeMax.length();
+    } )->rangeMax.length();
+    size_t maxWidth = std::max( std::max( longestMin, longestMax ), size_t( 9 ) ); // "Range Min".length() == 9
+    std::string dummy = fmt::format( "{: >{}}", "_", maxWidth );
+
+    const float rangeLimColumnWidth = HPDF_Page_TextWidth( state_->activePage, dummy.c_str() );
+
+    float bordersX[5];
+    bordersX[0] = borderFieldLeft;
+    bordersX[1] = bordersX[0] + tableCellPaddingX * 4.f + HPDF_Page_TextWidth( state_->activePage, "Color" );
+    bordersX[2] = bordersX[1] + tableCellPaddingX * 4.f + rangeLimColumnWidth;
+    bordersX[3] = bordersX[2] + tableCellPaddingX * 4.f + rangeLimColumnWidth;
+    bordersX[4] = bordersX[3] + tableCellPaddingX * 4.f + HPDF_Page_TextWidth( state_->activePage, "% of All" );
+
+
+    const auto textHeight = static_cast< HPDF_REAL >( params_.textSize * lineSpacingScale );
+    const float cellHeight = textHeight + tableCellPaddingY * 2.f;
+
+    if ( cursorY_ - cellHeight * paletteStats.size() < borderFieldBottom )
+        newPage();
+
+    HPDF_Page_SetTextLeading( state_->activePage, params_.textSize * lineSpacingScale );
+
+    auto drawCellBorders = [&] ()
+    {
+        for ( int i = 0; i < 4; ++i )
+        {
+            HPDF_Page_Rectangle( state_->activePage, bordersX[i], cursorY_ - cellHeight, bordersX[i + 1] - bordersX[i], cellHeight );
+            HPDF_Page_Stroke( state_->activePage );
+        }
+    };
+
+    drawCellBorders();
+
+    auto drawTextInCell = [&] ( int cellIndex, const std::string& text, bool alignCenter = false )
+    {
+        HPDF_Page_TextRect( state_->activePage, bordersX[cellIndex] + tableCellPaddingX, cursorY_ - tableCellPaddingY,
+            bordersX[cellIndex + 1] - tableCellPaddingX, cursorY_ - textHeight - tableCellPaddingY,
+            text.c_str(), alignCenter ? HPDF_TALIGN_CENTER : HPDF_TALIGN_RIGHT, nullptr);
+    };
+
+    HPDF_Page_BeginText( state_->activePage );
+    drawTextInCell( 0, "Color", true );
+    drawTextInCell( 1, "Range Min", true );
+    drawTextInCell( 2, "Range Max", true );
+    drawTextInCell( 3, "% of All", true );
+    HPDF_Page_EndText( state_->activePage );
+    cursorY_ -= cellHeight;
+
+    UniqueTemporaryFolder pathFolder( {} );
+    std::filesystem::path imageCellPath = pathFolder / "pdf_palette_cell.png";
+    Image mrImage;
+    mrImage.resolution = { int( std::floor( bordersX[1] - bordersX[0] ) ), int( cellHeight ) };
+    for ( int i = 0; i < paletteStats.size(); ++i )
+    {
+        drawCellBorders();
+
+        mrImage.pixels = std::vector<Color>( mrImage.resolution.x * mrImage.resolution.y, paletteStats[i].color );
+        std::ignore = ImageSave::toAnySupportedFormat( mrImage, imageCellPath );
+        HPDF_Image pdfImage = HPDF_LoadPngImageFromFile( state_->document, utf8string( imageCellPath ).c_str() ); // TODO FIX need rework without using filesystem
+        if ( pdfImage )
+            HPDF_Page_DrawImage( state_->activePage, pdfImage, bordersX[0], cursorY_ - cellHeight, std::floor( bordersX[1] - bordersX[0] ), cellHeight );
+        
+        HPDF_Page_BeginText( state_->activePage );
+        drawTextInCell( 1, paletteStats[i].rangeMin );
+        drawTextInCell( 2, paletteStats[i].rangeMax );
+        drawTextInCell( 3, paletteStats[i].percent );
+        HPDF_Page_EndText( state_->activePage );
+        cursorY_ -= cellHeight;
+    }
+
+    moveCursorToNewLine();
+}
+
+
+void Pdf::addImageFromFile( const std::filesystem::path& imagePath, const ImageParams& params )
 {
     if ( !state_->document )
     {
@@ -190,48 +284,37 @@ void Pdf::addImageFromFile( const std::filesystem::path& imagePath, const std::s
         return;
     }
 
-    const HPDF_REAL additionalHeight = marksHeight * valuesMarks.empty() + marksHeight * !valuesMarks.empty() + labelHeight * !caption.empty();
-    const HPDF_REAL scalingFactor = std::min( ( pageWorkHeight - additionalHeight ) / HPDF_Image_GetHeight( pdfImage ), pageWorkWidth / HPDF_Image_GetWidth( pdfImage ) );
-    const HPDF_REAL scalingWidth = scalingFactor * HPDF_Image_GetWidth( pdfImage );
-    const HPDF_REAL scalingHeight = scalingFactor * HPDF_Image_GetHeight( pdfImage );
+    const HPDF_REAL additionalHeight = labelHeight * !params.caption.empty();
+    HPDF_REAL imageWidth = params.size.x;
+    if ( imageWidth == 0.f )
+        imageWidth = (HPDF_REAL) HPDF_Image_GetWidth( pdfImage );
+    else if ( imageWidth < 0.f )
+        imageWidth = borderFieldRight - cursorX_;
+    HPDF_REAL imageHeight = params.size.y;
+    if ( params.uniformScaleFromWidth )
+        imageHeight = imageWidth * HPDF_Image_GetHeight( pdfImage ) / HPDF_Image_GetWidth( pdfImage );
+    else if ( imageHeight == 0.f )
+        imageHeight = (HPDF_REAL) HPDF_Image_GetHeight( pdfImage );
+    else if ( imageHeight < 0.f )
+        imageHeight = cursorY_ - borderFieldBottom - additionalHeight;
 
-    if ( cursorY_ - scalingHeight - additionalHeight < borderFieldBottom )
+    if ( cursorY_ - imageHeight - additionalHeight < borderFieldBottom )
         newPage();
 
-    cursorY_ -= scalingHeight;
-    HPDF_Page_DrawImage( state_->activePage, pdfImage, cursorX_, cursorY_, scalingWidth, scalingHeight );
+    cursorY_ -= imageHeight;
+    HPDF_Page_DrawImage( state_->activePage, pdfImage, cursorX_, cursorY_, imageWidth, imageHeight );
 
-    if ( !valuesMarks.empty() )
-    {
-        HPDF_REAL step = pageWorkWidth - marksWidth / 2.;
-        if ( valuesMarks.size() > 1)
-            step /= ( valuesMarks.size() - 1);
-        HPDF_REAL posX = cursorX_;
-        for ( auto& mark : valuesMarks )
-        {
-            HPDF_Page_BeginText( state_->activePage );
-            HPDF_Page_SetFontAndSize( state_->activePage, state_->defaultFont, params_.textSize );
-            HPDF_Page_MoveTextPos( state_->activePage, posX, cursorY_ - marksHeight / 2 );
-            HPDF_Page_ShowText( state_->activePage, mark.second.c_str() );
-            HPDF_Page_EndText( state_->activePage );
-            posX += step;
-        }
-        cursorY_ -= marksHeight;
-    }
-    if ( !caption.empty() )
+    if ( !params.caption.empty() )
     {
         cursorY_ -= textSpacing / 2.;
         HPDF_Page_BeginText( state_->activePage );
         HPDF_Page_SetFontAndSize( state_->activePage, state_->defaultFont, params_.textSize );
-        HPDF_Page_TextRect( state_->activePage, cursorX_, cursorY_, cursorX_ + pageWorkWidth, cursorY_ - labelHeight, caption.c_str(), HPDF_TALIGN_CENTER, nullptr );
+        HPDF_Page_TextRect( state_->activePage, cursorX_, cursorY_, cursorX_ + imageWidth, cursorY_ - labelHeight, params.caption.c_str(), HPDF_TALIGN_CENTER, nullptr );
         HPDF_Page_EndText( state_->activePage );
         cursorY_ -= labelHeight;
     }
 
-    if ( cursorY_ - spacing < borderFieldBottom )
-        newPage();
-    else
-        cursorY_ -= spacing;
+    moveCursorToNewLine();
 }
 
 void Pdf::newPage()
@@ -277,6 +360,16 @@ void Pdf::close()
     state_->defaultFont = nullptr;
 }
 
+Vector2f Pdf::getPageSize() const
+{
+    return { pageWidth, pageHeight };
+}
+
+Box2f Pdf::getPageWorkArea() const
+{
+    return { { borderFieldLeft, borderFieldBottom }, { borderFieldRight, borderFieldTop } };
+}
+
 Pdf::operator bool() const
 {
     return state_->document != 0;
@@ -315,15 +408,23 @@ void Pdf::addText_( const std::string& text, const TextParams& textParams )
     }
 
     cursorY_ -= textHeight;
-    if ( cursorY_ - spacing < borderFieldBottom )
-        newPage();
-    else
-        cursorY_ -= spacing;
+    moveCursorToNewLine();
 }
 
 bool Pdf::checkDocument() const
 {
     return state_->document && state_->activePage;
+}
+
+void Pdf::moveCursorToNewLine()
+{
+    if ( cursorY_ - spacing < borderFieldBottom )
+        newPage();
+    else
+    {
+        cursorX_ = borderFieldLeft;
+        cursorY_ -= spacing;
+    }
 }
 
 }
