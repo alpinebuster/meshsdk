@@ -8,6 +8,7 @@
 #include <MRMesh/MRRingIterator.h>
 #include <MRMesh/MRBitSet.h>
 #include <MRMesh/MRSurroundingContour.h>
+#include <MRMesh/MRProgressCallback.h>
 #include <MRMesh/MRFillContourByGraphCut.h>
 
 #include "MRUtils.h"
@@ -144,8 +145,8 @@ val segmentByPointsImpl( Mesh& mesh_, EdgeMetric& edgeMetric_, const std::vector
 EMSCRIPTEN_BINDINGS( FillContourByGraphCutModule )
 {
 	///
-	function( "fillContourLeftByGraphCut", select_overload<FaceBitSet (const MeshTopology &, const EdgePath &, const EdgeMetric &)>( &fillContourLeftByGraphCut ) );
-	function( "fillContourLeftByGraphCutByContours", select_overload<FaceBitSet (const MeshTopology &, const std::vector<EdgePath> &, const EdgeMetric &)>( &fillContourLeftByGraphCut ) );
+	function( "fillContourLeftByGraphCut", select_overload<FaceBitSet (const MeshTopology &, const EdgePath &, const EdgeMetric &, const ProgressCallback&)>( &fillContourLeftByGraphCut ) );
+	function( "fillContourLeftByGraphCutByContours", select_overload<FaceBitSet (const MeshTopology &, const std::vector<EdgePath> &, const EdgeMetric &, const ProgressCallback&)>( &fillContourLeftByGraphCut ) );
 	function( "segmentByGraphCut", &segmentByGraphCut );
 	///
 

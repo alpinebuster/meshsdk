@@ -14,7 +14,7 @@ EMSCRIPTEN_BINDINGS( Matrix4Module )
     class_<Matrix4i>( "Matrix4i" )
         .constructor<>();
 
-    class_<Matrix4ll>( "Matrix4ll" )
+    class_<Matrix4i64>( "Matrix4i64" )
         .constructor<>();
     
     class_<Matrix4f>( "Matrix4f" )

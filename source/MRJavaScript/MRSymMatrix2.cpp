@@ -14,7 +14,7 @@ EMSCRIPTEN_BINDINGS( SymMatrix2Module )
     class_<SymMatrix2i>( "SymMatrix2i" )
         .constructor<>();
 
-    class_<SymMatrix2ll>( "SymMatrix2ll" )
+    class_<SymMatrix2i64>( "SymMatrix2i64" )
         .constructor<>();
     
     class_<SymMatrix2f>( "SymMatrix2f" )

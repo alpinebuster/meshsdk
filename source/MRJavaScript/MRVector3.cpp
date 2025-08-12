@@ -18,6 +18,6 @@ EMSCRIPTEN_BINDINGS( Vector3Module )
     MRJS::bindTypedVector3<Vector3f>( "Vector3f", "f" );
     MRJS::bindTypedVector3<Vector3b>( "Vector3b", "b" );
     MRJS::bindTypedVector3<Vector3i>( "Vector3i", "i" );
-    MRJS::bindTypedVector3<Vector3ll>( "Vector3ll", "ll" );
+    MRJS::bindTypedVector3<Vector3i64>( "Vector3i64", "i64" );
     MRJS::bindTypedVector3<Vector3d>( "Vector3d", "d" );
 }

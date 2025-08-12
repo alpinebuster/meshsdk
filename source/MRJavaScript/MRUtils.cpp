@@ -586,9 +586,9 @@ EMSCRIPTEN_BINDINGS( PairTypedModule )
         .element( &std::pair<Vector4i, Vector4i>::first )
         .element( &std::pair<Vector4i, Vector4i>::second );
 
-    value_array<std::pair<Vector4ll, Vector4ll>>( "Vector4llPair" )
-        .element( &std::pair<Vector4ll, Vector4ll>::first )
-        .element( &std::pair<Vector4ll, Vector4ll>::second );
+    value_array<std::pair<Vector4i64, Vector4i64>>( "Vector4i64Pair" )
+        .element( &std::pair<Vector4i64, Vector4i64>::first )
+        .element( &std::pair<Vector4i64, Vector4i64>::second );
 
     value_array<std::pair<Vector4d, Vector4d>>( "Vector4dPair" )
         .element( &std::pair<Vector4d, Vector4d>::first )
@@ -609,9 +609,9 @@ EMSCRIPTEN_BINDINGS( PairTypedModule )
         .element( &std::pair<Vector3i, Vector3i>::first )
         .element( &std::pair<Vector3i, Vector3i>::second );
 
-    value_array<std::pair<Vector3ll, Vector3ll>>( "Vector3llPair" )
-        .element( &std::pair<Vector3ll, Vector3ll>::first )
-        .element( &std::pair<Vector3ll, Vector3ll>::second );
+    value_array<std::pair<Vector3i64, Vector3i64>>( "Vector3i64Pair" )
+        .element( &std::pair<Vector3i64, Vector3i64>::first )
+        .element( &std::pair<Vector3i64, Vector3i64>::second );
 
     value_array<std::pair<Vector3d, Vector3d>>( "Vector3dPair" )
         .element( &std::pair<Vector3d, Vector3d>::first )
@@ -628,9 +628,9 @@ EMSCRIPTEN_BINDINGS( PairTypedModule )
         .element( &std::pair<Vector2f, Vector2f>::first )
         .element( &std::pair<Vector2f, Vector2f>::second );
 
-    value_array<std::pair<Vector2ll, Vector2ll>>( "Vector2llPair" )
-        .element( &std::pair<Vector2ll, Vector2ll>::first )
-        .element( &std::pair<Vector2ll, Vector2ll>::second );
+    value_array<std::pair<Vector2i64, Vector2i64>>( "Vector2i64Pair" )
+        .element( &std::pair<Vector2i64, Vector2i64>::first )
+        .element( &std::pair<Vector2i64, Vector2i64>::second );
 
     value_array<std::pair<Vector2b, Vector2b>>( "Vector2bPair" )
         .element( &std::pair<Vector2b, Vector2b>::first )
@@ -917,7 +917,7 @@ EMSCRIPTEN_BINDINGS( VectorTypedModule )
 
 	register_vector<Box3f>( "VectorBox3f" );
 	register_vector<Box3i>( "VectorBox3i" );
-	register_vector<Box3ll>( "VectorBox3ll" );
+	register_vector<Box3i64>( "VectorBox3i64" );
 	register_vector<Box3d>( "VectorBox3d" );
 
 	register_vector<ICPGroupPair>( "VectorICPGroupPair" );
@@ -1085,8 +1085,8 @@ EMSCRIPTEN_BINDINGS( VectorTypedModule )
 	register_vector<Vector2f>( "VectorVector2f" );
 	register_vector<std::vector<Vector2f>>( "VectorVectorVector2f" );
 	
-	register_vector<Vector2ll>( "VectorVector2ll" );
-	register_vector<std::vector<Vector2ll>>( "VectorVectorVector2ll" );
+	register_vector<Vector2i64>( "VectorVector2i64" );
+	register_vector<std::vector<Vector2i64>>( "VectorVectorVector2i64" );
 	
 	register_vector<Vector2b>( "VectorVector2b" );
 	register_vector<std::vector<Vector2b>>( "VectorVectorVector2b" );
@@ -1109,8 +1109,8 @@ EMSCRIPTEN_BINDINGS( VectorTypedModule )
 	register_vector<Vector3i>( "VectorVector3i" );
 	register_vector<std::vector<Vector3i>>( "VectorVectorVector3i" );
 
-	register_vector<Vector3ll>( "VectorVector3ll" );
-	register_vector<std::vector<Vector3ll>>( "VectorVectorVector3ll" );
+	register_vector<Vector3i64>( "VectorVector3i64" );
+	register_vector<std::vector<Vector3i64>>( "VectorVectorVector3i64" );
 
 	register_vector<Vector3d>( "VectorVector3d" );
 	register_vector<std::vector<Vector3d>>( "VectorVectorVector3d" );
@@ -1127,8 +1127,8 @@ EMSCRIPTEN_BINDINGS( VectorTypedModule )
 	register_vector<Vector4i>( "VectorVector4i" );
 	register_vector<std::vector<Vector4i>>( "VectorVectorVector4i" );
 	
-	register_vector<Vector4ll>( "VectorVector4ll" );
-	register_vector<std::vector<Vector4ll>>( "VectorVectorVector4ll" );
+	register_vector<Vector4i64>( "VectorVector4i64" );
+	register_vector<std::vector<Vector4i64>>( "VectorVectorVector4i64" );
 	
 	register_vector<Vector4d>( "VectorVector4d" );
 	register_vector<std::vector<Vector4d>>( "VectorVectorVector4d" );
@@ -1169,26 +1169,26 @@ EMSCRIPTEN_BINDINGS( ArrayTypedModule )
 	///
 	MRJS::bindStdArray<Vector2b, 2>( "Array2Vector2b" );
 	MRJS::bindStdArray<Vector2i, 2>( "Array2Vector2i" );
-	MRJS::bindStdArray<Vector2ll, 2>( "Array2Vector2ll" );
+	MRJS::bindStdArray<Vector2i64, 2>( "Array2Vector2i64" );
 	MRJS::bindStdArray<Vector2f, 2>( "Array2Vector2f" );
 	MRJS::bindStdArray<Vector2d, 2>( "Array2Vector2d" );
 
 	MRJS::bindStdArray<Vector2b, 3>( "Array3Vector2b" );
 	MRJS::bindStdArray<Vector2i, 3>( "Array3Vector2i" );
-	MRJS::bindStdArray<Vector2ll, 3>( "Array3Vector2ll" );
+	MRJS::bindStdArray<Vector2i64, 3>( "Array3Vector2i64" );
 	MRJS::bindStdArray<Vector2f, 3>( "Array3Vector2f" );
 	MRJS::bindStdArray<Vector2d, 3>( "Array3Vector2d" );
 
 
 	MRJS::bindStdArray<Vector3b, 2>( "Array2Triangle3b" );
 	MRJS::bindStdArray<Vector3i, 2>( "Array2Triangle3i" );
-	MRJS::bindStdArray<Vector3ll, 2>( "Array2Triangle3ll" );
+	MRJS::bindStdArray<Vector3i64, 2>( "Array2Triangle3i64" );
 	MRJS::bindStdArray<Vector3f, 2>( "Array2Triangle3f" );
 	MRJS::bindStdArray<Vector3d, 2>( "Array2Triangle3d" );
 
 	MRJS::bindStdArray<Vector3b, 3>( "Array3Triangle3b" );
 	MRJS::bindStdArray<Vector3i, 3>( "Array3Triangle3i" );
-	MRJS::bindStdArray<Vector3ll, 3>( "Array3Triangle3ll" );
+	MRJS::bindStdArray<Vector3i64, 3>( "Array3Triangle3i64" );
 	MRJS::bindStdArray<Vector3f, 3>( "Array3Triangle3f" );
 	MRJS::bindStdArray<Vector3d, 3>( "Array3Triangle3d" );
 	///
@@ -1295,7 +1295,7 @@ EMSCRIPTEN_BINDINGS( OptionalTypedModule )
 	///
 	register_optional<Vector3b>();
 	register_optional<Vector3i>();
-	register_optional<Vector3ll>();
+	register_optional<Vector3i64>();
 	register_optional<Vector3f>();
 	register_optional<Vector3d>();
 	///
@@ -1304,26 +1304,26 @@ EMSCRIPTEN_BINDINGS( OptionalTypedModule )
 	///
 	register_optional<std::array<Vector3b, 2>>();
 	register_optional<std::array<Vector3i, 2>>();
-	register_optional<std::array<Vector3ll, 2>>();
+	register_optional<std::array<Vector3i64, 2>>();
 	register_optional<std::array<Vector3f, 2>>();
 	register_optional<std::array<Vector3d, 2>>();
 
 	register_optional<std::array<Vector3b, 3>>();
 	register_optional<std::array<Vector3i, 3>>();
-	register_optional<std::array<Vector3ll, 3>>();
+	register_optional<std::array<Vector3i64, 3>>();
 	register_optional<std::array<Vector3f, 3>>();
 	register_optional<std::array<Vector3d, 3>>();
 
 
 	register_optional<std::array<Vector2b, 2>>();
 	register_optional<std::array<Vector2i, 2>>();
-	register_optional<std::array<Vector2ll, 2>>();
+	register_optional<std::array<Vector2i64, 2>>();
 	register_optional<std::array<Vector2f, 2>>();
 	register_optional<std::array<Vector2d, 2>>();
 
 	register_optional<std::array<Vector2b, 3>>();
 	register_optional<std::array<Vector2i, 3>>();
-	register_optional<std::array<Vector2ll, 3>>();
+	register_optional<std::array<Vector2i64, 3>>();
 	register_optional<std::array<Vector2f, 3>>();
 	register_optional<std::array<Vector2d, 3>>();
 	///

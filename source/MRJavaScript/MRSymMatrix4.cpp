@@ -14,7 +14,7 @@ EMSCRIPTEN_BINDINGS( SymMatrix4Module )
     class_<SymMatrix4i>( "SymMatrix4i" )
         .constructor<>();
 
-    class_<SymMatrix4ll>( "SymMatrix4ll" )
+    class_<SymMatrix4i64>( "SymMatrix4i64" )
         .constructor<>();
     
     class_<SymMatrix4f>( "SymMatrix4f" )

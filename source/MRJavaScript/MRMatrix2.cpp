@@ -14,7 +14,7 @@ EMSCRIPTEN_BINDINGS( Matrix2Module )
     class_<Matrix2i>( "Matrix2i" )
         .constructor<>();
 
-    class_<Matrix2ll>( "Matrix2ll" )
+    class_<Matrix2i64>( "Matrix2i64" )
         .constructor<>();
     
     class_<Matrix2f>( "Matrix2f" )

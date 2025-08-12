@@ -14,7 +14,7 @@ EMSCRIPTEN_BINDINGS( SymMatrix3Module )
     class_<SymMatrix3i>( "SymMatrix3i" )
         .constructor<>();
 
-    class_<SymMatrix3ll>( "SymMatrix3ll" )
+    class_<SymMatrix3i64>( "SymMatrix3i64" )
         .constructor<>();
     
     class_<SymMatrix3f>( "SymMatrix3f" )

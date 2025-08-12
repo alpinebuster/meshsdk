@@ -14,7 +14,7 @@ EMSCRIPTEN_BINDINGS( Matrix3Module )
     class_<Matrix3i>( "Matrix3i" )
         .constructor<>();
 
-    class_<Matrix3ll>( "Matrix3ll" )
+    class_<Matrix3i64>( "Matrix3i64" )
         .constructor<>();
     
     class_<Matrix3f>( "Matrix3f" )

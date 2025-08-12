@@ -9,6 +9,7 @@
 #include <MRMesh/MRObjectMesh.h>
 #include <MRMesh/MRBestFit.h>
 #include <MRMesh/MRAABBTreeObjects.h>
+#include <MRMesh/MRPointCloudPart.h>
 #include <MRMesh/MRPointCloud.h>
 
 using namespace emscripten;
@@ -27,6 +28,7 @@ void callProjectOnAllWithProgress(
     projectOnAll(pt, tree, upDistLimitSq, cb, skipObjId);
 }
 
+
 EMSCRIPTEN_BINDINGS( MeshOrPointsModule )
 {
 	class_<MeshOrPoints>( "MeshOrPoints" )
@@ -35,7 +37,7 @@ EMSCRIPTEN_BINDINGS( MeshOrPointsModule )
 		// .constructor<const MeshPart&>()
 		// .constructor<const PointCloud&>()
 		.function( "asMeshPart", &MeshOrPoints::asMeshPart, allow_raw_pointers() )
-		.function( "asPointCloud", &MeshOrPoints::asPointCloud, allow_raw_pointers() )
+		.function( "asPointCloudPart", &MeshOrPoints::asPointCloudPart, allow_raw_pointers() )
 		.function( "getObjBoundingBox", &MeshOrPoints::getObjBoundingBox )
 		.function( "cacheAABBTree", &MeshOrPoints::cacheAABBTree )
 		.function( "computeBoundingBox", &MeshOrPoints::computeBoundingBox, allow_raw_pointers() )
