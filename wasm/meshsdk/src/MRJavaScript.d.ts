@@ -939,7 +939,7 @@ export interface Box1i extends ClassHandle {
   insignificantlyExpanded(): Box1i;
 }
 
-export interface Box1ll extends ClassHandle {
+export interface Box1i64 extends ClassHandle {
   min: bigint;
   max: bigint;
   valid(): boolean;
@@ -949,17 +949,17 @@ export interface Box1ll extends ClassHandle {
   diagonal(): bigint;
   volume(): bigint;
   include(_0: bigint): void;
-  includeBox(_0: Box1ll): void;
+  includeBox(_0: Box1i64): void;
   contains(_0: bigint): boolean;
-  containsBox(_0: Box1ll): boolean;
+  containsBox(_0: Box1i64): boolean;
   getBoxClosestPointTo(_0: bigint): bigint;
-  intersects(_0: Box1ll): boolean;
-  intersection(_0: Box1ll): Box1ll;
-  intersect(_0: Box1ll): Box1ll;
-  getDistanceSqToBox(_0: Box1ll): bigint;
+  intersects(_0: Box1i64): boolean;
+  intersection(_0: Box1i64): Box1i64;
+  intersect(_0: Box1i64): Box1i64;
+  getDistanceSqToBox(_0: Box1i64): bigint;
   getDistanceSqToPoint(_0: bigint): bigint;
-  expanded(_0: bigint): Box1ll;
-  insignificantlyExpanded(): Box1ll;
+  expanded(_0: bigint): Box1i64;
+  insignificantlyExpanded(): Box1i64;
 }
 
 export interface Box1d extends ClassHandle {
@@ -1031,27 +1031,27 @@ export interface Box2i extends ClassHandle {
   corner(_0: Vector2b): Vector2i;
 }
 
-export interface Box2ll extends ClassHandle {
-  min: Vector2ll;
-  max: Vector2ll;
+export interface Box2i64 extends ClassHandle {
+  min: Vector2i64;
+  max: Vector2i64;
   valid(): boolean;
   diagonal(): bigint;
   volume(): bigint;
-  includeBox(_0: Box2ll): void;
-  containsBox(_0: Box2ll): boolean;
-  intersects(_0: Box2ll): boolean;
-  intersection(_0: Box2ll): Box2ll;
-  intersect(_0: Box2ll): Box2ll;
-  getDistanceSqToBox(_0: Box2ll): bigint;
-  insignificantlyExpanded(): Box2ll;
-  center(): Vector2ll;
-  size(): Vector2ll;
-  include(_0: Vector2ll): void;
-  contains(_0: Vector2ll): boolean;
-  getBoxClosestPointTo(_0: Vector2ll): Vector2ll;
-  getDistanceSqToPoint(_0: Vector2ll): bigint;
-  expanded(_0: Vector2ll): Box2ll;
-  corner(_0: Vector2b): Vector2ll;
+  includeBox(_0: Box2i64): void;
+  containsBox(_0: Box2i64): boolean;
+  intersects(_0: Box2i64): boolean;
+  intersection(_0: Box2i64): Box2i64;
+  intersect(_0: Box2i64): Box2i64;
+  getDistanceSqToBox(_0: Box2i64): bigint;
+  insignificantlyExpanded(): Box2i64;
+  center(): Vector2i64;
+  size(): Vector2i64;
+  include(_0: Vector2i64): void;
+  contains(_0: Vector2i64): boolean;
+  getBoxClosestPointTo(_0: Vector2i64): Vector2i64;
+  getDistanceSqToPoint(_0: Vector2i64): bigint;
+  expanded(_0: Vector2i64): Box2i64;
+  corner(_0: Vector2b): Vector2i64;
 }
 
 export interface Box2d extends ClassHandle {
@@ -1123,27 +1123,27 @@ export interface Box3i extends ClassHandle {
   expanded(_0: Vector3i): Box3i;
 }
 
-export interface Box3ll extends ClassHandle {
-  min: Vector3ll;
-  max: Vector3ll;
+export interface Box3i64 extends ClassHandle {
+  min: Vector3i64;
+  max: Vector3i64;
   valid(): boolean;
   diagonal(): bigint;
   volume(): bigint;
-  includeBox(_0: Box3ll): void;
-  containsBox(_0: Box3ll): boolean;
-  intersects(_0: Box3ll): boolean;
-  intersection(_0: Box3ll): Box3ll;
-  intersect(_0: Box3ll): Box3ll;
-  getDistanceSqToBox(_0: Box3ll): bigint;
-  insignificantlyExpanded(): Box3ll;
-  center(): Vector3ll;
-  corner(_0: Vector3b): Vector3ll;
-  size(): Vector3ll;
-  include(_0: Vector3ll): void;
-  contains(_0: Vector3ll): boolean;
-  getBoxClosestPointTo(_0: Vector3ll): Vector3ll;
-  getDistanceSqToPoint(_0: Vector3ll): bigint;
-  expanded(_0: Vector3ll): Box3ll;
+  includeBox(_0: Box3i64): void;
+  containsBox(_0: Box3i64): boolean;
+  intersects(_0: Box3i64): boolean;
+  intersection(_0: Box3i64): Box3i64;
+  intersect(_0: Box3i64): Box3i64;
+  getDistanceSqToBox(_0: Box3i64): bigint;
+  insignificantlyExpanded(): Box3i64;
+  center(): Vector3i64;
+  corner(_0: Vector3b): Vector3i64;
+  size(): Vector3i64;
+  include(_0: Vector3i64): void;
+  contains(_0: Vector3i64): boolean;
+  getBoxClosestPointTo(_0: Vector3i64): Vector3i64;
+  getDistanceSqToPoint(_0: Vector3i64): bigint;
+  expanded(_0: Vector3i64): Box3i64;
 }
 
 export interface Box3d extends ClassHandle {
@@ -2466,7 +2466,7 @@ export interface Matrix2b extends ClassHandle {
 export interface Matrix2i extends ClassHandle {
 }
 
-export interface Matrix2ll extends ClassHandle {
+export interface Matrix2i64 extends ClassHandle {
 }
 
 export interface Matrix2f extends ClassHandle {
@@ -2481,7 +2481,7 @@ export interface Matrix3b extends ClassHandle {
 export interface Matrix3i extends ClassHandle {
 }
 
-export interface Matrix3ll extends ClassHandle {
+export interface Matrix3i64 extends ClassHandle {
 }
 
 export interface Matrix3f extends ClassHandle {
@@ -2496,7 +2496,7 @@ export interface Matrix4b extends ClassHandle {
 export interface Matrix4i extends ClassHandle {
 }
 
-export interface Matrix4ll extends ClassHandle {
+export interface Matrix4i64 extends ClassHandle {
 }
 
 export interface Matrix4f extends ClassHandle {
@@ -4402,7 +4402,7 @@ export interface MeshOrPoints extends ClassHandle {
   points(): VertCoords;
   validPoints(): VertBitSet;
   asMeshPart(): MeshPart | null;
-  asPointCloud(): PointCloud | null;
+  asPointCloudPart(): PointCloudPart | null;
 }
 
 export interface MeshOrPointsXf extends ClassHandle {
@@ -4795,6 +4795,12 @@ export interface PointCloud extends ClassHandle {
   addPointNormal(_0: Vector3f, _1: Vector3f): VertId;
 }
 
+export interface PointCloudPart extends ClassHandle {
+  getCloud(): PointCloud;
+  getRegion(): VertBitSet | null;
+  equals(_0: PointCloudPart): PointCloudPart;
+}
+
 export interface PointOnFace extends ClassHandle {
   face: FaceId;
   point: Vector3f;
@@ -5095,7 +5101,7 @@ export interface SymMatrix2b extends ClassHandle {
 export interface SymMatrix2i extends ClassHandle {
 }
 
-export interface SymMatrix2ll extends ClassHandle {
+export interface SymMatrix2i64 extends ClassHandle {
 }
 
 export interface SymMatrix2f extends ClassHandle {
@@ -5110,7 +5116,7 @@ export interface SymMatrix3b extends ClassHandle {
 export interface SymMatrix3i extends ClassHandle {
 }
 
-export interface SymMatrix3ll extends ClassHandle {
+export interface SymMatrix3i64 extends ClassHandle {
 }
 
 export interface SymMatrix3f extends ClassHandle {
@@ -5125,7 +5131,7 @@ export interface SymMatrix4b extends ClassHandle {
 export interface SymMatrix4i extends ClassHandle {
 }
 
-export interface SymMatrix4ll extends ClassHandle {
+export interface SymMatrix4i64 extends ClassHandle {
 }
 
 export interface SymMatrix4f extends ClassHandle {
@@ -5877,12 +5883,12 @@ export interface VectorBox3i extends ClassHandle {
   set(_0: number, _1: Box3i): boolean;
 }
 
-export interface VectorBox3ll extends ClassHandle {
-  push_back(_0: Box3ll): void;
-  resize(_0: number, _1: Box3ll): void;
+export interface VectorBox3i64 extends ClassHandle {
+  push_back(_0: Box3i64): void;
+  resize(_0: number, _1: Box3i64): void;
   size(): number;
-  get(_0: number): Box3ll | undefined;
-  set(_0: number, _1: Box3ll): boolean;
+  get(_0: number): Box3i64 | undefined;
+  set(_0: number, _1: Box3i64): boolean;
 }
 
 export interface VectorBox3d extends ClassHandle {
@@ -6765,20 +6771,20 @@ export interface VectorVectorVector2f extends ClassHandle {
   set(_0: number, _1: VectorVector2f): boolean;
 }
 
-export interface VectorVector2ll extends ClassHandle {
+export interface VectorVector2i64 extends ClassHandle {
   size(): number;
-  get(_0: number): Vector2ll | undefined;
-  push_back(_0: Vector2ll): void;
-  resize(_0: number, _1: Vector2ll): void;
-  set(_0: number, _1: Vector2ll): boolean;
+  get(_0: number): Vector2i64 | undefined;
+  push_back(_0: Vector2i64): void;
+  resize(_0: number, _1: Vector2i64): void;
+  set(_0: number, _1: Vector2i64): boolean;
 }
 
-export interface VectorVectorVector2ll extends ClassHandle {
-  push_back(_0: VectorVector2ll): void;
-  resize(_0: number, _1: VectorVector2ll): void;
+export interface VectorVectorVector2i64 extends ClassHandle {
+  push_back(_0: VectorVector2i64): void;
+  resize(_0: number, _1: VectorVector2i64): void;
   size(): number;
-  get(_0: number): VectorVector2ll | undefined;
-  set(_0: number, _1: VectorVector2ll): boolean;
+  get(_0: number): VectorVector2i64 | undefined;
+  set(_0: number, _1: VectorVector2i64): boolean;
 }
 
 export interface VectorVector2b extends ClassHandle {
@@ -6877,20 +6883,20 @@ export interface VectorVectorVector3i extends ClassHandle {
   set(_0: number, _1: VectorVector3i): boolean;
 }
 
-export interface VectorVector3ll extends ClassHandle {
+export interface VectorVector3i64 extends ClassHandle {
   size(): number;
-  get(_0: number): Vector3ll | undefined;
-  push_back(_0: Vector3ll): void;
-  resize(_0: number, _1: Vector3ll): void;
-  set(_0: number, _1: Vector3ll): boolean;
+  get(_0: number): Vector3i64 | undefined;
+  push_back(_0: Vector3i64): void;
+  resize(_0: number, _1: Vector3i64): void;
+  set(_0: number, _1: Vector3i64): boolean;
 }
 
-export interface VectorVectorVector3ll extends ClassHandle {
-  push_back(_0: VectorVector3ll): void;
-  resize(_0: number, _1: VectorVector3ll): void;
+export interface VectorVectorVector3i64 extends ClassHandle {
+  push_back(_0: VectorVector3i64): void;
+  resize(_0: number, _1: VectorVector3i64): void;
   size(): number;
-  get(_0: number): VectorVector3ll | undefined;
-  set(_0: number, _1: VectorVector3ll): boolean;
+  get(_0: number): VectorVector3i64 | undefined;
+  set(_0: number, _1: VectorVector3i64): boolean;
 }
 
 export interface VectorVector3d extends ClassHandle {
@@ -6957,20 +6963,20 @@ export interface VectorVectorVector4i extends ClassHandle {
   set(_0: number, _1: VectorVector4i): boolean;
 }
 
-export interface VectorVector4ll extends ClassHandle {
+export interface VectorVector4i64 extends ClassHandle {
   size(): number;
-  get(_0: number): Vector4ll | undefined;
-  push_back(_0: Vector4ll): void;
-  resize(_0: number, _1: Vector4ll): void;
-  set(_0: number, _1: Vector4ll): boolean;
+  get(_0: number): Vector4i64 | undefined;
+  push_back(_0: Vector4i64): void;
+  resize(_0: number, _1: Vector4i64): void;
+  set(_0: number, _1: Vector4i64): boolean;
 }
 
-export interface VectorVectorVector4ll extends ClassHandle {
-  push_back(_0: VectorVector4ll): void;
-  resize(_0: number, _1: VectorVector4ll): void;
+export interface VectorVectorVector4i64 extends ClassHandle {
+  push_back(_0: VectorVector4i64): void;
+  resize(_0: number, _1: VectorVector4i64): void;
   size(): number;
-  get(_0: number): VectorVector4ll | undefined;
-  set(_0: number, _1: VectorVector4ll): boolean;
+  get(_0: number): VectorVector4i64 | undefined;
+  set(_0: number, _1: VectorVector4i64): boolean;
 }
 
 export interface VectorVector4d extends ClassHandle {
@@ -8988,22 +8994,22 @@ export type Array2Vector2f = [ Vector2f, Vector2f ];
 
 export type Array3Vector2f = [ Vector2f, Vector2f, Vector2f ];
 
-export interface Vector2ll extends ClassHandle {
+export interface Vector2i64 extends ClassHandle {
   x: bigint;
   y: bigint;
   length(): number;
   lengthSq(): bigint;
   get(_0: number): bigint;
   set(_0: number): bigint;
-  perpendicular(): Vector2ll;
-  furthestBasisVector(): Vector2ll;
+  perpendicular(): Vector2i64;
+  furthestBasisVector(): Vector2i64;
 }
 
-export type Vector2llPair = [ Vector2ll, Vector2ll ];
+export type Vector2i64Pair = [ Vector2i64, Vector2i64 ];
 
-export type Array2Vector2ll = [ Vector2ll, Vector2ll ];
+export type Array2Vector2i64 = [ Vector2i64, Vector2i64 ];
 
-export type Array3Vector2ll = [ Vector2ll, Vector2ll, Vector2ll ];
+export type Array3Vector2i64 = [ Vector2i64, Vector2i64, Vector2i64 ];
 
 export interface Vector2b extends ClassHandle {
   x: boolean;
@@ -9133,7 +9139,7 @@ export type Array2Triangle3i = [ Vector3i, Vector3i ];
 
 export type Array3Triangle3i = [ Vector3i, Vector3i, Vector3i ];
 
-export interface Vector3ll extends ClassHandle {
+export interface Vector3i64 extends ClassHandle {
   x: bigint;
   y: bigint;
   z: bigint;
@@ -9145,14 +9151,14 @@ export interface Vector3ll extends ClassHandle {
   perpendicular(): Vector3fPair;
   unsignZeroValues(): Vector3f;
   isFinite(): boolean;
-  furthestBasisVector(): Vector3ll;
+  furthestBasisVector(): Vector3i64;
 }
 
-export type Vector3llPair = [ Vector3ll, Vector3ll ];
+export type Vector3i64Pair = [ Vector3i64, Vector3i64 ];
 
-export type Array2Triangle3ll = [ Vector3ll, Vector3ll ];
+export type Array2Triangle3i64 = [ Vector3i64, Vector3i64 ];
 
-export type Array3Triangle3ll = [ Vector3ll, Vector3ll, Vector3ll ];
+export type Array3Triangle3i64 = [ Vector3i64, Vector3i64, Vector3i64 ];
 
 export interface Vector3d extends ClassHandle {
   x: number;
@@ -9217,7 +9223,7 @@ export interface Vector4i extends ClassHandle {
 
 export type Vector4iPair = [ Vector4i, Vector4i ];
 
-export interface Vector4ll extends ClassHandle {
+export interface Vector4i64 extends ClassHandle {
   x: bigint;
   y: bigint;
   z: bigint;
@@ -9228,7 +9234,7 @@ export interface Vector4ll extends ClassHandle {
   length(): number;
 }
 
-export type Vector4llPair = [ Vector4ll, Vector4ll ];
+export type Vector4i64Pair = [ Vector4i64, Vector4i64 ];
 
 export interface Vector4d extends ClassHandle {
   x: number;
@@ -9483,10 +9489,10 @@ interface EmbindModule {
     getMinBoxCorner(_0: number): boolean;
     getMaxBoxCorner(_0: number): boolean;
   };
-  Box1ll: {
-    new(): Box1ll;
-    new(_0: bigint, _1: bigint): Box1ll;
-    fromMinAndSize(_0: bigint, _1: bigint): Box1ll;
+  Box1i64: {
+    new(): Box1i64;
+    new(_0: bigint, _1: bigint): Box1i64;
+    fromMinAndSize(_0: bigint, _1: bigint): Box1i64;
     getMinBoxCorner(_0: bigint): boolean;
     getMaxBoxCorner(_0: bigint): boolean;
   };
@@ -9511,12 +9517,12 @@ interface EmbindModule {
     getMinBoxCorner(_0: Vector2i): Vector2b;
     getMaxBoxCorner(_0: Vector2i): Vector2b;
   };
-  Box2ll: {
-    new(): Box2ll;
-    new(_0: Vector2ll, _1: Vector2ll): Box2ll;
-    fromMinAndSize(_0: Vector2ll, _1: Vector2ll): Box2ll;
-    getMinBoxCorner(_0: Vector2ll): Vector2b;
-    getMaxBoxCorner(_0: Vector2ll): Vector2b;
+  Box2i64: {
+    new(): Box2i64;
+    new(_0: Vector2i64, _1: Vector2i64): Box2i64;
+    fromMinAndSize(_0: Vector2i64, _1: Vector2i64): Box2i64;
+    getMinBoxCorner(_0: Vector2i64): Vector2b;
+    getMaxBoxCorner(_0: Vector2i64): Vector2b;
   };
   Box2d: {
     new(): Box2d;
@@ -9539,12 +9545,12 @@ interface EmbindModule {
     getMinBoxCorner(_0: Vector3i): Vector3b;
     getMaxBoxCorner(_0: Vector3i): Vector3b;
   };
-  Box3ll: {
-    new(): Box3ll;
-    new(_0: Vector3ll, _1: Vector3ll): Box3ll;
-    fromMinAndSize(_0: Vector3ll, _1: Vector3ll): Box3ll;
-    getMinBoxCorner(_0: Vector3ll): Vector3b;
-    getMaxBoxCorner(_0: Vector3ll): Vector3b;
+  Box3i64: {
+    new(): Box3i64;
+    new(_0: Vector3i64, _1: Vector3i64): Box3i64;
+    fromMinAndSize(_0: Vector3i64, _1: Vector3i64): Box3i64;
+    getMinBoxCorner(_0: Vector3i64): Vector3b;
+    getMaxBoxCorner(_0: Vector3i64): Vector3b;
   };
   Box3d: {
     new(): Box3d;
@@ -9894,8 +9900,8 @@ interface EmbindModule {
   Matrix2i: {
     new(): Matrix2i;
   };
-  Matrix2ll: {
-    new(): Matrix2ll;
+  Matrix2i64: {
+    new(): Matrix2i64;
   };
   Matrix2f: {
     new(): Matrix2f;
@@ -9909,8 +9915,8 @@ interface EmbindModule {
   Matrix3i: {
     new(): Matrix3i;
   };
-  Matrix3ll: {
-    new(): Matrix3ll;
+  Matrix3i64: {
+    new(): Matrix3i64;
   };
   Matrix3f: {
     new(): Matrix3f;
@@ -9932,8 +9938,8 @@ interface EmbindModule {
   Matrix4i: {
     new(): Matrix4i;
   };
-  Matrix4ll: {
-    new(): Matrix4ll;
+  Matrix4i64: {
+    new(): Matrix4i64;
   };
   Matrix4f: {
     new(): Matrix4f;
@@ -10577,6 +10583,10 @@ interface EmbindModule {
   PointCloud: {
     new(): PointCloud;
   };
+  PointCloudPart: {
+    new(_0: PointCloud): PointCloudPart;
+    new(_0: PointCloud, _1: VertBitSet | null): PointCloudPart;
+  };
   PointOnFace: {};
   findDistance(_0: MeshPart, _1: MeshPart, _2: AffineXf3f | null, _3: number): MeshMeshDistanceResult;
   findSignedDistance(_0: MeshPart, _1: MeshPart, _2: AffineXf3f | null, _3: number): MeshMeshSignedDistanceResult;
@@ -10701,8 +10711,8 @@ interface EmbindModule {
   SymMatrix2i: {
     new(): SymMatrix2i;
   };
-  SymMatrix2ll: {
-    new(): SymMatrix2ll;
+  SymMatrix2i64: {
+    new(): SymMatrix2i64;
   };
   SymMatrix2f: {
     new(): SymMatrix2f;
@@ -10716,8 +10726,8 @@ interface EmbindModule {
   SymMatrix3i: {
     new(): SymMatrix3i;
   };
-  SymMatrix3ll: {
-    new(): SymMatrix3ll;
+  SymMatrix3i64: {
+    new(): SymMatrix3i64;
   };
   SymMatrix3f: {
     new(): SymMatrix3f;
@@ -10731,8 +10741,8 @@ interface EmbindModule {
   SymMatrix4i: {
     new(): SymMatrix4i;
   };
-  SymMatrix4ll: {
-    new(): SymMatrix4ll;
+  SymMatrix4i64: {
+    new(): SymMatrix4i64;
   };
   SymMatrix4f: {
     new(): SymMatrix4f;
@@ -11018,8 +11028,8 @@ interface EmbindModule {
   VectorBox3i: {
     new(): VectorBox3i;
   };
-  VectorBox3ll: {
-    new(): VectorBox3ll;
+  VectorBox3i64: {
+    new(): VectorBox3i64;
   };
   VectorBox3d: {
     new(): VectorBox3d;
@@ -11372,11 +11382,11 @@ interface EmbindModule {
   VectorVectorVector2f: {
     new(): VectorVectorVector2f;
   };
-  VectorVector2ll: {
-    new(): VectorVector2ll;
+  VectorVector2i64: {
+    new(): VectorVector2i64;
   };
-  VectorVectorVector2ll: {
-    new(): VectorVectorVector2ll;
+  VectorVectorVector2i64: {
+    new(): VectorVectorVector2i64;
   };
   VectorVector2b: {
     new(): VectorVector2b;
@@ -11419,11 +11429,11 @@ interface EmbindModule {
   VectorVectorVector3i: {
     new(): VectorVectorVector3i;
   };
-  VectorVector3ll: {
-    new(): VectorVector3ll;
+  VectorVector3i64: {
+    new(): VectorVector3i64;
   };
-  VectorVectorVector3ll: {
-    new(): VectorVectorVector3ll;
+  VectorVectorVector3i64: {
+    new(): VectorVectorVector3i64;
   };
   VectorVector3d: {
     new(): VectorVector3d;
@@ -11449,11 +11459,11 @@ interface EmbindModule {
   VectorVectorVector4i: {
     new(): VectorVectorVector4i;
   };
-  VectorVector4ll: {
-    new(): VectorVector4ll;
+  VectorVector4i64: {
+    new(): VectorVector4i64;
   };
-  VectorVectorVector4ll: {
-    new(): VectorVectorVector4ll;
+  VectorVectorVector4i64: {
+    new(): VectorVectorVector4i64;
   };
   VectorVector4d: {
     new(): VectorVector4d;
@@ -11479,7 +11489,7 @@ interface EmbindModule {
   findCloseVerticesFromCloud(_0: PointCloud, _1: number, _2: ProgressCallback): VertBitSet | undefined;
   findCloseVerticesFromCoords(_0: VertCoords, _1: number, _2: VertBitSet | null, _3: ProgressCallback): VertBitSet | undefined;
   verticesGridSampling(_0: MeshPart, _1: number, _2: ProgressCallback): VertBitSet | undefined;
-  pointGridSampling(_0: PointCloud, _1: number, _2: ProgressCallback): VertBitSet | undefined;
+  pointGridSampling(_0: PointCloudPart, _1: number, _2: ProgressCallback): VertBitSet | undefined;
   multiModelGridSampling(_0: ModelPointsDataObjIdMap, _1: number, _2: ProgressCallback): VectorObjVertId | undefined;
   boolean(_0: Mesh, _1: Mesh, _2: BooleanOperation, _3: AffineXf3f | null, _4: BooleanResultMapper | null, _5: ProgressCallback): BooleanResult;
   booleanByMove(_0: Mesh, _1: Mesh, _2: BooleanOperation, _3: AffineXf3f | null, _4: BooleanResultMapper | null, _5: ProgressCallback): BooleanResult;
@@ -11542,9 +11552,9 @@ interface EmbindModule {
   edgeCurvMetric(_0: Mesh, _1: number, _2: number): EdgeMetric;
   edgeCurvMetricFromTopology(_0: MeshTopology, _1: VertCoords, _2: number, _3: number): EdgeMetric;
   edgeTableSymMetric(_0: MeshTopology, _1: EdgeMetric): EdgeMetric;
-  fillContourLeftByGraphCut(_0: MeshTopology, _1: VectorEdgeId, _2: EdgeMetric): FaceBitSet;
-  fillContourLeftByGraphCutByContours(_0: MeshTopology, _1: VectorEdgePath, _2: EdgeMetric): FaceBitSet;
-  segmentByGraphCut(_0: MeshTopology, _1: FaceBitSet, _2: FaceBitSet, _3: EdgeMetric): FaceBitSet;
+  fillContourLeftByGraphCut(_0: MeshTopology, _1: VectorEdgeId, _2: EdgeMetric, _3: ProgressCallback): FaceBitSet;
+  fillContourLeftByGraphCutByContours(_0: MeshTopology, _1: VectorEdgePath, _2: EdgeMetric, _3: ProgressCallback): FaceBitSet;
+  segmentByGraphCut(_0: MeshTopology, _1: FaceBitSet, _2: FaceBitSet, _3: EdgeMetric, _4: ProgressCallback): FaceBitSet;
   segmentByPointsImpl(_0: Mesh, _1: EdgeMetric, _2: StdVectorf, _3: StdVectorf): any;
   UndirectedEdgeMetric: {
     new(): UndirectedEdgeMetric;
@@ -11885,15 +11895,15 @@ interface EmbindModule {
     minusY(): Vector2f;
   };
   closestPointOnLineSegm2f(_0: Vector2f, _1: LineSegm2f): Vector2f;
-  Vector2ll: {
-    new(): Vector2ll;
-    new(_0: bigint, _1: bigint): Vector2ll;
-    new(_0: Vector2ll): Vector2ll;
-    diagonal(_0: bigint): Vector2ll;
-    plusX(): Vector2ll;
-    plusY(): Vector2ll;
-    minusX(): Vector2ll;
-    minusY(): Vector2ll;
+  Vector2i64: {
+    new(): Vector2i64;
+    new(_0: bigint, _1: bigint): Vector2i64;
+    new(_0: Vector2i64): Vector2i64;
+    diagonal(_0: bigint): Vector2i64;
+    plusX(): Vector2i64;
+    plusY(): Vector2i64;
+    minusX(): Vector2i64;
+    minusY(): Vector2i64;
   };
   Vector2b: {
     new(): Vector2b;
@@ -11998,28 +12008,28 @@ interface EmbindModule {
   mult3i(_0: Vector3i, _1: Vector3i): Vector3i;
   div3i(_0: Vector3i, _1: Vector3i): Vector3i;
   angle3i(_0: Vector3i, _1: Vector3i): number;
-  Vector3ll: {
-    new(): Vector3ll;
-    new(_0: bigint, _1: bigint, _2: bigint): Vector3ll;
-    createFromVector2(_0: Vector2ll): Vector3ll;
-    diagonal(_0: bigint): Vector3ll;
-    plusX(): Vector3ll;
-    plusY(): Vector3ll;
-    plusZ(): Vector3ll;
-    minusX(): Vector3ll;
-    minusY(): Vector3ll;
-    minusZ(): Vector3ll;
+  Vector3i64: {
+    new(): Vector3i64;
+    new(_0: bigint, _1: bigint, _2: bigint): Vector3i64;
+    createFromVector2(_0: Vector2i64): Vector3i64;
+    diagonal(_0: bigint): Vector3i64;
+    plusX(): Vector3i64;
+    plusY(): Vector3i64;
+    plusZ(): Vector3i64;
+    minusX(): Vector3i64;
+    minusY(): Vector3i64;
+    minusZ(): Vector3i64;
   };
-  unitVector3ll(_0: bigint, _1: bigint): Vector3f;
-  distanceSq3ll(_0: Vector3ll, _1: Vector3ll): bigint;
-  distance3ll(_0: Vector3ll, _1: Vector3ll): bigint;
-  cross3ll(_0: Vector3ll, _1: Vector3ll): Vector3ll;
-  dot3ll(_0: Vector3ll, _1: Vector3ll): bigint;
-  sqr3ll(_0: Vector3ll): bigint;
-  mixed3ll(_0: Vector3ll, _1: Vector3ll, _2: Vector3ll): bigint;
-  mult3ll(_0: Vector3ll, _1: Vector3ll): Vector3ll;
-  div3ll(_0: Vector3ll, _1: Vector3ll): Vector3ll;
-  angle3ll(_0: Vector3ll, _1: Vector3ll): bigint;
+  unitVector3i64(_0: bigint, _1: bigint): Vector3f;
+  distanceSq3i64(_0: Vector3i64, _1: Vector3i64): bigint;
+  distance3i64(_0: Vector3i64, _1: Vector3i64): bigint;
+  cross3i64(_0: Vector3i64, _1: Vector3i64): Vector3i64;
+  dot3i64(_0: Vector3i64, _1: Vector3i64): bigint;
+  sqr3i64(_0: Vector3i64): bigint;
+  mixed3i64(_0: Vector3i64, _1: Vector3i64, _2: Vector3i64): bigint;
+  mult3i64(_0: Vector3i64, _1: Vector3i64): Vector3i64;
+  div3i64(_0: Vector3i64, _1: Vector3i64): Vector3i64;
+  angle3i64(_0: Vector3i64, _1: Vector3i64): bigint;
   Vector3d: {
     new(): Vector3d;
     new(_0: number, _1: number, _2: number): Vector3d;
@@ -12075,17 +12085,17 @@ interface EmbindModule {
   distanceSq4i(_0: Vector4i, _1: Vector4i): number;
   distance4i(_0: Vector4i, _1: Vector4i): number;
   sqr4i(_0: Vector4i): number;
-  Vector4ll: {
-    new(): Vector4ll;
-    new(_0: bigint, _1: bigint, _2: bigint, _3: bigint): Vector4ll;
-    diagonal(_0: bigint): Vector4ll;
+  Vector4i64: {
+    new(): Vector4i64;
+    new(_0: bigint, _1: bigint, _2: bigint, _3: bigint): Vector4i64;
+    diagonal(_0: bigint): Vector4i64;
   };
-  dot4ll(_0: Vector4ll, _1: Vector4ll): bigint;
-  mult4ll(_0: Vector4ll, _1: Vector4ll): Vector4ll;
-  div4ll(_0: Vector4ll, _1: Vector4ll): Vector4ll;
-  distanceSq4ll(_0: Vector4ll, _1: Vector4ll): bigint;
-  distance4ll(_0: Vector4ll, _1: Vector4ll): bigint;
-  sqr4ll(_0: Vector4ll): bigint;
+  dot4i64(_0: Vector4i64, _1: Vector4i64): bigint;
+  mult4i64(_0: Vector4i64, _1: Vector4i64): Vector4i64;
+  div4i64(_0: Vector4i64, _1: Vector4i64): Vector4i64;
+  distanceSq4i64(_0: Vector4i64, _1: Vector4i64): bigint;
+  distance4i64(_0: Vector4i64, _1: Vector4i64): bigint;
+  sqr4i64(_0: Vector4i64): bigint;
   Vector4d: {
     new(): Vector4d;
     new(_0: number, _1: number, _2: number, _3: number): Vector4d;
