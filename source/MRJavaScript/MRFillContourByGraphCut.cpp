@@ -35,10 +35,10 @@ val segmentByPointsImpl( Mesh& mesh_, EdgeMetric& edgeMetric_, const std::vector
 	{
 		VertCoords inputPoints = MRJS::parseJSVertices( coordinates );
 
-		if ( inputPoints.size() < 2 || inputPoints.size() > 3 )
+		if ( inputPoints.size() != 2 || inputPoints.size() != 4 )
 		{
 			result.set( "success", false );
-			result.set( "error", std::string( "Need exactly 2 or 3 input points" ) );
+			result.set( "error", std::string( "Need exactly 2 or 4 input points" ) );
 
 			return result;
 		}

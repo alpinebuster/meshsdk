@@ -315,7 +315,7 @@ function SidebarObject( editor ) {
 							_dirArr.push_back(val_);
 						}
 
-						const metric = editor.MeshSDK.identityMetric( mesh );
+						const metric = editor.MeshSDK.edgeCurvMetric( mesh, 2.0, 0.0 );
 						const result_ = editor.MeshSDK.segmentByPointsImpl( mesh, metric, _pointArr, _dirArr );
 
 						const newVertices_ = result_.meshMV.vertices;
