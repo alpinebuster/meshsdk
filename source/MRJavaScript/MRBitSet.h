@@ -80,7 +80,6 @@ auto bindTypedBitSet( const std::string& className )
         .function( "subtract", select_overload<BitSetType & ( const BitSetType&, int )>( &BitSetType::subtract ), return_value_policy::reference() )
 
         .function( "isSubsetOf", &BitSetType::is_subset_of )
-        .function( "isProperSubsetOf", &BitSetType::is_proper_subset_of )
         .function( "intersects", &BitSetType::intersects )
 
         .function( "autoResizeSet", select_overload<void( typename BitSetType::IndexType, bool )>( &BitSetType::autoResizeSet ) )

@@ -68,6 +68,7 @@ EMSCRIPTEN_BINDINGS( BitSetModule )
         .function( "find_next_", &BitSet::find_next )
         .function( "find_last_", &BitSet::find_last )
         .function( "nthSetBit_", &BitSet::nthSetBit )
+        .function( "isSubsetOf_", &BitSet::is_subset_of )
 
         // Collection operations
         .function( "bitwiseAndAssign_", select_overload<BitSet & ( const BitSet& )>( &BitSet::operator&= ), return_value_policy::reference() )
