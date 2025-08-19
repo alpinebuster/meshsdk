@@ -1,6 +1,6 @@
 {
   "name": "three-meshsdk-editor",
-  "version": "0.8.2",
+  "version": "0.8.4",
   "description": "3Mesh - ThreeJS Mesh Editor utilizing the `MeshSDK`.",
   "keywords": [
     "threejs",

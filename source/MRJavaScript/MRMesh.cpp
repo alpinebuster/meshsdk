@@ -155,9 +155,12 @@ val createMaxillaGypsumBaseImpl( Mesh& mesh, EdgeId maxAreaHole, VertId minVert,
 
 		///
 		Mesh mMaxillaBase = findLookingSilhouetteConvexHull( mesh, dir );
-		mMaxillaBase.transform( MR::AffineXf3f::translation( transEBottomToGypsumBase ) );
+		auto moveMaxillaBaseDistance = dot( dir, transEBottomToGypsumBase );
+		mMaxillaBase.transform( MR::AffineXf3f::translation( moveMaxillaBaseDistance * dir ) );
+		
 		auto eGypsumBase = mMaxillaBase.topology.findHoleRepresentiveEdges();
-		EdgeId curREGypsumBase = extendHole( mMaxillaBase, eGypsumBase[0], Plane3f::fromDirAndPt( -dir, transEBottom ) );
+		// EdgeId curREGypsumBase = extendHole( mMaxillaBase, eGypsumBase[0], Plane3f::fromDirAndPt( -dir, transEBottom ) );
+		extendHole( mMaxillaBase, eGypsumBase[0], Plane3f::fromDirAndPt( -dir, transEBottom ) );
 		// Flip normals
 		mMaxillaBase.topology.flipOrientation();
 		///
@@ -165,16 +168,19 @@ val createMaxillaGypsumBaseImpl( Mesh& mesh, EdgeId maxAreaHole, VertId minVert,
 
 		///
 		// NOTE: `extenHole()` will change the `mesh`
-		EdgeId curRE = extendHole( mesh, maxAreaHole, Plane3f::fromDirAndPt( dir, transEBottom ) );
+		// EdgeId curRE = extendHole( mesh, maxAreaHole, Plane3f::fromDirAndPt( dir, transEBottom ) );
+		extendHole( mesh, maxAreaHole, Plane3f::fromDirAndPt( dir, transEBottom ) );
 		///
 
 
 		///
 		// Connect two meshes
 		mesh.addMesh( mMaxillaBase );
-		StitchHolesParams stitchParams;
-		stitchParams.metric = getMinAreaMetric( mesh );
-		buildCylinderBetweenTwoHoles( mesh, curREGypsumBase, curRE, stitchParams );
+		// StitchHolesParams stitchParams;
+		// stitchParams.metric = getMinAreaMetric( mesh );
+		// buildCylinderBetweenTwoHoles( mesh, curREGypsumBase, curRE, stitchParams );
+		buildCylinderBetweenTwoHoles( mesh );
+		MeshBuilder::uniteCloseVertices( mesh, 0.0f, true );
 		///
 	
 

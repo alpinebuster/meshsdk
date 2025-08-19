@@ -429,6 +429,7 @@ export interface BitSet extends ClassHandle {
   flipAll_(): BitSet;
   find_last_(): number;
   nthSetBit_(_0: number): number;
+  isSubsetOf_(_0: BitSet): boolean;
   bitwiseAndAssign_(_0: BitSet): BitSet;
   bitwiseOrAssign_(_0: BitSet): BitSet;
   bitwiseXorAssign_(_0: BitSet): BitSet;
@@ -479,7 +480,6 @@ export interface FaceBitSet extends BitSet {
   subtractAssign(_0: FaceBitSet): FaceBitSet;
   subtract(_0: FaceBitSet, _1: number): FaceBitSet;
   isSubsetOf(_0: FaceBitSet): boolean;
-  isProperSubsetOf(_0: FaceBitSet): boolean;
   intersects(_0: FaceBitSet): boolean;
   test(_0: FaceId): boolean;
   testSet(_0: FaceId, _1: boolean): boolean;
@@ -509,7 +509,6 @@ export interface VertBitSet extends BitSet {
   subtractAssign(_0: VertBitSet): VertBitSet;
   subtract(_0: VertBitSet, _1: number): VertBitSet;
   isSubsetOf(_0: VertBitSet): boolean;
-  isProperSubsetOf(_0: VertBitSet): boolean;
   intersects(_0: VertBitSet): boolean;
   test(_0: VertId): boolean;
   testSet(_0: VertId, _1: boolean): boolean;
@@ -539,7 +538,6 @@ export interface EdgeBitSet extends BitSet {
   subtractAssign(_0: EdgeBitSet): EdgeBitSet;
   subtract(_0: EdgeBitSet, _1: number): EdgeBitSet;
   isSubsetOf(_0: EdgeBitSet): boolean;
-  isProperSubsetOf(_0: EdgeBitSet): boolean;
   intersects(_0: EdgeBitSet): boolean;
   test(_0: EdgeId): boolean;
   testSet(_0: EdgeId, _1: boolean): boolean;
@@ -569,7 +567,6 @@ export interface UndirectedEdgeBitSet extends BitSet {
   subtractAssign(_0: UndirectedEdgeBitSet): UndirectedEdgeBitSet;
   subtract(_0: UndirectedEdgeBitSet, _1: number): UndirectedEdgeBitSet;
   isSubsetOf(_0: UndirectedEdgeBitSet): boolean;
-  isProperSubsetOf(_0: UndirectedEdgeBitSet): boolean;
   intersects(_0: UndirectedEdgeBitSet): boolean;
   test(_0: UndirectedEdgeId): boolean;
   testSet(_0: UndirectedEdgeId, _1: boolean): boolean;
@@ -599,7 +596,6 @@ export interface PixelBitSet extends BitSet {
   subtractAssign(_0: PixelBitSet): PixelBitSet;
   subtract(_0: PixelBitSet, _1: number): PixelBitSet;
   isSubsetOf(_0: PixelBitSet): boolean;
-  isProperSubsetOf(_0: PixelBitSet): boolean;
   intersects(_0: PixelBitSet): boolean;
   test(_0: PixelId): boolean;
   testSet(_0: PixelId, _1: boolean): boolean;
@@ -629,7 +625,6 @@ export interface VoxelBitSet extends BitSet {
   subtractAssign(_0: VoxelBitSet): VoxelBitSet;
   subtract(_0: VoxelBitSet, _1: number): VoxelBitSet;
   isSubsetOf(_0: VoxelBitSet): boolean;
-  isProperSubsetOf(_0: VoxelBitSet): boolean;
   intersects(_0: VoxelBitSet): boolean;
   test(_0: VoxelId): boolean;
   testSet(_0: VoxelId, _1: boolean): boolean;
@@ -659,7 +654,6 @@ export interface RegionBitSet extends BitSet {
   subtractAssign(_0: RegionBitSet): RegionBitSet;
   subtract(_0: RegionBitSet, _1: number): RegionBitSet;
   isSubsetOf(_0: RegionBitSet): boolean;
-  isProperSubsetOf(_0: RegionBitSet): boolean;
   intersects(_0: RegionBitSet): boolean;
   test(_0: RegionId): boolean;
   testSet(_0: RegionId, _1: boolean): boolean;
@@ -689,7 +683,6 @@ export interface NodeBitSet extends BitSet {
   subtractAssign(_0: NodeBitSet): NodeBitSet;
   subtract(_0: NodeBitSet, _1: number): NodeBitSet;
   isSubsetOf(_0: NodeBitSet): boolean;
-  isProperSubsetOf(_0: NodeBitSet): boolean;
   intersects(_0: NodeBitSet): boolean;
   test(_0: NodeId): boolean;
   testSet(_0: NodeId, _1: boolean): boolean;
@@ -719,7 +712,6 @@ export interface ObjBitSet extends BitSet {
   subtractAssign(_0: ObjBitSet): ObjBitSet;
   subtract(_0: ObjBitSet, _1: number): ObjBitSet;
   isSubsetOf(_0: ObjBitSet): boolean;
-  isProperSubsetOf(_0: ObjBitSet): boolean;
   intersects(_0: ObjBitSet): boolean;
   test(_0: ObjId): boolean;
   testSet(_0: ObjId, _1: boolean): boolean;
@@ -749,7 +741,6 @@ export interface TextureBitSet extends BitSet {
   subtractAssign(_0: TextureBitSet): TextureBitSet;
   subtract(_0: TextureBitSet, _1: number): TextureBitSet;
   isSubsetOf(_0: TextureBitSet): boolean;
-  isProperSubsetOf(_0: TextureBitSet): boolean;
   intersects(_0: TextureBitSet): boolean;
   test(_0: TextureId): boolean;
   testSet(_0: TextureId, _1: boolean): boolean;
@@ -779,7 +770,6 @@ export interface GraphVertBitSet extends BitSet {
   subtractAssign(_0: GraphVertBitSet): GraphVertBitSet;
   subtract(_0: GraphVertBitSet, _1: number): GraphVertBitSet;
   isSubsetOf(_0: GraphVertBitSet): boolean;
-  isProperSubsetOf(_0: GraphVertBitSet): boolean;
   intersects(_0: GraphVertBitSet): boolean;
   test(_0: GraphVertId): boolean;
   testSet(_0: GraphVertId, _1: boolean): boolean;
@@ -809,7 +799,6 @@ export interface GraphEdgeBitSet extends BitSet {
   subtractAssign(_0: GraphEdgeBitSet): GraphEdgeBitSet;
   subtract(_0: GraphEdgeBitSet, _1: number): GraphEdgeBitSet;
   isSubsetOf(_0: GraphEdgeBitSet): boolean;
-  isProperSubsetOf(_0: GraphEdgeBitSet): boolean;
   intersects(_0: GraphEdgeBitSet): boolean;
   test(_0: GraphEdgeId): boolean;
   testSet(_0: GraphEdgeId, _1: boolean): boolean;
@@ -839,7 +828,6 @@ export interface ICPElementBitSet extends BitSet {
   subtractAssign(_0: ICPElementBitSet): ICPElementBitSet;
   subtract(_0: ICPElementBitSet, _1: number): ICPElementBitSet;
   isSubsetOf(_0: ICPElementBitSet): boolean;
-  isProperSubsetOf(_0: ICPElementBitSet): boolean;
   intersects(_0: ICPElementBitSet): boolean;
   test(_0: ICPElementId): boolean;
   testSet(_0: ICPElementId, _1: boolean): boolean;

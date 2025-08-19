@@ -621,7 +621,7 @@ function SidebarObject( editor ) {
 				// 	0.0,
 				// 	9.0,
 				// );
-				const result = editor.MeshSDK.createMaxillaGypsumBaseImplTest( 
+				const result = editor.MeshSDK.createMaxillaGypsumBaseImpl( 
 					mesh,
 					bottomPosition.maxAreaHole,
 					bottomPosition.minVert,
