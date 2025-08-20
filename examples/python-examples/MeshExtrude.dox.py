@@ -1,7 +1,7 @@
 import meshlib.mrmeshpy as mrmeshpy
 
 # Load mesh
-mesh = mrmeshpy.loadMesh("../_assets/upper.stl")
+mesh = mrmeshpy.loadMesh("../_assets/mesh.stl")
 
 # Prepare region to extrude
 faces_to_extrude = mrmeshpy.FaceBitSet()

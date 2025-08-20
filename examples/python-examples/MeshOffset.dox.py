@@ -2,7 +2,7 @@ import meshlib.mrmeshpy as mrmeshpy
 import sys
 
 # Load mesh
-mesh = mrmeshpy.loadMesh("mesh.stl")
+mesh = mrmeshpy.loadMesh("../_assets/mesh.stl")
 
 # Setup parameters
 params = mrmeshpy.OffsetParameters()

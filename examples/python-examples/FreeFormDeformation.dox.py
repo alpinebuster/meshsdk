@@ -1,7 +1,7 @@
 from meshlib import mrmeshpy as mm
 
 # Load mesh
-mesh = mm.loadMesh("mesh.stl")
+mesh = mm.loadMesh("../_assets/mesh.stl")
 
 # Compute mesh bounding box
 box = mesh.computeBoundingBox()

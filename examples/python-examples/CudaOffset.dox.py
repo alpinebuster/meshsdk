@@ -2,7 +2,7 @@ from meshlib import mrmeshpy as mlib
 from meshlib import mrcudapy as mc
 
 
-mesh = mlib.loadMesh("mesh.stl")
+mesh = mlib.loadMesh("../_assets/mesh.stl")
 offset_params = mlib.GeneralOffsetParameters()
 offset_params.signDetectionMode = mlib.SignDetectionMode.HoleWindingRule
 offset_params.fwn = mc.FastWindingNumber(mesh) # Enables usage of CUDA

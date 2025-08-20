@@ -4,7 +4,7 @@ import numpy as np
 import plotly.graph_objects as go
 
 # load mesh
-mesh = mm.loadMesh("mesh.stl")
+mesh = mm.loadMesh("../_assets/mesh.stl")
 # extract numpy arrays
 verts = mn.getNumpyVerts(mesh)
 faces = mn.getNumpyFaces(mesh.topology)

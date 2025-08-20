@@ -1,7 +1,7 @@
 import meshlib.mrmeshpy as mrmeshpy
 
 # Load mesh
-mesh = mrmeshpy.loadMesh("mesh.stl")
+mesh = mrmeshpy.loadMesh("../_assets/mesh.stl")
 
 # Find single edge for each hole in mesh
 hole_edges = mesh.topology.findHoleRepresentiveEdges()

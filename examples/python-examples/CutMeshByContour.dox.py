@@ -22,7 +22,7 @@ coords = [
     12.374342918395996, -8.568268775939941, 4.713981628417969
 ]
 
-mesh = mm.loadMesh("../_assets/upper.stl")
+mesh = mm.loadMesh("../_assets/mesh.stl")
 
 contour = mm.Contour3f()
 for i in range(0, len(coords), 3):

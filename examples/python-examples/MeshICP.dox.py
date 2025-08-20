@@ -1,8 +1,8 @@
 import meshlib.mrmeshpy as mrmeshpy
 
 # Load meshes
-meshFloating = mrmeshpy.loadMesh("../_assets/lower.stl")
-meshFixed = mrmeshpy.loadMesh("../_assets/upper.stl")
+meshFloating = mrmeshpy.loadMesh("../_assets/mandible.stl")
+meshFixed = mrmeshpy.loadMesh("../_assets/maxilla.stl")
 
 # Prepare ICP parameters
 diagonal = meshFixed.getBoundingBox().diagonal()

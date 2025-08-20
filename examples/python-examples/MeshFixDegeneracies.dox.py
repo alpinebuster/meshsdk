@@ -3,7 +3,7 @@ import sys
 import meshlib.mrmeshpy as mrmeshpy
 
 # Load mesh
-mesh = mrmeshpy.loadMesh("mesh.stl")
+mesh = mrmeshpy.loadMesh("../_assets/mesh.stl")
 
 # you can set various parameters for the resolving process; see the documentation for more info
 params = mrmeshpy.FixMeshDegeneraciesParams()

@@ -2,7 +2,7 @@ import math
 
 import meshlib.mrmeshpy as mrmeshpy
 
-mesh = mrmeshpy.loadMesh("../_assets/upper.stl")
+mesh = mrmeshpy.loadMesh("../_assets/mesh.stl")
 
 relax_params = mrmeshpy.MeshRelaxParams()
 relax_params.iterations = 5

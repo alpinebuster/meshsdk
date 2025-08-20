@@ -3,7 +3,7 @@ from meshlib import mrmeshpy as mm
 from meshlib import mrviewerpy as mv
 
 # Load mesh
-mesh = mm.loadMesh("mesh.stl")
+mesh = mm.loadMesh("../_assets/mesh.stl")
 
 # Setup parameters
 params = mm.OffsetParameters()

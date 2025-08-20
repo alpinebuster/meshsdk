@@ -1,8 +1,8 @@
 import meshlib.mrmeshpy as mrmeshpy
 
 # Load meshes
-mesh_a = mrmeshpy.loadMesh("meshAwithHole.stl")
-mesh_b = mrmeshpy.loadMesh("meshBwithHole.stl")
+mesh_a = mrmeshpy.loadMesh("../_assets/maxilla.stl")
+mesh_b = mrmeshpy.loadMesh("../_assets/mandible.stl")
 
 # Unite meshes
 mesh = mrmeshpy.mergeMeshes([mesh_a, mesh_b])

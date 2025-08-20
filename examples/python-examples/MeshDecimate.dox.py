@@ -1,7 +1,7 @@
 import meshlib.mrmeshpy as mrmeshpy
 
 # Load mesh
-mesh = mrmeshpy.loadMesh("mesh.stl")
+mesh = mrmeshpy.loadMesh("../_assets/mesh.stl")
 
 # Repack mesh optimally.
 # It's not necessary but highly recommended to achieve the best performance in parallel processing
