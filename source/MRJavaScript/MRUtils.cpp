@@ -14,6 +14,8 @@
 #include <MRMesh/MRBitSetParallelFor.h>
 #include <MRMesh/MRIdentifyVertices.h>
 #include <MRMesh/MRMeshTopology.h>
+#include <MRMesh/MRAffineXf3.h>
+#include <MRMesh/MRAffineXf.h>
 #include <MRMesh/MRId.h>
 #include <MRMesh/MRVector.h>
 #include <MRMesh/MRVector2.h>
@@ -1156,6 +1158,12 @@ EMSCRIPTEN_BINDINGS( ArrayTypedModule )
 	MRJS::bindStdArray<float, 4>( "Array4Stdf" );
 	MRJS::bindStdArray<long long, 4>( "Array4Stdll" );
 	MRJS::bindStdArray<double, 4>( "Array4Stdd" );
+	///
+
+
+	///
+	MRJS::bindStdArray<AffineXf3d, 4>( "Array4AffineXf3d" );
+	MRJS::bindStdArray<AffineXf3f, 4>( "Array4AffineXf3f" );
 	///
 
 

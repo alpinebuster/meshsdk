@@ -284,6 +284,31 @@ export interface AxisValue<T extends number> {
 }
 export type Axis = AxisValue<0>|AxisValue<1>|AxisValue<2>|AxisValue<3>;
 
+export interface PointAccumulator extends ClassHandle {
+  getBasicXf(): AffineXf3d;
+  getBasicXf3f(): AffineXf3f;
+  valid(): boolean;
+  getBestLinef(): Line3f;
+  getBestLine(): Line3d;
+  getBestPlanef(): Plane3f;
+  getBestPlane(): Plane3d;
+  get4BasicXfs(): Array4AffineXf3d;
+  get4BasicXfs3f(): Array4AffineXf3f;
+  addPointf(_0: Vector3f): void;
+  addPointfWithWeighted(_0: Vector3f, _1: number): void;
+  getCenteredCovarianceEigenf(_0: Vector3f, _1: Matrix3f, _2: Vector3f): boolean;
+  addPoint(_0: Vector3d): void;
+  addPointWithWeighted(_0: Vector3d, _1: number): void;
+  getCenteredCovarianceEigen(_0: Vector3d, _1: Matrix3d, _2: Vector3d): boolean;
+}
+
+export interface PlaneAccumulator extends ClassHandle {
+  addPlanef(_0: Plane3f): void;
+  addPlane(_0: Plane3d): void;
+  findBestCrossPointf(_0: Vector3f, _1: number): CrossPointResultf;
+  findBestCrossPoint(_0: Vector3d, _1: number): CrossPointResult;
+}
+
 export interface CubicBezierCurve2f extends ClassHandle {
   getPoint(_0: number): Vector2f;
   setPoint(_0: number, _1: Vector2f): void;
@@ -7007,6 +7032,10 @@ export type Array4Stdll = [ bigint, bigint, bigint, bigint ];
 
 export type Array4Stdd = [ number, number, number, number ];
 
+export type Array4AffineXf3d = [ AffineXf3d, AffineXf3d, AffineXf3d, AffineXf3d ];
+
+export type Array4AffineXf3f = [ AffineXf3f, AffineXf3f, AffineXf3f, AffineXf3f ];
+
 export type Array2WeightedVertex = [ WeightedVertex, WeightedVertex ];
 
 export type Array3WeightedVertex = [ WeightedVertex, WeightedVertex, WeightedVertex ];
@@ -9053,6 +9082,12 @@ export type AABBTreePointsPoint = {
   id: VertId
 };
 
+export type CrossPointResultf = {
+  point: Vector3f,
+  rank: number,
+  space: Vector3f
+};
+
 export type FindParams = {
   upDirection: Vector3f,
   wallAngle: number
@@ -9162,6 +9197,12 @@ export interface Vector3d extends ClassHandle {
   isFinite(): boolean;
   furthestBasisVector(): Vector3d;
 }
+
+export type CrossPointResult = {
+  point: Vector3d,
+  rank: number,
+  space: Vector3d
+};
 
 export type Vector3dPair = [ Vector3d, Vector3d ];
 
@@ -9295,6 +9336,12 @@ interface EmbindModule {
   to3dimXfd(_0: AffineXf2d): AffineXf3d;
   to2dimXfd(_0: AffineXf3d): AffineXf2d;
   Axis: {X: AxisValue<0>, Y: AxisValue<1>, Z: AxisValue<2>, Count: AxisValue<3>};
+  PointAccumulator: {
+    new(): PointAccumulator;
+  };
+  PlaneAccumulator: {
+    new(): PlaneAccumulator;
+  };
   CubicBezierCurve2f: {
     new(): CubicBezierCurve2f;
     getWeights(_0: number): Array4Stdf;
@@ -10437,6 +10484,7 @@ interface EmbindModule {
     new(_0: Mesh): MeshPart;
     new(_0: Mesh, _1: FaceBitSet | null): MeshPart;
   };
+  accumulateFaceCenters(_0: PointAccumulator, _1: MeshPart, _2: AffineXf3f | null): void;
   isInside(_0: MeshPart, _1: MeshPart, _2: AffineXf3f | null): boolean;
   isNonIntersectingInside(_0: MeshPart, _1: MeshPart, _2: AffineXf3f | null): boolean;
   isNonIntersectingInsideWithFaceId(_0: Mesh, _1: FaceId, _2: MeshPart, _3: AffineXf3f | null): boolean;
@@ -10575,6 +10623,7 @@ interface EmbindModule {
     new(_0: PointCloud): PointCloudPart;
     new(_0: PointCloud, _1: VertBitSet | null): PointCloudPart;
   };
+  accumulatePointsFromRegion(_0: PointAccumulator, _1: PointCloudPart, _2: AffineXf3f | null): void;
   PointOnFace: {};
   findDistance(_0: MeshPart, _1: MeshPart, _2: AffineXf3f | null, _3: number): MeshMeshDistanceResult;
   findSignedDistance(_0: MeshPart, _1: MeshPart, _2: AffineXf3f | null, _3: number): MeshMeshSignedDistanceResult;
@@ -10598,6 +10647,7 @@ interface EmbindModule {
     new(_0: VectorVector3f): Polyline3;
     fromContours(_0: VectorVectorVector3f): Polyline3;
   };
+  accumulateLineCenters(_0: PointAccumulator, _1: Polyline3, _2: AffineXf3f | null): void;
   offsetPolyline(_0: Polyline3, _1: number, _2: OffsetParameters): ExpectedMesh;
   Polyline2: {
     new(): Polyline2;
@@ -11397,6 +11447,8 @@ interface EmbindModule {
   VectorVector3f: {
     new(): VectorVector3f;
   };
+  accumulatePoints(_0: PointAccumulator, _1: VectorVector3f, _2: AffineXf3f | null): void;
+  accumulateWeighedPoints(_0: PointAccumulator, _1: VectorVector3f, _2: StdVectorf, _3: AffineXf3f | null): void;
   cutMeshByContour(_0: Mesh, _1: VectorVector3f, _2: AffineXf3f): ExpectedFaceBitSet;
   VectorVectorVector3f: {
     new(): VectorVectorVector3f;
