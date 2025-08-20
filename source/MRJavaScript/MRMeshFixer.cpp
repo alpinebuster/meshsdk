@@ -89,5 +89,47 @@ EMSCRIPTEN_BINDINGS( MeshFixerModule )
         .value( "Both", FindDisorientationParams::RayMode::Both );
 
 
+    /**
+     * Find faces with suspicious orientation
+     * 
+     * --------------- EXAMPLE USAGE ---------------
+     * 
+     *    // 1. Load STL
+     *    auto meshOpt = loadMesh( "18.stl" );
+     *    if ( !meshOpt )
+     *    {
+     *        std::cerr << "Failed to load mesh\n";
+     *        return 1;
+     *    }
+     *    Mesh mesh = std::move( *meshOpt );
+     *
+     *    // 2. Find faces with flipped (disoriented ) normals
+     *    FaceBitSet disorientedFaces = findDisorientedFaces( mesh );
+     *
+     *    // 3. Extract those faces into a new mesh and flip them
+     *    Mesh separateDisorientedPart;
+     *    separateDisorientedPart.addPart( mesh, disorientedFaces );
+     *    separateDisorientedPart.topology.flipOrientation();
+     *
+     *    // 4. Remove those reversed (disoriented ) faces from the original mesh
+     *    mesh.deleteFaces( disorientedFaces );
+     *
+     *    // 5. Re-add the flipped faces (they will be joined but not connected)
+     *    mesh.addPart( separateDisorientedPart );
+     *
+     *    // 6. Rebuild mesh with corrected disorientation to connect all together and fix issues
+     *    RebuildMeshSettings rSettings;
+     *    rSettings.voxelSize = suggestVoxelSize( mesh, 1e8f );
+     *    mesh = rebuildMesh( mesh, rSettings );
+     *
+     *    // 7. Optional: remove isolated components with area too small
+     *    auto largeComps = MeshComponents::getLargeByAreaComponents(
+     *        mesh, mesh.area() * 0.002, nullptr );
+     *    mesh.deleteFaces( mesh.topology.getValidFaces() - largeComps );
+     *
+     *    // 8. Save STL
+     *    saveMesh( mesh, "res_mesh.stl" );
+     * 
+     */
     function( "findDisorientedFaces", &findDisorientedFaces );
 }

@@ -14,6 +14,7 @@ EMSCRIPTEN_BINDINGS( RegionBoundaryModule )
 	function( "trackRightBoundaryLoop", select_overload<EdgeLoop( const MeshTopology&, EdgeId, const FaceBitSet* )>( &trackRightBoundaryLoop ), allow_raw_pointers() );
 
 	function( "findLeftBoundary", select_overload<std::vector<EdgeLoop>( const MeshTopology&, const FaceBitSet* )>( &findLeftBoundary ), allow_raw_pointers() );
+	// NOTE: detect holes
 	function( "findRightBoundary", select_overload<std::vector<EdgeLoop>( const MeshTopology&, const FaceBitSet* )>( &findRightBoundary ), allow_raw_pointers() );
 
 	function( "delRegionKeepBd", select_overload<std::vector<EdgeLoop>( Mesh&, const FaceBitSet*, bool )>( &delRegionKeepBd ), allow_raw_pointers() );
