@@ -472,10 +472,19 @@ function SidebarObject( editor ) {
 			const meshPart = new editor.MeshSDK.MeshPart( mesh );
 			params.voxelSize = editor.MeshSDK.suggestVoxelSize( meshPart, 5e6 );
 
-			const result = editor.MeshSDK.thickenMeshImplFilled( mesh, 1.2, params );
+			const mp = new editor.MeshSDK.MeshPart( mesh );
+			const resultExpected = editor.MeshSDK.offsetOneDirection( mp, 1.2, params );
+			const resultWasmMesh = resultExpected.value();
+
+			const result = editor.MeshSDK.thickenMeshImplFilled( resultWasmMesh, 1.2, params );
+			// const resultExpected = editor.MeshSDK.thickenMesh( mesh, 1.2, params );
+
+			// const result = editor.MeshSDK.exportMeshMemoryView(resultWasmMesh);
 			
 			const newVertices = result.meshMV.vertices;
 			const newIndices = result.meshMV.indices;
+			// const newVertices = result.vertices;
+			// const newIndices = result.indices;
 			showMesh( result.mesh, newVertices, newIndices );
 
 			editor.MeshSDK._free( verticesPtr );
