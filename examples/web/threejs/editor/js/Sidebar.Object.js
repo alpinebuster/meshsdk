@@ -318,9 +318,13 @@ function SidebarObject( editor ) {
 						const metric = editor.MeshSDK.edgeCurvMetric( mesh, 2.0, 0.0 );
 						const result_ = editor.MeshSDK.segmentByPointsImpl( mesh, metric, _pointArr, _dirArr );
 
-						const newVertices_ = result_.meshMV.vertices;
-						const newIndices_ = result_.meshMV.indices;
-						showMesh( result_.mesh, newVertices_, newIndices_ );
+						const smallerVertices_ = result_.smallerMeshMV.vertices;
+						const smallerIndices_ = result_.smallerMeshMV.indices;
+						showMesh( result_.mesh, smallerVertices_, smallerIndices_ );
+
+						const largerVertices_ = result_.largerMeshMV.vertices;
+						const largerIndices_ = result_.largerMeshMV.indices;
+						showMesh( result_.mesh, largerVertices_, largerIndices_ );
 						
 
 						_pointArr.delete();

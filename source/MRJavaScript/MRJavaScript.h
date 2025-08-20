@@ -18,7 +18,7 @@ using namespace MR;
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdollar-in-identifier-extension"
 EM_JS( void, greet, ( const char* name ), {
-	console.log( `EM_JS: Hello from ${UTF8ToString( name )} by utilizing C++ source code to call JS!` );
+	console.log( `EM_JS: Hello from ${UTF8ToString( name )} by utilizing emscripten to call JS!` );
 } );
 #pragma clang diagnostic pop
 

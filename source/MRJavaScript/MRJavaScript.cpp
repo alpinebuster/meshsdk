@@ -11,13 +11,13 @@ using namespace MR;
 
 int main()
 {
-    printf( "C++ Std: Hello World From WASM!\n" );
+    printf( "C++ Main: Hello 👋\n" );
 
     EM_ASM(
         console.log( "EM_ASM: Hello from C++ to JS!" );
     );
 
-    greet( "MeshSDK" );
+    greet( "C++" );
 
     return 0;
 }

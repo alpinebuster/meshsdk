@@ -36,10 +36,11 @@ val segmentByPointsImpl( Mesh& mesh_, EdgeMetric& edgeMetric_, const std::vector
 	{
 		VertCoords inputPoints = MRJS::parseJSVertices( coordinates );
 
-		if ( inputPoints.size() != 2 || inputPoints.size() != 4 )
+		if ( inputPoints.size() != 2 && inputPoints.size() != 4 )
 		{
 			result.set( "success", false );
-			result.set( "error", std::string( "Need exactly 2 or 4 input points" ) );
+			std::string err = "Need exactly 2 or 4 input points, got " + std::to_string(inputPoints.size());
+			result.set("error", err);
 
 			return result;
 		}
@@ -111,12 +112,14 @@ val segmentByPointsImpl( Mesh& mesh_, EdgeMetric& edgeMetric_, const std::vector
 		EdgePath contourPath( contour.begin(), contour.end() );
 
 		// Step 5: Fill the contour to get the segmented region
-		Mesh segMesh;
 		FaceBitSet segmentedFaces = fillContourLeftByGraphCut( mesh_.topology, contourPath, edgeMetric_ );
-		segMesh.addMeshPart( {mesh_, &segmentedFaces} );
 
-		// Step 6: Convert results to JavaScript-friendly format using emscripten val
-		val meshData = MRJS::exportMeshMemoryView( segMesh );
+		// Mesh segMesh;
+		// segMesh.addMeshPart( {mesh_, &segmentedFaces} );
+		auto [smallerMesh, largerMesh] = MRJS::returnParts( mesh_, segmentedFaces );
+		val smallerMeshData = MRJS::exportMeshMemoryView( smallerMesh );
+		val largerMeshData = MRJS::exportMeshMemoryView( largerMesh );
+		// val meshData = MRJS::exportMeshMemoryView( segMesh );
 					
 		// Since `EdgeId` has an implicit conversion operator to int, and it is internally represented as an int
 		// We can directly reinterpret `EdgeId*` as `int*`
@@ -127,8 +130,10 @@ val segmentByPointsImpl( Mesh& mesh_, EdgeMetric& edgeMetric_, const std::vector
 		// Build the result object
 		result.set( "success", true );
 		result.set( "contourEdges", contourEdgesArray );
-		result.set( "mesh", segMesh );
-		result.set( "meshMV", meshData );
+		result.set( "smallerMesh", smallerMesh );
+		result.set( "largerMesh", largerMesh );
+		result.set( "smallerMeshMV", smallerMeshData );
+		result.set( "largerMeshMV", largerMeshData );
 	}
 	catch ( const std::exception& e )
 	{
