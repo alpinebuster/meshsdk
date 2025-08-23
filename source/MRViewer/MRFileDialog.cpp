@@ -449,8 +449,22 @@ std::vector<std::filesystem::path> openFilesDialog( const FileParameters& params
 #elif !defined( MRVIEWER_NO_GTK )
     results = gtkDialog( parameters );
 #endif
-    if ( !results.empty() )
+    if ( results.empty() )
+        spdlog::info( "Open dialog canceled" );
+    else
+    {
+        spdlog::info( "Open dialog returned {} items", results.size() );
+        for ( size_t i = 0; i < results.size(); ++i )
+        {
+            std::error_code ec;
+            auto sz = file_size( results[i], ec );
+            if ( ec )
+                spdlog::info( "  item #{}: {}, access error {}", i, MR::utf8string( results[i] ), ec.message() );
+            else
+                spdlog::info( "  item #{}: {}, filesize={}", i, MR::utf8string( results[i] ), sz );
+        }
         FileDialogSignals::instance().onOpenFiles( results );
+    }
     return results;
 }
 
@@ -566,15 +580,14 @@ std::filesystem::path saveFileDialog( const FileParameters& params /*= {} */ )
 #elif !defined( MRVIEWER_NO_GTK )
     results = gtkDialog( parameters );
 #endif
-    if ( results.size() == 1 )
+    if ( results.size() == 1 && !results[0].empty() )
     {
-        if ( !results[0].empty() )
-        {
-            FileDialog::setLastUsedDir( MR::utf8string( results[0].parent_path() ) );
-            FileDialogSignals::instance().onSaveFile( results[0] );
-        }
+        spdlog::info( "Save dialog returned: {}", MR::utf8string( results[0] ) );
+        FileDialog::setLastUsedDir( MR::utf8string( results[0].parent_path() ) );
+        FileDialogSignals::instance().onSaveFile( results[0] );
         return results[0];
     }
+    spdlog::info( "Save dialog canceled" );
     return {};
 }
 

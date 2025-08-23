@@ -144,7 +144,7 @@ jobs:
       vs19_vcpkg_version: ${{ needs.config.outputs.vs19_vcpkg_version }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           submodules: true
 
@@ -167,7 +167,7 @@ jobs:
           .\thirdparty\install.bat
 
       - name: Download Windows Binaries Archive
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           pattern: WindowsArchive*
           merge-multiple: true
@@ -209,24 +209,24 @@ jobs:
     runs-on: windows-2022
     steps:
      - name: Checkout
-       uses: actions/checkout@v4
+       uses: actions/checkout@v5
 
      - name: Download NuGet Windows Patch Archive
-       uses: actions/download-artifact@v4
+       uses: actions/download-artifact@v5
        with:
          pattern: DotNetPatchArchiveWindows*
          path: windows_runtime
          merge-multiple: true
 
      - name: Download NuGet Linux Patch Archive
-       uses: actions/download-artifact@v4
+       uses: actions/download-artifact@v5
        with:
          pattern: DotNetPatchArchiveLinux*
          path: linux_runtime
          merge-multiple: true
 
      - name: Download NuGet DLL
-       uses: actions/download-artifact@v4
+       uses: actions/download-artifact@v5
        with:
          pattern: DotNetDll*
          path: dotnet_dll
@@ -266,10 +266,10 @@ jobs:
       - macos-build-test
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Download All Developer Distributives
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           pattern: Distributives*
           merge-multiple: true
@@ -333,10 +333,10 @@ jobs:
     continue-on-error: true
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Download runners' system stats
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           pattern: RunnerSysStats*
           merge-multiple: true
@@ -404,7 +404,7 @@ jobs:
 
       # generate timing logs archive
       - name: Download Timing Logs Archive
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           pattern: Timing_Logs*
           merge-multiple: true
