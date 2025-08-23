@@ -10588,10 +10588,10 @@ interface EmbindModule {
   mcShellMeshRegion(_0: Mesh, _1: FaceBitSet, _2: number, _3: BaseShellParameters, _4: VoxelIdFaceIdMap | null): ExpectedMesh;
   sharpOffsetMesh(_0: MeshPart, _1: number, _2: SharpOffsetParameters): ExpectedMesh;
   generalOffsetMesh(_0: MeshPart, _1: number, _2: GeneralOffsetParameters): ExpectedMesh;
-  thickenMesh(_0: Mesh, _1: number, _2: GeneralOffsetParameters): ExpectedMesh;
   offsetOneDirection(_0: MeshPart, _1: number, _2: GeneralOffsetParameters): ExpectedMesh;
   thickenMeshImpl(_0: Mesh, _1: number, _2: GeneralOffsetParameters): any;
-  thickenMeshImplFilled(_0: Mesh, _1: number, _2: GeneralOffsetParameters): any;
+  thickenMeshFilledImpl(_0: Mesh, _1: number, _2: GeneralOffsetParameters): any;
+  thickenMeshWithTensionImpl(_0: Mesh, _1: number, _2: number, _3: boolean, _4: GeneralOffsetParameters): any;
   SortIntersectionsData: {};
   OneMeshContour: {
     new(): OneMeshContour;
@@ -10602,6 +10602,7 @@ interface EmbindModule {
   PartMapping: {
     new(): PartMapping;
   };
+  thickenMesh(_0: Mesh, _1: number, _2: GeneralOffsetParameters, _3: PartMapping): ExpectedMesh;
   Plane3f: {
     new(): Plane3f;
     new(_0: Plane3d): Plane3f;
@@ -10663,6 +10664,7 @@ interface EmbindModule {
   SpacingSettings: {
     new(): SpacingSettings;
   };
+  generateOrthodonticBitesImpl(_0: Mesh, _1: Mesh, _2: number, _3: InflateSettings, _4: GeneralOffsetParameters): any;
   positionVertsSmoothly(_0: Mesh, _1: VertBitSet, _2: EdgeWeights, _3: VertexMass, _4: VertBitSet | null): void;
   positionVertsSmoothlyWithTopology(_0: MeshTopology, _1: VertCoords, _2: VertBitSet, _3: EdgeWeights, _4: VertexMass, _5: VertBitSet | null): void;
   positionVertsSmoothlySharpBd(_0: Mesh, _1: VertBitSet, _2: VertCoords | null, _3: VertScalars | null): void;

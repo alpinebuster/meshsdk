@@ -159,6 +159,12 @@ function SidebarObject( editor ) {
 	let curveLine = new THREE.Line( new THREE.BufferGeometry(), curveMaterial );
 	curveLine.name = 'wasm-selector-curve';
 
+
+	///
+	const selectorWasmResults = [];
+	///
+
+
 	const wasmOpSelector = new UIButton( strings.getKey( 'sidebar/object/wasmOpSelector') ).setMarginLeft( '7px' ).onClick(function () {
 		if ( !editor.selected ) return;
 
@@ -263,6 +269,7 @@ function SidebarObject( editor ) {
 
 						///
 						const result = editor.MeshSDK.cutMeshByContourImpl( mesh, floatVec );
+						selectorWasmResults.push(result.smallerMesh);
 						///
 
 
@@ -330,12 +337,10 @@ function SidebarObject( editor ) {
 						_pointArr.delete();
 						_dirArr.delete();
 						break;
-
-					default:
-						break;
 				}
 
 				/// IMPORTANT!!!
+				mesh.delete();
 				editor.MeshSDK._free( verticesPtr );
 				editor.MeshSDK._free( indicesPtr );
 			}
@@ -476,7 +481,7 @@ function SidebarObject( editor ) {
 			const resultExpected = editor.MeshSDK.offsetOneDirection( mp, 1.2, params );
 			const resultWasmMesh = resultExpected.value();
 
-			const result = editor.MeshSDK.thickenMeshImplFilled( resultWasmMesh, 1.2, params );
+			const result = editor.MeshSDK.thickenMeshFilledImpl( resultWasmMesh, 1.2, params );
 			// const resultExpected = editor.MeshSDK.thickenMesh( mesh, 1.2, params );
 
 			// const result = editor.MeshSDK.exportMeshMemoryView(resultWasmMesh);
@@ -489,6 +494,34 @@ function SidebarObject( editor ) {
 
 			editor.MeshSDK._free( verticesPtr );
 			editor.MeshSDK._free( indicesPtr );
+		}
+	});
+	const wasmOpThickenBites = new UIButton( strings.getKey( 'sidebar/object/wasmOpThickenBites') ).setMarginLeft( '7px' ).onClick( function () {
+		if ( !editor.selected ) return;
+
+		const currentUUID = editor.selected.uuid;
+		if ( currentUUID && selectorWasmResults.length >=2 ) {
+			const offsetParams = new editor.MeshSDK.GeneralOffsetParameters();
+			const meshPart = new editor.MeshSDK.MeshPart( selectorWasmResults[0] );
+			offsetParams.voxelSize = editor.MeshSDK.suggestVoxelSize( meshPart, 5e6 );
+			offsetParams.signDetectionMode = editor.MeshSDK.SignDetectionMode.Unsigned;
+
+			const inflateSettings = {
+				pressure: 2,
+				iterations: 1,
+				preSmooth: true,
+				gradualPressureGrowth: true
+			};
+
+			const result = editor.MeshSDK.generateOrthodonticBitesImpl( selectorWasmResults[0], selectorWasmResults[1], 0.1, inflateSettings, offsetParams );
+
+			const newVertices = result.meshMV.vertices;
+			const newIndices = result.meshMV.indices;
+			showMesh( result.mesh, newVertices, newIndices );
+
+			meshPart.delete();
+			selectorWasmResults[0].delete();
+			selectorWasmResults[1].delete();
 		}
 	});
 
@@ -756,6 +789,7 @@ function SidebarObject( editor ) {
 	
 	const wasmOpsRowThicken = new UIRow();
 	wasmOpsRowThicken.add( wasmOpThickenMesh );
+	wasmOpsRowThicken.add( wasmOpThickenBites );
 	
 	const wasmOpsRowLoad = new UIRow();
 	wasmOpsRowLoad.add( wasmOpLoadFromThreeJS );

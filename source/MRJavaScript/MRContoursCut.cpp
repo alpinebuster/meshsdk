@@ -80,8 +80,10 @@ val cutMeshWithPolylineImpl( Mesh& mesh, const std::vector<float>& coordinates )
 
 		val obj = val::object();
 		obj.set( "success", true );
-		obj.set( "smallerMesh", smallerMeshData );
-		obj.set( "largerMesh", largeMeshData );
+		obj.set( "smallerMesh", smallerMesh );
+		obj.set( "largerMesh", largerMesh );
+		obj.set( "smallerMeshMV", smallerMeshData );
+		obj.set( "largerMeshMV", largeMeshData );
 
 		return obj;
 	} else {
@@ -212,8 +214,10 @@ val cutMeshWithPolylineImplTest( Mesh& mesh, const std::vector<float>& coordinat
 
 		val obj = val::object();
 		obj.set( "success", true );
-		obj.set( "smallerMesh", smallerMeshData );
-		obj.set( "largerMesh", largerMeshData );
+		obj.set( "smallerMesh", smallerMesh );
+		obj.set( "largerMesh", largerMesh );
+		obj.set( "smallerMeshMV", smallerMeshData );
+		obj.set( "largerMeshMV", largerMeshData );
 		obj.set( "cutResults", cutResults );
 		obj.set( "meshContour", meshContour );
 		obj.set( "projectedPolyline", projectedPolyline );
@@ -259,10 +263,10 @@ val cutMeshByContourImplTest( Mesh& mesh, const std::vector<float>& coordinates 
 
 	val obj = val::object();
 	obj.set( "success", true );
-	obj.set( "smallerMesh", smallerMeshData );
-	obj.set( "largerMesh", largerMeshData );
-	obj.set( "smallerMeshInstance", smallerMesh );
-	obj.set( "largerMeshInstance", largerMesh );
+	obj.set( "smallerMesh", smallerMesh );
+	obj.set( "largerMesh", largerMesh );
+	obj.set( "smallerMeshMV", smallerMeshData );
+	obj.set( "largerMeshMV", largerMeshData );
 
 	return obj;
 }

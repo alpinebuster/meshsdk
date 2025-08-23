@@ -27,7 +27,35 @@ using namespace MR;
 
 namespace MRJS {
 
-val thickenMeshImplFilled( const Mesh& mesh, float offset, GeneralOffsetParameters &params )
+val thickenMeshImpl( const Mesh& mesh, float offset, const GeneralOffsetParameters& params )
+{
+	auto result = thickenMesh( mesh, offset, params );
+
+	if ( result )
+	{
+		auto mesh = result.value();
+		val meshData = MRJS::exportMeshMemoryView( mesh );
+
+		// Return the mesh wrapped in an object that indicates success
+		val returnObj = val::object();
+		returnObj.set( "success", true );
+		returnObj.set( "mesh", mesh );
+		returnObj.set( "meshMV", meshData );
+
+		return returnObj;
+	}
+	else
+	{
+		// Return an error object with the error message
+		val returnObj = val::object();
+		returnObj.set( "success", false );
+		returnObj.set( "error", result.error() );
+
+		return returnObj;
+	}
+}
+
+val thickenMeshFilledImpl( const Mesh& mesh, float offset, GeneralOffsetParameters &params )
 {
 	val returnObj = val::object();
 
@@ -36,7 +64,7 @@ val thickenMeshImplFilled( const Mesh& mesh, float offset, GeneralOffsetParamete
 	meshCopy.points = mesh.points;
 
 	MeshBuilder::uniteCloseVertices( meshCopy, meshCopy.computeBoundingBox().diagonal() * 1e-6 );
-	auto result = thickenMesh( mesh, offset, params );
+	auto result = thickenMesh( meshCopy, offset, params );
 	if ( result )
 	{
 		Mesh& shell = result.value();
@@ -176,19 +204,152 @@ val thickenMeshImplFilled( const Mesh& mesh, float offset, GeneralOffsetParamete
 	}
 }
 
-val thickenMeshImpl( const Mesh& mesh, float offset, const GeneralOffsetParameters& params )
+val thickenMeshWithTensionImpl( const Mesh& mesh, float offset, float tension, bool smooth, GeneralOffsetParameters &params )
 {
-	auto result = thickenMesh( mesh, offset, params );
+	val returnObj = val::object();
 
+	Mesh meshCopy;
+	meshCopy.topology = mesh.topology;
+	meshCopy.points = mesh.points;
+
+	MeshBuilder::uniteCloseVertices( meshCopy, meshCopy.computeBoundingBox().diagonal() * 1e-6 );
+
+
+	///
+	MeshPart mp = MeshPart( meshCopy );
+	auto mShell = offsetOneDirection( mp, tension, params );
+	auto mShellMesh = mShell.value();
+	///
+
+
+	auto result = thickenMesh( mShellMesh, offset, params );
 	if ( result )
 	{
-		auto mesh = result.value();
-		val meshData = MRJS::exportMeshMemoryView( mesh );
+		Mesh& shell = result.value();
 
-		// Return the mesh wrapped in an object that indicates success
-		val returnObj = val::object();
+		///
+		// Find boundary holes
+		auto holes = findRightBoundary( shell.topology );
+		if ( holes.size() < 2 )
+		{
+			returnObj.set( "success", false );
+
+			std::string errorMessage = "Expected 2+ holes, found " + std::to_string( holes.size() ) + "\n";
+			returnObj.set( "error: ", errorMessage );
+			return returnObj;
+		}
+
+		std::vector<float> holesLength( holes.size() );
+		std::vector<Vector3f> holeCenters( holes.size() );
+
+		for ( size_t i = 0; i < holes.size(); ++i )
+		{
+			float length = 0.0f;
+			Vector3f center;
+			for ( EdgeId e : holes[i] )
+			{
+				auto org = shell.topology.org( e );
+				auto dest = shell.topology.dest( e );
+				length += ( shell.points[dest] - shell.points[org] ).length();
+				center += shell.points[org];
+			}
+			holesLength[i] = length;
+			holeCenters[i] = center / float( holes[i].size() );
+		}
+
+		// Find largest two holes
+		int maxLengthI = 0, maxLengthI2 = -1;
+		float maxLength = -1.0f;
+		for ( int i = 0; i < holesLength.size(); ++i )
+		{
+			if ( holesLength[i] > maxLength )
+			{
+				maxLength = holesLength[i];
+				maxLengthI = i;
+			}
+		}
+
+		maxLength = -1.0f;
+		for ( int i = 0; i < holesLength.size(); ++i )
+		{
+			if ( i != maxLengthI && holesLength[i] > maxLength )
+			{
+				maxLength = holesLength[i];
+				maxLengthI2 = i;
+			}
+		}
+
+		// Build hole pairs
+		std::vector<std::array<int, 2>> holePairs;
+		if ( maxLengthI2 != -1 )
+			holePairs.push_back( { maxLengthI, maxLengthI2 } );
+
+		// Find nearest pairs for remaining holes
+		std::vector<int> minDistancesI( holes.size(), -1 );
+		for ( int i = 0; i < holes.size(); ++i )
+		{
+			if ( i == maxLengthI || i == maxLengthI2 )
+				continue;
+
+			float minDist = std::numeric_limits<float>::max();
+			int minJ = -1;
+
+			for ( int j = 0; j < holes.size(); ++j )
+			{
+				if ( j == i || j == maxLengthI || j == maxLengthI2 )
+					continue;
+
+				float dist = ( holeCenters[i] - holeCenters[j] ).length();
+				if ( dist < minDist )
+				{
+					minDist = dist;
+					minJ = j;
+				}
+			}
+			minDistancesI[i] = minJ;
+		}
+
+		for ( int i = 0; i < holes.size() / 2; ++i )
+		{
+			if ( minDistancesI[i] != -1 )
+				holePairs.push_back( { i, minDistancesI[i] } );
+		}
+
+		// Stitch holes with cylinders
+		FaceBitSet newFaces;
+		StitchHolesParams stitchParams;
+		stitchParams.metric = getMinAreaMetric( shell );
+		stitchParams.outNewFaces = &newFaces;
+
+		for ( const auto& pair : holePairs )
+		{
+			if ( pair[0] < holes.size() && pair[1] < holes.size() )
+			{
+				if ( !holes[pair[0]].empty() && !holes[pair[1]].empty() )
+					buildCylinderBetweenTwoHoles( shell, holes[pair[0]][0], holes[pair[1]][0], stitchParams );
+			}
+		}
+
+
+		if (smooth) {
+			// Subdivide new faces
+			SubdivideSettings subdivSettings;
+			subdivSettings.region = &newFaces;
+			subdivSettings.maxEdgeSplits = INT_MAX;
+			subdivSettings.maxEdgeLen = 1.0f;
+
+			subdivideMesh( shell, subdivSettings );
+
+			// Smooth vertices
+			auto smoothVerts = getInnerVerts( shell.topology, newFaces );
+			positionVertsSmoothly( shell, smoothVerts );
+		}
+
+
+		val meshData = MRJS::exportMeshMemoryView( shell );
+
 		returnObj.set( "success", true );
-		returnObj.set( "mesh", mesh );
+		returnObj.set( "mesh", shell );
 		returnObj.set( "meshMV", meshData );
 
 		return returnObj;
@@ -202,6 +363,46 @@ val thickenMeshImpl( const Mesh& mesh, float offset, const GeneralOffsetParamete
 
 		return returnObj;
 	}
+}
+
+val generateOrthodonticBitesImpl( Mesh& meshA, Mesh& meshB, float tension, const InflateSettings& inflateSettings, GeneralOffsetParameters &params )
+{
+	val returnObj = val::object();
+
+
+	///
+	// Handle tension
+	Mesh curMeshA = (tension > 0) ? offsetOneDirection(MeshPart(meshA), tension, params).value() : meshA;
+	curMeshA.topology.flipOrientation(); // only if tension > 0
+
+	Mesh curMeshB = (tension > 0) ? offsetOneDirection(MeshPart(meshB), tension, params).value() : meshB;
+	curMeshB.topology.flipOrientation(); // only if tension > 0
+
+	// Connect two meshes
+	curMeshA.addMesh( curMeshB );
+	///
+	
+
+	/// inflate new faces
+	StitchHolesParams stitchParams;
+	// stitchParams.metric = getMinAreaMetric( curMeshA );
+	stitchParams.metric = getEdgeLengthStitchMetric( curMeshA );
+	FaceBitSet outNewFaces;
+	stitchParams.outNewFaces = &outNewFaces;
+	buildCylinderBetweenTwoHoles( curMeshA, stitchParams );
+	// Find the newly generated internal vertices
+	auto newVerts = getInnerVerts( curMeshA.topology, outNewFaces );
+	inflate( curMeshA, newVerts, inflateSettings );
+	///
+
+
+    val meshData = MRJS::exportMeshMemoryView( curMeshA );
+
+    returnObj.set( "success", true );
+    returnObj.set( "mesh", curMeshA );
+    returnObj.set( "meshMV", meshData );
+
+	return returnObj;
 }
 
 }
@@ -254,5 +455,7 @@ EMSCRIPTEN_BINDINGS( OffsetModule )
 	///
 
 	function( "thickenMeshImpl", &MRJS::thickenMeshImpl );
-	function( "thickenMeshImplFilled", &MRJS::thickenMeshImplFilled );
+	function( "thickenMeshFilledImpl", &MRJS::thickenMeshFilledImpl );
+	function( "thickenMeshWithTensionImpl", &MRJS::thickenMeshWithTensionImpl );
+	function( "generateOrthodonticBitesImpl", &MRJS::generateOrthodonticBitesImpl );
 }
