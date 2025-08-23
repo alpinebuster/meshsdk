@@ -4393,19 +4393,25 @@ export interface NodeVec extends ClassHandle {
 export interface MeshLoadWrapper extends ClassHandle {
 }
 
+export interface FillHoleMetricWrapper extends ClassHandle {
+}
+
 export interface FillHoleMetric extends ClassHandle {
+  triangleMetric: FillTriangleMetric;
+  edgeMetric: FillEdgeMetric;
+  combineMetric: FillCombineMetric;
 }
 
 export interface FillTriangleMetric extends ClassHandle {
+  opcall(_0: VertId, _1: VertId, _2: VertId): number;
 }
 
 export interface FillEdgeMetric extends ClassHandle {
+  opcall(_0: VertId, _1: VertId, _2: VertId, _3: VertId): number;
 }
 
 export interface FillCombineMetric extends ClassHandle {
-}
-
-export interface FillHoleMetricWrapper extends ClassHandle {
+  opcall(_0: number, _1: number): number;
 }
 
 export interface MeshOrPoints extends ClassHandle {
@@ -10446,18 +10452,6 @@ interface EmbindModule {
     fromFile(_0: EmbindString): any;
     fromBinaryData(_0: number, _1: number, _2: EmbindString): any;
   };
-  FillHoleMetric: {
-    new(): FillHoleMetric;
-  };
-  FillTriangleMetric: {
-    new(): FillTriangleMetric;
-  };
-  FillEdgeMetric: {
-    new(): FillEdgeMetric;
-  };
-  FillCombineMetric: {
-    new(): FillCombineMetric;
-  };
   FillHoleMetricWrapper: {
     new(_0: FillHoleMetricWrapper): FillHoleMetricWrapper;
     createFillHoleMetricWrapperFromOther(_0: FillHoleMetricWrapper): FillHoleMetricWrapper;
@@ -10473,6 +10467,30 @@ interface EmbindModule {
   createUniversalMetric(_0: Mesh): FillHoleMetricWrapper;
   createMinTriAngleMetric(_0: Mesh): FillHoleMetricWrapper;
   createMinAreaMetric(_0: Mesh): FillHoleMetricWrapper;
+  FillHoleMetric: {
+    new(): FillHoleMetric;
+  };
+  FillTriangleMetric: {
+    new(): FillTriangleMetric;
+  };
+  FillEdgeMetric: {
+    new(): FillEdgeMetric;
+  };
+  FillCombineMetric: {
+    new(): FillCombineMetric;
+  };
+  calcCombinedFillMetric(_0: Mesh, _1: FaceBitSet, _2: FillHoleMetric): number;
+  getCircumscribedMetric(_0: Mesh): FillHoleMetric;
+  getPlaneFillMetric(_0: Mesh, _1: EdgeId): FillHoleMetric;
+  getPlaneNormalizedFillMetric(_0: Mesh, _1: EdgeId): FillHoleMetric;
+  getComplexStitchMetric(_0: Mesh): FillHoleMetric;
+  getEdgeLengthFillMetric(_0: Mesh): FillHoleMetric;
+  getEdgeLengthStitchMetric(_0: Mesh): FillHoleMetric;
+  getComplexFillMetric(_0: Mesh, _1: EdgeId): FillHoleMetric;
+  getMaxDihedralAngleMetric(_0: Mesh): FillHoleMetric;
+  getUniversalMetric(_0: Mesh): FillHoleMetric;
+  getMinTriAngleMetric(_0: Mesh): FillHoleMetric;
+  getMinAreaMetric(_0: Mesh): FillHoleMetric;
   MeshOrPoints: {
     new(_0: Mesh): MeshOrPoints;
   };
@@ -10611,6 +10629,7 @@ interface EmbindModule {
   };
   extendHole(_0: Mesh, _1: EdgeId, _2: Plane3f, _3: FaceBitSet | null): EdgeId;
   createComplexFillMetricWithPlane3f(_0: Mesh, _1: EdgeId, _2: Plane3f | null): FillHoleMetricWrapper;
+  getParallelPlaneFillMetric(_0: Mesh, _1: EdgeId, _2: Plane3f | null): FillHoleMetric;
   Plane3d: {
     new(): Plane3d;
     new(_0: Plane3f): Plane3d;
@@ -10665,6 +10684,7 @@ interface EmbindModule {
     new(): SpacingSettings;
   };
   generateOrthodonticBitesImpl(_0: Mesh, _1: Mesh, _2: number, _3: InflateSettings, _4: GeneralOffsetParameters): any;
+  generateOrthodonticBitesWithFillHoleMetricImpl(_0: Mesh, _1: Mesh, _2: number, _3: InflateSettings, _4: GeneralOffsetParameters, _5: FillHoleMetric): any;
   positionVertsSmoothly(_0: Mesh, _1: VertBitSet, _2: EdgeWeights, _3: VertexMass, _4: VertBitSet | null): void;
   positionVertsSmoothlyWithTopology(_0: MeshTopology, _1: VertCoords, _2: VertBitSet, _3: EdgeWeights, _4: VertexMass, _5: VertBitSet | null): void;
   positionVertsSmoothlySharpBd(_0: Mesh, _1: VertBitSet, _2: VertCoords | null, _3: VertScalars | null): void;
@@ -11995,6 +12015,7 @@ interface EmbindModule {
   createMandibleGypsumBaseImpl(_0: Mesh, _1: EdgeId, _2: Vector3f, _3: number): any;
   buildBottom(_0: Mesh, _1: EdgeId, _2: Vector3f, _3: number, _4: FaceBitSet | null): EdgeId;
   createVerticalStitchMetric(_0: Mesh, _1: Vector3f): FillHoleMetricWrapper;
+  getVerticalStitchMetric(_0: Mesh, _1: Vector3f): FillHoleMetric;
   projectOnAllWithProgress(_0: Vector3f, _1: AABBTreeObjects, _2: number, _3: any, _4: ObjId): void;
   vertexPosEqualNeiAreas(_0: Mesh, _1: VertId, _2: boolean): Vector3f;
   vertexPosEqualNeiAreasWithTopology(_0: MeshTopology, _1: VertCoords, _2: VertId, _3: boolean): Vector3f;

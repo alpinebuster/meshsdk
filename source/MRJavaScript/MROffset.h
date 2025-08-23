@@ -3,6 +3,7 @@
 #include <MRMesh/MRMesh.h>
 #include <MRMesh/MREnums.h>
 #include <MRMesh/MRPositionVertsSmoothly.h>
+#include <MRMesh/MRMeshMetrics.h>
 
 #include <MRVoxels/MROffset.h>
 
@@ -17,5 +18,6 @@ val thickenMeshImpl( const Mesh& mesh, float offset, const GeneralOffsetParamete
 val thickenMeshFilledImpl( const Mesh& mesh, float offset, const GeneralOffsetParameters& params );
 val thickenMeshWithTensionImpl( const Mesh& mesh, float offset, float tension, bool smooth, const GeneralOffsetParameters& params );
 val generateOrthodonticBitesImpl( Mesh& meshA, Mesh& meshB, float tension, const InflateSettings& inflateSettings, const GeneralOffsetParameters& params );
+val generateOrthodonticBitesWithFillHoleMetricImpl( Mesh& meshA, Mesh& meshB, float tension, const InflateSettings& inflateSettings, GeneralOffsetParameters &params, const FillHoleMetric fillHoleMetric );
 
 } // namespace MRJS

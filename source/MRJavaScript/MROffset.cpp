@@ -12,6 +12,7 @@
 #include <MRMesh/MRMeshFillHole.h>
 #include <MRMesh/MRMeshSubdivide.h>
 #include <MRMesh/MRPositionVertsSmoothly.h>
+#include <MRMesh/MRMeshMetrics.h>
 
 #include <MRVoxels/MRCalcDims.h>
 #include <MRVoxels/MRFloatGrid.h>
@@ -385,8 +386,50 @@ val generateOrthodonticBitesImpl( Mesh& meshA, Mesh& meshB, float tension, const
 
 	/// inflate new faces
 	StitchHolesParams stitchParams;
-	// stitchParams.metric = getMinAreaMetric( curMeshA );
-	stitchParams.metric = getEdgeLengthStitchMetric( curMeshA );
+	// stitchParams.metric = getEdgeLengthStitchMetric( curMeshA );
+	stitchParams.metric = getMinAreaMetric( curMeshA );
+	FaceBitSet outNewFaces;
+	stitchParams.outNewFaces = &outNewFaces;
+	buildCylinderBetweenTwoHoles( curMeshA, stitchParams );
+
+	if ( inflateSettings.pressure > 0 ) {
+		// Find the newly generated internal vertices
+		auto newVerts = getInnerVerts( curMeshA.topology, outNewFaces );
+		inflate( curMeshA, newVerts, inflateSettings );
+	}
+	///
+
+
+    val meshData = MRJS::exportMeshMemoryView( curMeshA );
+
+    returnObj.set( "success", true );
+    returnObj.set( "mesh", curMeshA );
+    returnObj.set( "meshMV", meshData );
+
+	return returnObj;
+}
+
+val generateOrthodonticBitesWithFillHoleMetricImpl( Mesh& meshA, Mesh& meshB, float tension, const InflateSettings& inflateSettings, GeneralOffsetParameters &params, const FillHoleMetric fillHoleMetric )
+{
+	val returnObj = val::object();
+
+
+	///
+	// Handle tension
+	Mesh curMeshA = (tension > 0) ? offsetOneDirection(MeshPart(meshA), tension, params).value() : meshA;
+	curMeshA.topology.flipOrientation(); // only if tension > 0
+
+	Mesh curMeshB = (tension > 0) ? offsetOneDirection(MeshPart(meshB), tension, params).value() : meshB;
+	curMeshB.topology.flipOrientation(); // only if tension > 0
+
+	// Connect two meshes
+	curMeshA.addMesh( curMeshB );
+	///
+	
+
+	/// inflate new faces
+	StitchHolesParams stitchParams;
+	stitchParams.metric = fillHoleMetric;
 	FaceBitSet outNewFaces;
 	stitchParams.outNewFaces = &outNewFaces;
 	buildCylinderBetweenTwoHoles( curMeshA, stitchParams );
@@ -458,4 +501,5 @@ EMSCRIPTEN_BINDINGS( OffsetModule )
 	function( "thickenMeshFilledImpl", &MRJS::thickenMeshFilledImpl );
 	function( "thickenMeshWithTensionImpl", &MRJS::thickenMeshWithTensionImpl );
 	function( "generateOrthodonticBitesImpl", &MRJS::generateOrthodonticBitesImpl );
+	function( "generateOrthodonticBitesWithFillHoleMetricImpl", &MRJS::generateOrthodonticBitesWithFillHoleMetricImpl );
 }

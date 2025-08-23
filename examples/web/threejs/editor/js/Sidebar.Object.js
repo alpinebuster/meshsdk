@@ -507,7 +507,7 @@ function SidebarObject( editor ) {
 			offsetParams.signDetectionMode = editor.MeshSDK.SignDetectionMode.Unsigned;
 
 			const inflateSettings = {
-				pressure: 2,
+				pressure: 0,
 				iterations: 1,
 				preSmooth: true,
 				gradualPressureGrowth: true

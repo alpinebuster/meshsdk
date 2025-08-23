@@ -1,18 +1,20 @@
 #include <MRPch/MRWasm.h>
 
-#include <MRMesh/MRMesh.h>
 #include <MRMesh/MRMeshFwd.h>
-#include <MRMesh/MRMeshMetrics.h>
+#include <MRMesh/MRMesh.h>
+#include <MRMesh/MRMeshDelone.h>
+#include <MRMesh/MRTriMath.h>
 #include <MRMesh/MRPlane3.h>
+#include <MRMesh/MRBestFit.h>
+#include <MRMesh/MRConstants.h>
+#include <MRMesh/MRMeshMetrics.h>
 
 #include "MRMeshMetrics.h"
 
 using namespace emscripten;
 using namespace MR;
 
-///
-/// FillHoleMetricWrapper 
-///
+
 const FillHoleMetric& FillHoleMetricWrapper::getFillHoleMetric() const
 {
 	return fillHoleMetric;
@@ -126,18 +128,8 @@ FillHoleMetricWrapper createMinAreaMetric( const Mesh& mesh )
 }
 
 
-EMSCRIPTEN_BINDINGS( MeshMetricsModule )
+EMSCRIPTEN_BINDINGS( MeshMetricsWrapperModule )
 {
-	class_<FillHoleMetric>( "FillHoleMetric" )
-		.constructor<>();
-
-	class_<FillTriangleMetric>( "FillTriangleMetric" )
-		.constructor<>();
-	class_<FillEdgeMetric>( "FillEdgeMetric" )
-		.constructor<>();
-	class_<FillCombineMetric>( "FillCombineMetric" )
-		.constructor<>();
-
 	class_<FillHoleMetricWrapper>( "FillHoleMetricWrapper" )
 		.constructor<const FillHoleMetricWrapper&>()
 		.class_function( "createFillHoleMetricWrapperFromOther",
@@ -146,6 +138,7 @@ EMSCRIPTEN_BINDINGS( MeshMetricsModule )
 				return FillHoleMetricWrapper( other );
 			} )
 		);
+
 
 	function( "createCircumscribedMetric", &createCircumscribedMetric );
 	function( "createPlaneFillMetric", &createPlaneFillMetric );
@@ -160,4 +153,42 @@ EMSCRIPTEN_BINDINGS( MeshMetricsModule )
 	function( "createUniversalMetric", &createUniversalMetric );
 	function( "createMinTriAngleMetric", &createMinTriAngleMetric );
 	function( "createMinAreaMetric", &createMinAreaMetric );
+}
+
+
+EMSCRIPTEN_BINDINGS( MeshMetricsModule )
+{
+	///
+	class_<FillHoleMetric>( "FillHoleMetric" )
+		.constructor<>()
+		.property( "triangleMetric", &FillHoleMetric::triangleMetric )
+		.property( "edgeMetric", &FillHoleMetric::edgeMetric )
+		.property( "combineMetric", &FillHoleMetric::combineMetric );
+
+	class_<std::function<double ( VertId, VertId, VertId )>>( "FillTriangleMetric" )
+		.constructor<>()
+		.function( "opcall", &std::function<double ( VertId, VertId, VertId )>::operator() );
+	class_<std::function<double ( VertId, VertId, VertId, VertId )>>( "FillEdgeMetric" )
+		.constructor<>()
+		.function( "opcall", &std::function<double ( VertId, VertId, VertId, VertId )>::operator() );
+	class_<std::function<double ( double, double )>>( "FillCombineMetric" )
+		.constructor<>()
+		.function( "opcall", &std::function<double ( double, double )>::operator() );
+	///
+
+
+	function( "calcCombinedFillMetric", &calcCombinedFillMetric );
+	function( "getCircumscribedMetric", &getCircumscribedMetric );
+	function( "getPlaneFillMetric", &getPlaneFillMetric );
+	function( "getPlaneNormalizedFillMetric", &getPlaneNormalizedFillMetric );
+	function( "getComplexStitchMetric", &getComplexStitchMetric );
+	function( "getEdgeLengthFillMetric", &getEdgeLengthFillMetric );
+	function( "getEdgeLengthStitchMetric", &getEdgeLengthStitchMetric );
+	function( "getVerticalStitchMetric", &getVerticalStitchMetric );
+	function( "getComplexFillMetric", &getComplexFillMetric );
+	function( "getParallelPlaneFillMetric", &getParallelPlaneFillMetric, allow_raw_pointers() );
+	function( "getMaxDihedralAngleMetric", &getMaxDihedralAngleMetric );
+	function( "getUniversalMetric", &getUniversalMetric );
+	function( "getMinTriAngleMetric", &getMinTriAngleMetric );
+	function( "getMinAreaMetric", &getMinAreaMetric );
 }
