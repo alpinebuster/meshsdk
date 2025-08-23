@@ -507,17 +507,46 @@ function SidebarObject( editor ) {
 			offsetParams.signDetectionMode = editor.MeshSDK.SignDetectionMode.Unsigned;
 
 			const inflateSettings = {
-				pressure: 0,
+				pressure: 12,
 				iterations: 1,
 				preSmooth: true,
 				gradualPressureGrowth: true
 			};
+
+			const selectorWasmResults_0_ch = editor.MeshSDK.makeConvexHull(selectorWasmResults[0]);
+			const result_0 = editor.MeshSDK.exportMeshMemoryView( selectorWasmResults_0_ch );
+			const newVertices_0 = result_0.vertices;
+			const newIndices_0 = result_0.indices;
+			showMesh( selectorWasmResults_0_ch, newVertices_0, newIndices_0 );
+
+			const selectorWasmResults_1_ch = editor.MeshSDK.makeConvexHull(selectorWasmResults[1]);
+			const result_1 = editor.MeshSDK.exportMeshMemoryView( selectorWasmResults_1_ch );
+			const newVertices_1 = result_1.vertices;
+			const newIndices_1 = result_1.indices;
+			showMesh( selectorWasmResults_1_ch, newVertices_1, newIndices_1 );
 
 			const result = editor.MeshSDK.generateOrthodonticBitesImpl( selectorWasmResults[0], selectorWasmResults[1], 0.1, inflateSettings, offsetParams );
 
 			const newVertices = result.meshMV.vertices;
 			const newIndices = result.meshMV.indices;
 			showMesh( result.mesh, newVertices, newIndices );
+
+
+			// NOTE: 'Self-Boolean has nested intersections on 2 faces'
+			// const selfBooleanResult = editor.MeshSDK.selfBoolean(result.mesh);
+			// const self_boolean_result = editor.MeshSDK.exportMeshMemoryView( selfBooleanResult.value() );
+			// const newSelfVertices = self_boolean_result.vertices;
+			// const newSelfIndices = self_boolean_result.indices;
+			// showMesh( selfBooleanResult.value(), newSelfVertices, newSelfIndices );
+
+
+			const cb = new editor.MeshSDK.ProgressCallback();
+			const booleanResult = editor.MeshSDK.boolean(result.mesh, selectorWasmResults_1_ch, editor.MeshSDK.BooleanOperation.DifferenceAB, null, null, cb);
+			const boolean_result = editor.MeshSDK.exportMeshMemoryView( booleanResult.mesh );
+			const newBooleanVertices = boolean_result.vertices;
+			const newBooleanIndices = boolean_result.indices;
+			showMesh( booleanResult.mesh, newBooleanVertices, newBooleanIndices );
+
 
 			meshPart.delete();
 			selectorWasmResults[0].delete();

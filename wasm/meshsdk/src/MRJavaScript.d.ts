@@ -10000,6 +10000,7 @@ interface EmbindModule {
   findTwinEdges(_0: Mesh, _1: number): EdgeBitSet;
   findTwinUndirectedEdges(_0: Mesh, _1: number): UndirectedEdgeBitSet;
   findTwinUndirectedEdgeHashMap(_0: Mesh, _1: number): UndirectedEdgeHashMap;
+  makeConvexHull(_0: Mesh): Mesh;
   smoothExtractedRegionBoundary(_0: Mesh, _1: number): any;
   calculateRecommendedVoxelSizeImpl(_0: Mesh, _1: number): number;
   BooleanResult: {
@@ -10388,6 +10389,7 @@ interface EmbindModule {
     new(_0: number): VertCoords;
     new(_0: number, _1: Vector3f): VertCoords;
   };
+  makeConvexHullWithVertCoords(_0: VertCoords, _1: VertBitSet): Mesh;
   VertCoords2: {
     new(): VertCoords2;
     new(_0: number): VertCoords2;
@@ -10639,6 +10641,7 @@ interface EmbindModule {
   PointCloud: {
     new(): PointCloud;
   };
+  makeConvexHullWithPointsCloud(_0: PointCloud): Mesh;
   PointCloudPart: {
     new(_0: PointCloud): PointCloudPart;
     new(_0: PointCloud, _1: VertBitSet | null): PointCloudPart;
@@ -11439,6 +11442,7 @@ interface EmbindModule {
   VectorVector2f: {
     new(): VectorVector2f;
   };
+  makeConvexHullWithContour2f(_0: VectorVector2f): VectorVector2f;
   VectorVectorVector2f: {
     new(): VectorVectorVector2f;
   };
@@ -11542,6 +11546,7 @@ interface EmbindModule {
   convertMeshTriPointsSurfaceOffsetToMeshContoursWithFunctor(_0: Mesh, _1: VectorMeshTriPoint, _2: FloatFunctorInt, _3: SearchPathSettings): ExpectedOneMeshContours;
   ProgressCallback: {
     new(): ProgressCallback;
+    create(_0: any): ProgressCallback;
   };
   findSmallestCloseVertices(_0: Mesh, _1: number, _2: ProgressCallback): VertMap | undefined;
   findSmallestCloseVerticesFromCloud(_0: PointCloud, _1: number, _2: ProgressCallback): VertMap | undefined;

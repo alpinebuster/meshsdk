@@ -1426,7 +1426,28 @@ EMSCRIPTEN_BINDINGS( FunctorTypedModule )
 	///
 	class_<std::function<bool( float )>>( "ProgressCallback" )
 		.constructor<>()
-		.function( "opcall", &std::function<bool( float )>::operator() );
+		.function( "opcall", &std::function<bool( float )>::operator() )
+
+		.class_function( "create", optional_override( [] ( val jsFunction ) -> ProgressCallback
+		{
+			if ( jsFunction.isNull() || jsFunction.isUndefined() )
+			{
+				return ProgressCallback();  // Return empty `std::function`
+			}
+
+			return [jsFunction] ( float progress ) -> bool
+			{
+				try
+				{
+					return jsFunction( progress ).as<bool>();
+				}
+				catch ( ... )
+				{
+					// JavaScript callback error, default to continue run
+					return true;
+				}
+			};
+		} ) );
 	///
 
 

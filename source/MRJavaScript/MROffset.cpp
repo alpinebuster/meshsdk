@@ -7,11 +7,13 @@
 #include <MRMesh/MRRegionBoundary.h>
 #include <MRMesh/MRSharpenMarchingCubesMesh.h>
 #include <MRMesh/MRVolumeIndexer.h>
+#include <MRMesh/MREdgePaths.h>
 #include <MRMesh/MRMeshFixer.h>
 #include <MRMesh/MRRingIterator.h>
 #include <MRMesh/MRMeshFillHole.h>
 #include <MRMesh/MRMeshSubdivide.h>
 #include <MRMesh/MRPositionVertsSmoothly.h>
+#include <MRMesh/MRConvexHull.h>
 #include <MRMesh/MRMeshMetrics.h>
 
 #include <MRVoxels/MRCalcDims.h>
@@ -370,7 +372,6 @@ val generateOrthodonticBitesImpl( Mesh& meshA, Mesh& meshB, float tension, const
 {
 	val returnObj = val::object();
 
-
 	///
 	// Handle tension
 	Mesh curMeshA = (tension > 0) ? offsetOneDirection(MeshPart(meshA), tension, params).value() : meshA;
@@ -380,21 +381,116 @@ val generateOrthodonticBitesImpl( Mesh& meshA, Mesh& meshB, float tension, const
 	curMeshB.topology.flipOrientation(); // only if tension > 0
 
 	// Connect two meshes
-	curMeshA.addMesh( curMeshB );
+	curMeshA.addMeshPart( curMeshB );
 	///
 	
 
-	/// inflate new faces
+	auto holes = findRightBoundary( curMeshA.topology );
+	if ( holes.size() < 2 )
+	{
+		returnObj.set( "success", false );
+
+		std::string errorMessage = "Expected 2+ holes, found " + std::to_string( holes.size() ) + "\n";
+		returnObj.set( "error: ", errorMessage );
+
+		return returnObj;
+	}
+
+	std::vector<float> holesLength( holes.size() );
+	std::vector<Vector3f> holeCenters( holes.size() );
+
+	for ( size_t i = 0; i < holes.size(); ++i )
+	{
+		float length = 0.0f;
+		Vector3f center;
+		for ( EdgeId e : holes[i] )
+		{
+			auto org = curMeshA.topology.org( e );
+			auto dest = curMeshA.topology.dest( e );
+			length += ( curMeshA.points[dest] - curMeshA.points[org] ).length();
+			center += curMeshA.points[org];
+		}
+		holesLength[i] = length;
+		holeCenters[i] = center / float( holes[i].size() );
+	}
+
+	// Find largest two holes
+	int maxLengthI = 0, maxLengthI2 = -1;
+	float maxLength = -1.0f;
+	for ( int i = 0; i < holesLength.size(); ++i )
+	{
+		if ( holesLength[i] > maxLength )
+		{
+			maxLength = holesLength[i];
+			maxLengthI = i;
+		}
+	}
+
+	maxLength = -1.0f;
+	for ( int i = 0; i < holesLength.size(); ++i )
+	{
+		if ( i != maxLengthI && holesLength[i] > maxLength )
+		{
+			maxLength = holesLength[i];
+			maxLengthI2 = i;
+		}
+	}
+
+	// Build hole pairs
+	std::vector<std::array<int, 2>> holePairs;
+	if ( maxLengthI2 != -1 ) holePairs.push_back( { maxLengthI, maxLengthI2 } );
+
+	// Find nearest pairs for remaining holes
+	std::vector<int> minDistancesI( holes.size(), -1 );
+	for ( int i = 0; i < holes.size(); ++i )
+	{
+		if ( i == maxLengthI || i == maxLengthI2 )
+			continue;
+
+		float minDist = std::numeric_limits<float>::max();
+		int minJ = -1;
+
+		for ( int j = 0; j < holes.size(); ++j )
+		{
+			if ( j == i || j == maxLengthI || j == maxLengthI2 )
+				continue;
+
+			float dist = ( holeCenters[i] - holeCenters[j] ).length();
+			if ( dist < minDist )
+			{
+				minDist = dist;
+				minJ = j;
+			}
+		}
+		minDistancesI[i] = minJ;
+	}
+
+	for ( int i = 0; i < holes.size() / 2; ++i )
+	{
+		if ( minDistancesI[i] != -1 ) holePairs.push_back( { i, minDistancesI[i] } );
+	}
+
+	// Stitch holes with cylinders
+	FaceBitSet newFaces;
 	StitchHolesParams stitchParams;
 	// stitchParams.metric = getEdgeLengthStitchMetric( curMeshA );
 	stitchParams.metric = getMinAreaMetric( curMeshA );
-	FaceBitSet outNewFaces;
-	stitchParams.outNewFaces = &outNewFaces;
-	buildCylinderBetweenTwoHoles( curMeshA, stitchParams );
+	stitchParams.outNewFaces = &newFaces;
 
+	for ( const auto& pair : holePairs )
+	{
+		if ( pair[0] < holes.size() && pair[1] < holes.size() )
+		{
+			if ( !holes[pair[0]].empty() && !holes[pair[1]].empty() )
+				buildCylinderBetweenTwoHoles( curMeshA, holes[pair[0]][0], holes[pair[1]][0], stitchParams );
+		}
+	}
+
+
+	/// inflate new faces
 	if ( inflateSettings.pressure > 0 ) {
 		// Find the newly generated internal vertices
-		auto newVerts = getInnerVerts( curMeshA.topology, outNewFaces );
+		auto newVerts = getInnerVerts( curMeshA.topology, newFaces );
 		inflate( curMeshA, newVerts, inflateSettings );
 	}
 	///
