@@ -30,6 +30,108 @@ using namespace MR;
 
 namespace MRJS {
 
+FaceBitSet stitchHolesWithCylinders( Mesh& mesh, const std::vector<std::vector<EdgeId>>& holes )
+{
+    FaceBitSet newFaces;
+    if ( holes.empty() ) return newFaces;
+
+    // Calculate the perimeter and center of each hole
+    std::vector<float> holesLength( holes.size() );
+    std::vector<Vector3f> holeCenters( holes.size() );
+
+    for ( size_t i = 0; i < holes.size(); ++i )
+    {
+        float length = 0.0f;
+        Vector3f center( 0.0f, 0.0f, 0.0f );
+        for ( EdgeId e : holes[i] )
+        {
+            auto org = mesh.topology.org( e );
+            auto dest = mesh.topology.dest( e );
+            length += ( mesh.points[dest] - mesh.points[org] ).length();
+            center += mesh.points[org];
+        }
+        holesLength[i] = length;
+        holeCenters[i] = center / float( holes[i].size() );
+    }
+
+	// Find largest two holes
+    int maxLengthI = 0, maxLengthI2 = -1;
+    float maxLength = -1.0f;
+    for ( int i = 0; i < holesLength.size(); ++i )
+    {
+        if ( holesLength[i] > maxLength )
+        {
+            maxLength = holesLength[i];
+            maxLengthI = i;
+        }
+    }
+
+    maxLength = -1.0f;
+    for ( int i = 0; i < holesLength.size(); ++i )
+    {
+        if ( i != maxLengthI && holesLength[i] > maxLength )
+        {
+            maxLength = holesLength[i];
+            maxLengthI2 = i;
+        }
+    }
+
+	// Build hole pairs
+    std::vector<std::array<int, 2>> holePairs;
+    if ( maxLengthI2 != -1 ) holePairs.push_back( { maxLengthI, maxLengthI2 } );
+
+	// Find nearest pairs for remaining holes
+    std::vector<int> minDistancesI( holes.size(), -1 );
+    for ( int i = 0; i < holes.size(); ++i )
+    {
+        if ( i == maxLengthI || i == maxLengthI2 )
+            continue;
+
+        float minDist = std::numeric_limits<float>::max();
+        int minJ = -1;
+
+        for ( int j = 0; j < holes.size(); ++j )
+        {
+            if ( j == i || j == maxLengthI || j == maxLengthI2 )
+                continue;
+
+            float dist = ( holeCenters[i] - holeCenters[j] ).length();
+            if ( dist < minDist )
+            {
+                minDist = dist;
+                minJ = j;
+            }
+        }
+        minDistancesI[i] = minJ;
+    }
+
+    for ( int i = 0; i < holes.size() / 2; ++i )
+    {
+        if ( minDistancesI[i] != -1 )
+            holePairs.push_back( { i, minDistancesI[i] } );
+    }
+
+
+	// Stitch holes with cylinders
+    StitchHolesParams stitchParams;
+    // stitchParams.metric = getEdgeLengthStitchMetric( mesh );
+    stitchParams.metric = getMinAreaMetric( mesh );
+    stitchParams.outNewFaces = &newFaces;
+
+    for ( const auto& pair : holePairs )
+    {
+        if ( pair[0] < holes.size() && pair[1] < holes.size() )
+        {
+            if ( !holes[pair[0]].empty() && !holes[pair[1]].empty() )
+                buildCylinderBetweenTwoHoles( mesh, holes[pair[0]][0], holes[pair[1]][0], stitchParams );
+        }
+    }
+	
+
+	return newFaces;
+}
+
+
 val thickenMeshImpl( const Mesh& mesh, float offset, const GeneralOffsetParameters& params )
 {
 	auto result = thickenMesh( mesh, offset, params );
@@ -58,7 +160,7 @@ val thickenMeshImpl( const Mesh& mesh, float offset, const GeneralOffsetParamete
 	}
 }
 
-val thickenMeshFilledImpl( const Mesh& mesh, float offset, GeneralOffsetParameters &params )
+val thickenMeshFilledImpl( const Mesh& mesh, float offset, bool smooth, GeneralOffsetParameters &params )
 {
 	val returnObj = val::object();
 
@@ -83,255 +185,7 @@ val thickenMeshFilledImpl( const Mesh& mesh, float offset, GeneralOffsetParamete
 			returnObj.set( "error: ", errorMessage );
 			return returnObj;
 		}
-
-		std::vector<float> holesLength( holes.size() );
-		std::vector<Vector3f> holeCenters( holes.size() );
-
-		for ( size_t i = 0; i < holes.size(); ++i )
-		{
-			float length = 0.0f;
-			Vector3f center;
-			for ( EdgeId e : holes[i] )
-			{
-				auto org = shell.topology.org( e );
-				auto dest = shell.topology.dest( e );
-				length += ( shell.points[dest] - shell.points[org] ).length();
-				center += shell.points[org];
-			}
-			holesLength[i] = length;
-			holeCenters[i] = center / float( holes[i].size() );
-		}
-
-		// Find largest two holes
-		int maxLengthI = 0, maxLengthI2 = -1;
-		float maxLength = -1.0f;
-		for ( int i = 0; i < holesLength.size(); ++i )
-		{
-			if ( holesLength[i] > maxLength )
-			{
-				maxLength = holesLength[i];
-				maxLengthI = i;
-			}
-		}
-
-		maxLength = -1.0f;
-		for ( int i = 0; i < holesLength.size(); ++i )
-		{
-			if ( i != maxLengthI && holesLength[i] > maxLength )
-			{
-				maxLength = holesLength[i];
-				maxLengthI2 = i;
-			}
-		}
-
-		// Build hole pairs
-		std::vector<std::array<int, 2>> holePairs;
-		if ( maxLengthI2 != -1 )
-			holePairs.push_back( { maxLengthI, maxLengthI2 } );
-
-		// Find nearest pairs for remaining holes
-		std::vector<int> minDistancesI( holes.size(), -1 );
-		for ( int i = 0; i < holes.size(); ++i )
-		{
-			if ( i == maxLengthI || i == maxLengthI2 )
-				continue;
-
-			float minDist = std::numeric_limits<float>::max();
-			int minJ = -1;
-
-			for ( int j = 0; j < holes.size(); ++j )
-			{
-				if ( j == i || j == maxLengthI || j == maxLengthI2 )
-					continue;
-
-				float dist = ( holeCenters[i] - holeCenters[j] ).length();
-				if ( dist < minDist )
-				{
-					minDist = dist;
-					minJ = j;
-				}
-			}
-			minDistancesI[i] = minJ;
-		}
-
-		for ( int i = 0; i < holes.size() / 2; ++i )
-		{
-			if ( minDistancesI[i] != -1 )
-				holePairs.push_back( { i, minDistancesI[i] } );
-		}
-
-		// Stitch holes with cylinders
-		FaceBitSet newFaces;
-		StitchHolesParams stitchParams;
-		stitchParams.metric = getMinAreaMetric( shell );
-		stitchParams.outNewFaces = &newFaces;
-
-		for ( const auto& pair : holePairs )
-		{
-			if ( pair[0] < holes.size() && pair[1] < holes.size() )
-			{
-				if ( !holes[pair[0]].empty() && !holes[pair[1]].empty() )
-					buildCylinderBetweenTwoHoles( shell, holes[pair[0]][0], holes[pair[1]][0], stitchParams );
-			}
-		}
-
-		// Subdivide new faces
-		SubdivideSettings subdivSettings;
-		subdivSettings.region = &newFaces;
-		subdivSettings.maxEdgeSplits = INT_MAX;
-		subdivSettings.maxEdgeLen = 1.0f;
-
-		subdivideMesh( shell, subdivSettings );
-
-		// Smooth vertices
-		auto smoothVerts = getInnerVerts( shell.topology, newFaces );
-		positionVertsSmoothly( shell, smoothVerts );
-
-
-		val meshData = MRJS::exportMeshMemoryView( shell );
-
-		returnObj.set( "success", true );
-		returnObj.set( "mesh", shell );
-		returnObj.set( "meshMV", meshData );
-
-		return returnObj;
-	}
-	else
-	{
-		// Return an error object with the error message
-		val returnObj = val::object();
-		returnObj.set( "success", false );
-		returnObj.set( "error", result.error() );
-
-		return returnObj;
-	}
-}
-
-val thickenMeshWithTensionImpl( const Mesh& mesh, float offset, float tension, bool smooth, GeneralOffsetParameters &params )
-{
-	val returnObj = val::object();
-
-	Mesh meshCopy;
-	meshCopy.topology = mesh.topology;
-	meshCopy.points = mesh.points;
-
-	MeshBuilder::uniteCloseVertices( meshCopy, meshCopy.computeBoundingBox().diagonal() * 1e-6 );
-
-
-	///
-	MeshPart mp = MeshPart( meshCopy );
-	auto mShell = offsetOneDirection( mp, tension, params );
-	auto mShellMesh = mShell.value();
-	///
-
-
-	auto result = thickenMesh( mShellMesh, offset, params );
-	if ( result )
-	{
-		Mesh& shell = result.value();
-
-		///
-		// Find boundary holes
-		auto holes = findRightBoundary( shell.topology );
-		if ( holes.size() < 2 )
-		{
-			returnObj.set( "success", false );
-
-			std::string errorMessage = "Expected 2+ holes, found " + std::to_string( holes.size() ) + "\n";
-			returnObj.set( "error: ", errorMessage );
-			return returnObj;
-		}
-
-		std::vector<float> holesLength( holes.size() );
-		std::vector<Vector3f> holeCenters( holes.size() );
-
-		for ( size_t i = 0; i < holes.size(); ++i )
-		{
-			float length = 0.0f;
-			Vector3f center;
-			for ( EdgeId e : holes[i] )
-			{
-				auto org = shell.topology.org( e );
-				auto dest = shell.topology.dest( e );
-				length += ( shell.points[dest] - shell.points[org] ).length();
-				center += shell.points[org];
-			}
-			holesLength[i] = length;
-			holeCenters[i] = center / float( holes[i].size() );
-		}
-
-		// Find largest two holes
-		int maxLengthI = 0, maxLengthI2 = -1;
-		float maxLength = -1.0f;
-		for ( int i = 0; i < holesLength.size(); ++i )
-		{
-			if ( holesLength[i] > maxLength )
-			{
-				maxLength = holesLength[i];
-				maxLengthI = i;
-			}
-		}
-
-		maxLength = -1.0f;
-		for ( int i = 0; i < holesLength.size(); ++i )
-		{
-			if ( i != maxLengthI && holesLength[i] > maxLength )
-			{
-				maxLength = holesLength[i];
-				maxLengthI2 = i;
-			}
-		}
-
-		// Build hole pairs
-		std::vector<std::array<int, 2>> holePairs;
-		if ( maxLengthI2 != -1 )
-			holePairs.push_back( { maxLengthI, maxLengthI2 } );
-
-		// Find nearest pairs for remaining holes
-		std::vector<int> minDistancesI( holes.size(), -1 );
-		for ( int i = 0; i < holes.size(); ++i )
-		{
-			if ( i == maxLengthI || i == maxLengthI2 )
-				continue;
-
-			float minDist = std::numeric_limits<float>::max();
-			int minJ = -1;
-
-			for ( int j = 0; j < holes.size(); ++j )
-			{
-				if ( j == i || j == maxLengthI || j == maxLengthI2 )
-					continue;
-
-				float dist = ( holeCenters[i] - holeCenters[j] ).length();
-				if ( dist < minDist )
-				{
-					minDist = dist;
-					minJ = j;
-				}
-			}
-			minDistancesI[i] = minJ;
-		}
-
-		for ( int i = 0; i < holes.size() / 2; ++i )
-		{
-			if ( minDistancesI[i] != -1 )
-				holePairs.push_back( { i, minDistancesI[i] } );
-		}
-
-		// Stitch holes with cylinders
-		FaceBitSet newFaces;
-		StitchHolesParams stitchParams;
-		stitchParams.metric = getMinAreaMetric( shell );
-		stitchParams.outNewFaces = &newFaces;
-
-		for ( const auto& pair : holePairs )
-		{
-			if ( pair[0] < holes.size() && pair[1] < holes.size() )
-			{
-				if ( !holes[pair[0]].empty() && !holes[pair[1]].empty() )
-					buildCylinderBetweenTwoHoles( shell, holes[pair[0]][0], holes[pair[1]][0], stitchParams );
-			}
-		}
+		auto newFaces = stitchHolesWithCylinders( shell, holes );
 
 
 		if (smooth) {
@@ -368,7 +222,78 @@ val thickenMeshWithTensionImpl( const Mesh& mesh, float offset, float tension, b
 	}
 }
 
-val generateOrthodonticBitesImpl( Mesh& meshA, Mesh& meshB, float tension, const InflateSettings& inflateSettings, GeneralOffsetParameters &params )
+val thickenMeshWithTensionImpl( const Mesh& mesh, float offset, bool smooth, float tension, GeneralOffsetParameters &params )
+{
+	val returnObj = val::object();
+
+	Mesh meshCopy;
+	meshCopy.topology = mesh.topology;
+	meshCopy.points = mesh.points;
+
+	MeshBuilder::uniteCloseVertices( meshCopy, meshCopy.computeBoundingBox().diagonal() * 1e-6 );
+
+
+	///
+	MeshPart mp = MeshPart( meshCopy );
+	auto mShell = offsetOneDirection( mp, tension, params );
+	auto mShellMesh = mShell.value();
+	///
+
+
+	auto result = thickenMesh( mShellMesh, offset, params );
+	if ( result )
+	{
+		Mesh& shell = result.value();
+
+		///
+		// Find boundary holes
+		auto holes = findRightBoundary( shell.topology );
+		if ( holes.size() < 2 )
+		{
+			returnObj.set( "success", false );
+
+			std::string errorMessage = "Expected 2+ holes, found " + std::to_string( holes.size() ) + "\n";
+			returnObj.set( "error: ", errorMessage );
+			return returnObj;
+		}
+		auto newFaces = stitchHolesWithCylinders( shell, holes );
+
+
+		if (smooth) {
+			// Subdivide new faces
+			SubdivideSettings subdivSettings;
+			subdivSettings.region = &newFaces;
+			subdivSettings.maxEdgeSplits = INT_MAX;
+			subdivSettings.maxEdgeLen = 1.0f;
+
+			subdivideMesh( shell, subdivSettings );
+
+			// Smooth vertices
+			auto smoothVerts = getInnerVerts( shell.topology, newFaces );
+			positionVertsSmoothly( shell, smoothVerts );
+		}
+
+
+		val meshData = MRJS::exportMeshMemoryView( shell );
+
+		returnObj.set( "success", true );
+		returnObj.set( "mesh", shell );
+		returnObj.set( "meshMV", meshData );
+
+		return returnObj;
+	}
+	else
+	{
+		// Return an error object with the error message
+		val returnObj = val::object();
+		returnObj.set( "success", false );
+		returnObj.set( "error", result.error() );
+
+		return returnObj;
+	}
+}
+
+val generateOrthodonticBiteImpl( Mesh& meshA, Mesh& meshB, float tension, const InflateSettings& inflateSettings, GeneralOffsetParameters &params )
 {
 	val returnObj = val::object();
 
@@ -395,96 +320,7 @@ val generateOrthodonticBitesImpl( Mesh& meshA, Mesh& meshB, float tension, const
 
 		return returnObj;
 	}
-
-	std::vector<float> holesLength( holes.size() );
-	std::vector<Vector3f> holeCenters( holes.size() );
-
-	for ( size_t i = 0; i < holes.size(); ++i )
-	{
-		float length = 0.0f;
-		Vector3f center;
-		for ( EdgeId e : holes[i] )
-		{
-			auto org = curMeshA.topology.org( e );
-			auto dest = curMeshA.topology.dest( e );
-			length += ( curMeshA.points[dest] - curMeshA.points[org] ).length();
-			center += curMeshA.points[org];
-		}
-		holesLength[i] = length;
-		holeCenters[i] = center / float( holes[i].size() );
-	}
-
-	// Find largest two holes
-	int maxLengthI = 0, maxLengthI2 = -1;
-	float maxLength = -1.0f;
-	for ( int i = 0; i < holesLength.size(); ++i )
-	{
-		if ( holesLength[i] > maxLength )
-		{
-			maxLength = holesLength[i];
-			maxLengthI = i;
-		}
-	}
-
-	maxLength = -1.0f;
-	for ( int i = 0; i < holesLength.size(); ++i )
-	{
-		if ( i != maxLengthI && holesLength[i] > maxLength )
-		{
-			maxLength = holesLength[i];
-			maxLengthI2 = i;
-		}
-	}
-
-	// Build hole pairs
-	std::vector<std::array<int, 2>> holePairs;
-	if ( maxLengthI2 != -1 ) holePairs.push_back( { maxLengthI, maxLengthI2 } );
-
-	// Find nearest pairs for remaining holes
-	std::vector<int> minDistancesI( holes.size(), -1 );
-	for ( int i = 0; i < holes.size(); ++i )
-	{
-		if ( i == maxLengthI || i == maxLengthI2 )
-			continue;
-
-		float minDist = std::numeric_limits<float>::max();
-		int minJ = -1;
-
-		for ( int j = 0; j < holes.size(); ++j )
-		{
-			if ( j == i || j == maxLengthI || j == maxLengthI2 )
-				continue;
-
-			float dist = ( holeCenters[i] - holeCenters[j] ).length();
-			if ( dist < minDist )
-			{
-				minDist = dist;
-				minJ = j;
-			}
-		}
-		minDistancesI[i] = minJ;
-	}
-
-	for ( int i = 0; i < holes.size() / 2; ++i )
-	{
-		if ( minDistancesI[i] != -1 ) holePairs.push_back( { i, minDistancesI[i] } );
-	}
-
-	// Stitch holes with cylinders
-	FaceBitSet newFaces;
-	StitchHolesParams stitchParams;
-	// stitchParams.metric = getEdgeLengthStitchMetric( curMeshA );
-	stitchParams.metric = getMinAreaMetric( curMeshA );
-	stitchParams.outNewFaces = &newFaces;
-
-	for ( const auto& pair : holePairs )
-	{
-		if ( pair[0] < holes.size() && pair[1] < holes.size() )
-		{
-			if ( !holes[pair[0]].empty() && !holes[pair[1]].empty() )
-				buildCylinderBetweenTwoHoles( curMeshA, holes[pair[0]][0], holes[pair[1]][0], stitchParams );
-		}
-	}
+	auto newFaces = stitchHolesWithCylinders( curMeshA, holes );
 
 
 	/// inflate new faces
@@ -505,7 +341,7 @@ val generateOrthodonticBitesImpl( Mesh& meshA, Mesh& meshB, float tension, const
 	return returnObj;
 }
 
-val generateOrthodonticBitesWithFillHoleMetricImpl( Mesh& meshA, Mesh& meshB, float tension, const InflateSettings& inflateSettings, GeneralOffsetParameters &params, const FillHoleMetric fillHoleMetric )
+val generateOrthodonticBiteWithFillHoleMetricImpl( Mesh& meshA, Mesh& meshB, float tension, const InflateSettings& inflateSettings, GeneralOffsetParameters &params, const FillHoleMetric fillHoleMetric )
 {
 	val returnObj = val::object();
 
@@ -519,7 +355,7 @@ val generateOrthodonticBitesWithFillHoleMetricImpl( Mesh& meshA, Mesh& meshB, fl
 	curMeshB.topology.flipOrientation(); // only if tension > 0
 
 	// Connect two meshes
-	curMeshA.addMesh( curMeshB );
+	curMeshA.addMeshPart( curMeshB );
 	///
 	
 
@@ -593,9 +429,12 @@ EMSCRIPTEN_BINDINGS( OffsetModule )
 	function( "offsetPolyline", &offsetPolyline );
 	///
 
+
+	/// Impl
 	function( "thickenMeshImpl", &MRJS::thickenMeshImpl );
 	function( "thickenMeshFilledImpl", &MRJS::thickenMeshFilledImpl );
 	function( "thickenMeshWithTensionImpl", &MRJS::thickenMeshWithTensionImpl );
-	function( "generateOrthodonticBitesImpl", &MRJS::generateOrthodonticBitesImpl );
-	function( "generateOrthodonticBitesWithFillHoleMetricImpl", &MRJS::generateOrthodonticBitesWithFillHoleMetricImpl );
+	function( "generateOrthodonticBiteImpl", &MRJS::generateOrthodonticBiteImpl );
+	function( "generateOrthodonticBiteWithFillHoleMetricImpl", &MRJS::generateOrthodonticBiteWithFillHoleMetricImpl );
+	///
 }

@@ -525,7 +525,7 @@ function SidebarObject( editor ) {
 			const newIndices_1 = result_1.indices;
 			showMesh( selectorWasmResults_1_ch, newVertices_1, newIndices_1 );
 
-			const result = editor.MeshSDK.generateOrthodonticBitesImpl( selectorWasmResults[0], selectorWasmResults[1], 0.1, inflateSettings, offsetParams );
+			const result = editor.MeshSDK.generateOrthodonticBiteImpl( selectorWasmResults[0], selectorWasmResults[1], 0.1, inflateSettings, offsetParams );
 
 			const newVertices = result.meshMV.vertices;
 			const newIndices = result.meshMV.indices;
@@ -540,7 +540,10 @@ function SidebarObject( editor ) {
 			// showMesh( selfBooleanResult.value(), newSelfVertices, newSelfIndices );
 
 
-			const cb = new editor.MeshSDK.ProgressCallback();
+			const cb = new editor.MeshSDK.ProgressCallback.create(function(progress) {
+				console.log("Progress:", progress);
+				return true;
+			});
 			const booleanResult = editor.MeshSDK.boolean(result.mesh, selectorWasmResults_1_ch, editor.MeshSDK.BooleanOperation.DifferenceAB, null, null, cb);
 			const boolean_result = editor.MeshSDK.exportMeshMemoryView( booleanResult.mesh );
 			const newBooleanVertices = boolean_result.vertices;
