@@ -26,6 +26,7 @@ EMSCRIPTEN_BINDINGS( MeshCollideModule )
     function( "findSelfCollidingTriangles", select_overload<Expected<std::vector<FaceFace>>( const MeshPart&, ProgressCallback, const Face2RegionMap*, bool )>( &findSelfCollidingTriangles ), allow_raw_pointers() );
     function( "findSelfCollidingTrianglesWithFaceFace", select_overload<Expected<bool>( const MeshPart&, std::vector<FaceFace>*, ProgressCallback, const Face2RegionMap*, bool )>( &findSelfCollidingTriangles ), allow_raw_pointers() );
 
+    // NOTE: `touchIsIntersection  = true` to find overlapping faces and `mesh.deleteFaces` to remove them
     function( "findSelfCollidingTrianglesBS", &findSelfCollidingTrianglesBS, allow_raw_pointers() );
     function( "isInside", &isInside, allow_raw_pointers() );
 

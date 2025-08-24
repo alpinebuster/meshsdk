@@ -46,6 +46,7 @@ EMSCRIPTEN_BINDINGS( MeshBuilderModule )
 
 	function( "fromFaceSoup", fromFaceSoup );
 
+	// NOTE: Useful when holes have exact matching by vertices
 	function( "uniteCloseVertices", select_overload<int( Mesh&, const MeshBuilder::UniteCloseParams& )>( uniteCloseVertices ) );
 	function( "uniteCloseVerticesWithVertMap", select_overload<int( Mesh &, float, bool, VertMap* )>( uniteCloseVertices ), allow_raw_pointers() );
 }

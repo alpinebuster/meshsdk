@@ -21,6 +21,7 @@ EMSCRIPTEN_BINDINGS( OverlappingTrisModule )
         .property( "cb", &FindOverlappingSettings::cb );
 
 
+    // NOTE: find overlapping faces and use `mesh.deleteFaces` to remove them
     function("findOverlappingTris", &findOverlappingTris);
 }
 

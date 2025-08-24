@@ -107,9 +107,8 @@ val createMaxillaGypsumBaseImplTest( Mesh& mesh, EdgeId maxAreaHole, VertId minV
 		///
 		// Connect two meshes
 		mesh.addMesh( mMaxillaBase );
-		// StitchHolesParams stitchParams;
-		// stitchParams.metric = getMinAreaMetric( mesh );
 		buildCylinderBetweenTwoHoles( mesh );
+		// these holes have exact matching by vertices
 		MeshBuilder::uniteCloseVertices( mesh, 0.0f, true );
 		///
 	
@@ -176,10 +175,13 @@ val createMaxillaGypsumBaseImpl( Mesh& mesh, EdgeId maxAreaHole, VertId minVert,
 		///
 		// Connect two meshes
 		mesh.addMesh( mMaxillaBase );
-		// StitchHolesParams stitchParams;
-		// stitchParams.metric = getMinAreaMetric( mesh );
+
+		///
+		// FIXME: this not working as expected
 		// buildCylinderBetweenTwoHoles( mesh, curREGypsumBase, curRE, stitchParams );
+		///
 		buildCylinderBetweenTwoHoles( mesh );
+		// these holes have exact matching by vertices
 		MeshBuilder::uniteCloseVertices( mesh, 0.0f, true );
 		///
 	

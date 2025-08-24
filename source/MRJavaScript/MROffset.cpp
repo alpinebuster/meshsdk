@@ -30,7 +30,7 @@ using namespace MR;
 
 namespace MRJS {
 
-FaceBitSet stitchHolesWithCylinders( Mesh& mesh, const std::vector<std::vector<EdgeId>>& holes )
+FaceBitSet stitchHolesWithCylinders( Mesh& mesh, const std::vector<std::vector<EdgeId>>& holes, const FillHoleMetric fillHoleMetric )
 {
     FaceBitSet newFaces;
     if ( holes.empty() ) return newFaces;
@@ -115,7 +115,8 @@ FaceBitSet stitchHolesWithCylinders( Mesh& mesh, const std::vector<std::vector<E
 	// Stitch holes with cylinders
     StitchHolesParams stitchParams;
     // stitchParams.metric = getEdgeLengthStitchMetric( mesh );
-    stitchParams.metric = getMinAreaMetric( mesh );
+    // stitchParams.metric = getMinAreaMetric( mesh );
+	stitchParams.metric = fillHoleMetric;
     stitchParams.outNewFaces = &newFaces;
 
     for ( const auto& pair : holePairs )
@@ -185,7 +186,8 @@ val thickenMeshFilledImpl( const Mesh& mesh, float offset, bool smooth, GeneralO
 			returnObj.set( "error: ", errorMessage );
 			return returnObj;
 		}
-		auto newFaces = stitchHolesWithCylinders( shell, holes );
+		auto fillHoleMetric = getMinAreaMetric( shell );
+		auto newFaces = stitchHolesWithCylinders( shell, holes, fillHoleMetric );
 
 
 		if (smooth) {
@@ -256,7 +258,8 @@ val thickenMeshWithTensionImpl( const Mesh& mesh, float offset, bool smooth, flo
 			returnObj.set( "error: ", errorMessage );
 			return returnObj;
 		}
-		auto newFaces = stitchHolesWithCylinders( shell, holes );
+		auto fillHoleMetric = getMinAreaMetric( shell );
+		auto newFaces = stitchHolesWithCylinders( shell, holes, fillHoleMetric );
 
 
 		if (smooth) {
@@ -320,7 +323,8 @@ val generateOrthodonticBiteImpl( Mesh& meshA, Mesh& meshB, float tension, const 
 
 		return returnObj;
 	}
-	auto newFaces = stitchHolesWithCylinders( curMeshA, holes );
+	auto fillHoleMetric = getMinAreaMetric( curMeshA );
+	auto newFaces = stitchHolesWithCylinders( curMeshA, holes, fillHoleMetric );
 
 
 	/// inflate new faces
@@ -359,15 +363,26 @@ val generateOrthodonticBiteWithFillHoleMetricImpl( Mesh& meshA, Mesh& meshB, flo
 	///
 	
 
+	auto holes = findRightBoundary( curMeshA.topology );
+	if ( holes.size() < 2 )
+	{
+		returnObj.set( "success", false );
+
+		std::string errorMessage = "Expected 2+ holes, found " + std::to_string( holes.size() ) + "\n";
+		returnObj.set( "error: ", errorMessage );
+
+		return returnObj;
+	}
+	auto newFaces = stitchHolesWithCylinders( curMeshA, holes, fillHoleMetric );
+
+
 	/// inflate new faces
-	StitchHolesParams stitchParams;
-	stitchParams.metric = fillHoleMetric;
-	FaceBitSet outNewFaces;
-	stitchParams.outNewFaces = &outNewFaces;
-	buildCylinderBetweenTwoHoles( curMeshA, stitchParams );
 	// Find the newly generated internal vertices
-	auto newVerts = getInnerVerts( curMeshA.topology, outNewFaces );
-	inflate( curMeshA, newVerts, inflateSettings );
+	if ( inflateSettings.pressure > 0 ) {
+		// Find the newly generated internal vertices
+		auto newVerts = getInnerVerts( curMeshA.topology, newFaces );
+		inflate( curMeshA, newVerts, inflateSettings );
+	}
 	///
 
 
