@@ -1,6 +1,6 @@
 {
   "name": "@alpinebuster/meshsdk",
-  "version": "1.3.4",
+  "version": "1.3.5",
   "description": "MeshSDK - Mesh processing library writing in CPP with extra **PYTHON/C/C#/JS/TS** bindings.",
   "type": "module",
   "types": "lib/index.d.ts",

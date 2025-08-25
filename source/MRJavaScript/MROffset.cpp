@@ -345,25 +345,11 @@ val generateOrthodonticBiteImpl( Mesh& meshA, Mesh& meshB, float tension, const 
 	return returnObj;
 }
 
-val generateOrthodonticBiteWithFillHoleMetricImpl( Mesh& meshA, Mesh& meshB, float tension, const InflateSettings& inflateSettings, GeneralOffsetParameters &params, const FillHoleMetric fillHoleMetric )
+val generateOrthodonticBiteWithFillHoleMetricImpl( Mesh& mesh, const InflateSettings& inflateSettings, const FillHoleMetric fillHoleMetric )
 {
 	val returnObj = val::object();
-
-
-	///
-	// Handle tension
-	Mesh curMeshA = (tension > 0) ? offsetOneDirection(MeshPart(meshA), tension, params).value() : meshA;
-	curMeshA.topology.flipOrientation(); // only if tension > 0
-
-	Mesh curMeshB = (tension > 0) ? offsetOneDirection(MeshPart(meshB), tension, params).value() : meshB;
-	curMeshB.topology.flipOrientation(); // only if tension > 0
-
-	// Connect two meshes
-	curMeshA.addMeshPart( curMeshB );
-	///
 	
-
-	auto holes = findRightBoundary( curMeshA.topology );
+	auto holes = findRightBoundary( mesh.topology );
 	if ( holes.size() < 2 )
 	{
 		returnObj.set( "success", false );
@@ -373,23 +359,23 @@ val generateOrthodonticBiteWithFillHoleMetricImpl( Mesh& meshA, Mesh& meshB, flo
 
 		return returnObj;
 	}
-	auto newFaces = stitchHolesWithCylinders( curMeshA, holes, fillHoleMetric );
+	auto newFaces = stitchHolesWithCylinders( mesh, holes, fillHoleMetric );
 
 
 	/// inflate new faces
 	// Find the newly generated internal vertices
 	if ( inflateSettings.pressure > 0 ) {
 		// Find the newly generated internal vertices
-		auto newVerts = getInnerVerts( curMeshA.topology, newFaces );
-		inflate( curMeshA, newVerts, inflateSettings );
+		auto newVerts = getInnerVerts( mesh.topology, newFaces );
+		inflate( mesh, newVerts, inflateSettings );
 	}
 	///
 
 
-    val meshData = MRJS::exportMeshMemoryView( curMeshA );
+    val meshData = MRJS::exportMeshMemoryView( mesh );
 
     returnObj.set( "success", true );
-    returnObj.set( "mesh", curMeshA );
+    returnObj.set( "mesh", mesh );
     returnObj.set( "meshMV", meshData );
 
 	return returnObj;

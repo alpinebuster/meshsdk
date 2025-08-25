@@ -525,7 +525,26 @@ function SidebarObject( editor ) {
 			const newIndices_1 = result_1.indices;
 			showMesh( selectorWasmResults_1_ch, newVertices_1, newIndices_1 );
 
-			const result = editor.MeshSDK.generateOrthodonticBiteImpl( selectorWasmResults[0], selectorWasmResults[1], 0.1, inflateSettings, offsetParams );
+
+			const tension = 0;
+			const mpA = new editor.MeshSDK.MeshPart(selectorWasmResults[0]);
+			const mpB = new editor.MeshSDK.MeshPart(selectorWasmResults[1]);
+			// Handle tension
+			const curMeshA = (tension > 0) ? editor.MeshSDK.offsetOneDirection( mpA, tension, offsetParams).value() : selectorWasmResults[0];
+			curMeshA.topology.flipOrientation( null ); // only if tension > 0
+
+			const curMeshB = (tension > 0) ? editor.MeshSDK.offsetOneDirection( mpB, tension, offsetParams).value() : selectorWasmResults[1];
+			curMeshB.topology.flipOrientation( null ); // only if tension > 0
+
+			// Connect two meshes
+			const mp = new editor.MeshSDK.MeshPart( curMeshB );
+			
+			let thisContours = new editor.MeshSDK.VectorEdgePath();
+			let fromContours = new editor.MeshSDK.VectorEdgePath();
+			const partMapping = new editor.MeshSDK.PartMapping();
+			curMeshA.addMeshPart( mp, false, thisContours, fromContours, partMapping );
+			const fillHoleMetric = editor.MeshSDK.getCircumscribedMetric(curMeshA);
+			const result = editor.MeshSDK.generateOrthodonticBiteWithFillHoleMetricImpl( curMeshA, inflateSettings, fillHoleMetric );
 
 			const newVertices = result.meshMV.vertices;
 			const newIndices = result.meshMV.indices;

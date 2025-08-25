@@ -2473,6 +2473,71 @@ export interface LineSegm3d extends ClassHandle {
   opcall(_0: number): Vector3d;
 }
 
+export interface FaceMapOrHashMap extends ClassHandle {
+  setHashMap(_0: FaceHashMap): void;
+  resizeReserve(_0: number, _1: number): void;
+  forEach(_0: any): void;
+  getHashMap(): FaceHashMap | null;
+  getHashMapConst(): FaceHashMap | null;
+  clear(): void;
+  pushBack(_0: FaceId, _1: FaceId): void;
+  setMap(_0: FaceMap): void;
+  getMap(): FaceMap | null;
+  getMapConst(): FaceMap | null;
+}
+
+export interface VertMapOrHashMap extends ClassHandle {
+  setHashMap(_0: VertHashMap): void;
+  resizeReserve(_0: number, _1: number): void;
+  forEach(_0: any): void;
+  getHashMap(): VertHashMap | null;
+  getHashMapConst(): VertHashMap | null;
+  clear(): void;
+  pushBack(_0: VertId, _1: VertId): void;
+  setMap(_0: VertMap): void;
+  getMap(): VertMap | null;
+  getMapConst(): VertMap | null;
+}
+
+export interface EdgeMapOrHashMap extends ClassHandle {
+  setHashMap(_0: EdgeHashMap): void;
+  resizeReserve(_0: number, _1: number): void;
+  forEach(_0: any): void;
+  getHashMap(): EdgeHashMap | null;
+  getHashMapConst(): EdgeHashMap | null;
+  clear(): void;
+  pushBack(_0: EdgeId, _1: EdgeId): void;
+  setMap(_0: EdgeMap): void;
+  getMap(): EdgeMap | null;
+  getMapConst(): EdgeMap | null;
+}
+
+export interface UndirectedEdgeMapOrHashMap extends ClassHandle {
+  setHashMap(_0: UndirectedEdgeHashMap): void;
+  resizeReserve(_0: number, _1: number): void;
+  forEach(_0: any): void;
+  getHashMap(): UndirectedEdgeHashMap | null;
+  getHashMapConst(): UndirectedEdgeHashMap | null;
+  clear(): void;
+  pushBack(_0: UndirectedEdgeId, _1: UndirectedEdgeId): void;
+  setMap(_0: UndirectedEdgeMap): void;
+  getMap(): UndirectedEdgeMap | null;
+  getMapConst(): UndirectedEdgeMap | null;
+}
+
+export interface WholeEdgeMapOrHashMap extends ClassHandle {
+  setHashMap(_0: WholeEdgeHashMap): void;
+  resizeReserve(_0: number, _1: number): void;
+  forEach(_0: any): void;
+  getHashMap(): WholeEdgeHashMap | null;
+  getHashMapConst(): WholeEdgeHashMap | null;
+  clear(): void;
+  pushBack(_0: UndirectedEdgeId, _1: EdgeId): void;
+  setMap(_0: WholeEdgeMap): void;
+  getMap(): WholeEdgeMap | null;
+  getMapConst(): WholeEdgeMap | null;
+}
+
 export interface Matrix2b extends ClassHandle {
 }
 
@@ -4766,7 +4831,20 @@ export type SearchPathSettings = {
   maxReduceIters: number
 };
 
+export interface FindOverlappingSettings extends ClassHandle {
+  maxDistSq: number;
+  maxNormalDot: number;
+  minAreaFraction: number;
+  cb: ProgressCallback;
+}
+
 export interface PartMapping extends ClassHandle {
+  src2tgtFaces: FaceMapOrHashMap | null;
+  src2tgtVerts: VertMapOrHashMap | null;
+  src2tgtEdges: WholeEdgeMapOrHashMap | null;
+  tgt2srcFaces: FaceMapOrHashMap | null;
+  tgt2srcVerts: VertMapOrHashMap | null;
+  tgt2srcEdges: WholeEdgeMapOrHashMap | null;
   clear(): void;
 }
 
@@ -9935,6 +10013,31 @@ interface EmbindModule {
   doSegmentsIntersect2d(_0: LineSegm2d, _1: LineSegm2d, _2: number, _3: number): boolean;
   doSegmentLineIntersect2f(_0: LineSegm2f, _1: Line2f, _2: number, _3: number): boolean;
   doSegmentLineIntersect2d(_0: LineSegm2d, _1: Line2d, _2: number, _3: number): boolean;
+  FaceMapOrHashMap: {
+    new(): FaceMapOrHashMap;
+    createMap(_0: number): FaceMapOrHashMap;
+    createHashMap(_0: number): FaceMapOrHashMap;
+  };
+  VertMapOrHashMap: {
+    new(): VertMapOrHashMap;
+    createMap(_0: number): VertMapOrHashMap;
+    createHashMap(_0: number): VertMapOrHashMap;
+  };
+  EdgeMapOrHashMap: {
+    new(): EdgeMapOrHashMap;
+    createMap(_0: number): EdgeMapOrHashMap;
+    createHashMap(_0: number): EdgeMapOrHashMap;
+  };
+  UndirectedEdgeMapOrHashMap: {
+    new(): UndirectedEdgeMapOrHashMap;
+    createMap(_0: number): UndirectedEdgeMapOrHashMap;
+    createHashMap(_0: number): UndirectedEdgeMapOrHashMap;
+  };
+  WholeEdgeMapOrHashMap: {
+    new(): WholeEdgeMapOrHashMap;
+    createMap(_0: number): WholeEdgeMapOrHashMap;
+    createHashMap(_0: number): WholeEdgeMapOrHashMap;
+  };
   Matrix2b: {
     new(): Matrix2b;
   };
@@ -10107,6 +10210,8 @@ interface EmbindModule {
   subEdgeId(_0: EdgeId, _1: number): EdgeId;
   subEdgeIdUInt(_0: EdgeId, _1: number): EdgeId;
   subEdgeIdSize(_0: EdgeId, _1: number): EdgeId;
+  getAtE(_0: EdgeMapOrHashMap, _1: EdgeId, _2: EdgeId): EdgeId;
+  setAtE(_0: EdgeMapOrHashMap, _1: EdgeId, _2: EdgeId): void;
   buildCylinderBetweenTwoHolesWithEdges(_0: Mesh, _1: EdgeId, _2: EdgeId, _3: StitchHolesParams): void;
   fillHole(_0: Mesh, _1: EdgeId, _2: FillHoleParams): void;
   makeDegenerateBandAroundHole(_0: Mesh, _1: EdgeId, _2: FaceBitSet | null): EdgeId;
@@ -10139,6 +10244,10 @@ interface EmbindModule {
   subUndirectedEdgeId(_0: UndirectedEdgeId, _1: number): UndirectedEdgeId;
   subUndirectedEdgeIdUInt(_0: UndirectedEdgeId, _1: number): UndirectedEdgeId;
   subUndirectedEdgeIdSize(_0: UndirectedEdgeId, _1: number): UndirectedEdgeId;
+  getAtUE(_0: UndirectedEdgeMapOrHashMap, _1: UndirectedEdgeId, _2: UndirectedEdgeId): UndirectedEdgeId;
+  setAtUE(_0: UndirectedEdgeMapOrHashMap, _1: UndirectedEdgeId, _2: UndirectedEdgeId): void;
+  getAtWE(_0: WholeEdgeMapOrHashMap, _1: UndirectedEdgeId, _2: EdgeId): EdgeId;
+  setAtWE(_0: WholeEdgeMapOrHashMap, _1: UndirectedEdgeId, _2: EdgeId): void;
   FaceId: {
     new(): FaceId;
     new(_0: number): FaceId;
@@ -10150,6 +10259,8 @@ interface EmbindModule {
   subFaceId(_0: FaceId, _1: number): FaceId;
   subFaceIdUInt(_0: FaceId, _1: number): FaceId;
   subFaceIdSize(_0: FaceId, _1: number): FaceId;
+  getAtF(_0: FaceMapOrHashMap, _1: FaceId, _2: FaceId): FaceId;
+  setAtF(_0: FaceMapOrHashMap, _1: FaceId, _2: FaceId): void;
   VertId: {
     new(): VertId;
     new(_0: number): VertId;
@@ -10161,6 +10272,8 @@ interface EmbindModule {
   subVertId(_0: VertId, _1: number): VertId;
   subVertIdUInt(_0: VertId, _1: number): VertId;
   subVertIdSize(_0: VertId, _1: number): VertId;
+  getAtV(_0: VertMapOrHashMap, _1: VertId, _2: VertId): VertId;
+  setAtV(_0: VertMapOrHashMap, _1: VertId, _2: VertId): void;
   getComponentVerts(_0: Mesh, _1: VertId, _2: VertBitSet | null): VertBitSet;
   fillHoleTrivially(_0: Mesh, _1: EdgeId, _2: FaceBitSet | null): VertId;
   PixelId: {
@@ -10619,6 +10732,10 @@ interface EmbindModule {
   OneMeshIntersection: {
     new(): OneMeshIntersection;
   };
+  FindOverlappingSettings: {
+    new(): FindOverlappingSettings;
+  };
+  findOverlappingTris(_0: MeshPart, _1: FindOverlappingSettings): ExpectedFaceBitSet;
   PartMapping: {
     new(): PartMapping;
   };
@@ -10687,7 +10804,7 @@ interface EmbindModule {
     new(): SpacingSettings;
   };
   generateOrthodonticBiteImpl(_0: Mesh, _1: Mesh, _2: number, _3: InflateSettings, _4: GeneralOffsetParameters): any;
-  generateOrthodonticBiteWithFillHoleMetricImpl(_0: Mesh, _1: Mesh, _2: number, _3: InflateSettings, _4: GeneralOffsetParameters, _5: FillHoleMetric): any;
+  generateOrthodonticBiteWithFillHoleMetricImpl(_0: Mesh, _1: InflateSettings, _2: FillHoleMetric): any;
   positionVertsSmoothly(_0: Mesh, _1: VertBitSet, _2: EdgeWeights, _3: VertexMass, _4: VertBitSet | null): void;
   positionVertsSmoothlyWithTopology(_0: MeshTopology, _1: VertCoords, _2: VertBitSet, _3: EdgeWeights, _4: VertexMass, _5: VertBitSet | null): void;
   positionVertsSmoothlySharpBd(_0: Mesh, _1: VertBitSet, _2: VertCoords | null, _3: VertScalars | null): void;

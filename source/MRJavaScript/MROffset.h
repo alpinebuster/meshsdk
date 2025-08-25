@@ -18,6 +18,6 @@ val thickenMeshImpl( const Mesh& mesh, float offset, const GeneralOffsetParamete
 val thickenMeshFilledImpl( const Mesh& mesh, float offset, bool smooth, const GeneralOffsetParameters& params );
 val thickenMeshWithTensionImpl( const Mesh& mesh, float offset, bool smooth, float tension, const GeneralOffsetParameters& params );
 val generateOrthodonticBiteImpl( Mesh& meshA, Mesh& meshB, float tension, const InflateSettings& inflateSettings, const GeneralOffsetParameters& params );
-val generateOrthodonticBiteWithFillHoleMetricImpl( Mesh& meshA, Mesh& meshB, float tension, const InflateSettings& inflateSettings, GeneralOffsetParameters &params, const FillHoleMetric fillHoleMetric );
+val generateOrthodonticBiteWithFillHoleMetricImpl( Mesh& mesh, const InflateSettings& inflateSettings, const FillHoleMetric fillHoleMetric );
 
 } // namespace MRJS
