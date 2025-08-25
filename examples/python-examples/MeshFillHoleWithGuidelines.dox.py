@@ -214,7 +214,7 @@ for i in range(numGuides):
     )
     
     # Choose which boundary to use as template (alternate or use the larger one)
-    if i < 1/2:
+    if zRatio < 1/2:
         # Use hole1 boundary as template
         template_boundary = hole1_boundary
         template_centroid = centroid1
@@ -234,7 +234,7 @@ for i in range(numGuides):
     
     # Add this guide curve to the mesh as a separate edge loop
     loopId = mesh.addSeparateEdgeLoop(guide_points)
-    if i < 1/2:
+    if zRatio < 1/2:
         holes.insert(holes.size() - 1, loopId.sym())
         holes.insert(holes.size() - 1, loopId)
     else:

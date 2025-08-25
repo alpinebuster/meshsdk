@@ -124,7 +124,8 @@
 		"__locale": "cpp",
 		"__bit_reference": "cpp",
 		"__functional_base": "cpp",
-		"__memory": "cpp"
+		"__memory": "cpp",
+		"dense": "cpp"
 	},
 	"editor.fontSize": 13,
 	"editor.wordWrap": "on",

@@ -544,19 +544,16 @@ function SidebarObject( editor ) {
 			const partMapping = new editor.MeshSDK.PartMapping();
 			curMeshA.addMeshPart( mp, false, thisContours, fromContours, partMapping );
 			const fillHoleMetric = editor.MeshSDK.getCircumscribedMetric(curMeshA);
-			const result = editor.MeshSDK.generateOrthodonticBiteWithFillHoleMetricImpl( curMeshA, inflateSettings, fillHoleMetric );
+			const result = editor.MeshSDK.generateOrthodonticBiteWithFillHoleMetricImpl( 
+				curMeshA, 
+				6,
+				1.7,
+				inflateSettings, fillHoleMetric 
+			);
 
 			const newVertices = result.meshMV.vertices;
 			const newIndices = result.meshMV.indices;
 			showMesh( result.mesh, newVertices, newIndices );
-
-
-			// NOTE: 'Self-Boolean has nested intersections on 2 faces'
-			// const selfBooleanResult = editor.MeshSDK.selfBoolean(result.mesh);
-			// const self_boolean_result = editor.MeshSDK.exportMeshMemoryView( selfBooleanResult.value() );
-			// const newSelfVertices = self_boolean_result.vertices;
-			// const newSelfIndices = self_boolean_result.indices;
-			// showMesh( selfBooleanResult.value(), newSelfVertices, newSelfIndices );
 
 
 			const cb = new editor.MeshSDK.ProgressCallback.create(function(progress) {

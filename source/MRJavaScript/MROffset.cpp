@@ -296,91 +296,6 @@ val thickenMeshWithTensionImpl( const Mesh& mesh, float offset, bool smooth, flo
 	}
 }
 
-val generateOrthodonticBiteImpl( Mesh& meshA, Mesh& meshB, float tension, const InflateSettings& inflateSettings, GeneralOffsetParameters &params )
-{
-	val returnObj = val::object();
-
-	///
-	// Handle tension
-	Mesh curMeshA = (tension > 0) ? offsetOneDirection(MeshPart(meshA), tension, params).value() : meshA;
-	curMeshA.topology.flipOrientation(); // only if tension > 0
-
-	Mesh curMeshB = (tension > 0) ? offsetOneDirection(MeshPart(meshB), tension, params).value() : meshB;
-	curMeshB.topology.flipOrientation(); // only if tension > 0
-
-	// Connect two meshes
-	curMeshA.addMeshPart( curMeshB );
-	///
-	
-
-	auto holes = findRightBoundary( curMeshA.topology );
-	if ( holes.size() < 2 )
-	{
-		returnObj.set( "success", false );
-
-		std::string errorMessage = "Expected 2+ holes, found " + std::to_string( holes.size() ) + "\n";
-		returnObj.set( "error: ", errorMessage );
-
-		return returnObj;
-	}
-	auto fillHoleMetric = getMinAreaMetric( curMeshA );
-	auto newFaces = stitchHolesWithCylinders( curMeshA, holes, fillHoleMetric );
-
-
-	/// inflate new faces
-	if ( inflateSettings.pressure > 0 ) {
-		// Find the newly generated internal vertices
-		auto newVerts = getInnerVerts( curMeshA.topology, newFaces );
-		inflate( curMeshA, newVerts, inflateSettings );
-	}
-	///
-
-
-    val meshData = MRJS::exportMeshMemoryView( curMeshA );
-
-    returnObj.set( "success", true );
-    returnObj.set( "mesh", curMeshA );
-    returnObj.set( "meshMV", meshData );
-
-	return returnObj;
-}
-
-val generateOrthodonticBiteWithFillHoleMetricImpl( Mesh& mesh, const InflateSettings& inflateSettings, const FillHoleMetric fillHoleMetric )
-{
-	val returnObj = val::object();
-	
-	auto holes = findRightBoundary( mesh.topology );
-	if ( holes.size() < 2 )
-	{
-		returnObj.set( "success", false );
-
-		std::string errorMessage = "Expected 2+ holes, found " + std::to_string( holes.size() ) + "\n";
-		returnObj.set( "error: ", errorMessage );
-
-		return returnObj;
-	}
-	auto newFaces = stitchHolesWithCylinders( mesh, holes, fillHoleMetric );
-
-
-	/// inflate new faces
-	// Find the newly generated internal vertices
-	if ( inflateSettings.pressure > 0 ) {
-		// Find the newly generated internal vertices
-		auto newVerts = getInnerVerts( mesh.topology, newFaces );
-		inflate( mesh, newVerts, inflateSettings );
-	}
-	///
-
-
-    val meshData = MRJS::exportMeshMemoryView( mesh );
-
-    returnObj.set( "success", true );
-    returnObj.set( "mesh", mesh );
-    returnObj.set( "meshMV", meshData );
-
-	return returnObj;
-}
-
 }
 
 
@@ -435,7 +350,5 @@ EMSCRIPTEN_BINDINGS( OffsetModule )
 	function( "thickenMeshImpl", &MRJS::thickenMeshImpl );
 	function( "thickenMeshFilledImpl", &MRJS::thickenMeshFilledImpl );
 	function( "thickenMeshWithTensionImpl", &MRJS::thickenMeshWithTensionImpl );
-	function( "generateOrthodonticBiteImpl", &MRJS::generateOrthodonticBiteImpl );
-	function( "generateOrthodonticBiteWithFillHoleMetricImpl", &MRJS::generateOrthodonticBiteWithFillHoleMetricImpl );
 	///
 }
