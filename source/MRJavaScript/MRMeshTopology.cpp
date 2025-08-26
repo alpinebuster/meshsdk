@@ -204,7 +204,7 @@ EMSCRIPTEN_BINDINGS( MeshTopologyModule )
         // .function( "read", &MeshTopology::read )
 
         // Operators
-        .function( "equals", optional_override([](const MeshTopology& self, const MeshTopology& other){ return self == other; }) )
+        .function( "equals", optional_override( []( const MeshTopology& self, const MeshTopology& other ) { return self == other; }) )
 
         // Parallel operations
         .function( "resizeBeforeParallelAdd", &MeshTopology::resizeBeforeParallelAdd )

@@ -525,7 +525,7 @@ function SidebarObject( editor ) {
 			const meshAB = new editor.MeshSDK.Mesh();
 			meshAB.addMesh(selectorWasmResults[0], null, null, null, false);
 			meshAB.addMesh(selectorWasmResults[1], null, null, null, false);
-			// meshAB.topology.flipOrientation(null);
+			meshAB.topology.flipOrientation( null );
 
 			const curMeshThree = editor.MeshSDK.exportMeshMemoryView( meshAB );
 			const curMeshThreeVertices = curMeshThree.vertices;
@@ -553,7 +553,7 @@ function SidebarObject( editor ) {
 			// 	offsetParams 
 			// );
 
-			// result.mesh.topology.flipOrientation(null);
+			// result.mesh.topology.flipOrientation( null );
 
 			const newVertices = result.meshMV.vertices;
 			const newIndices = result.meshMV.indices;

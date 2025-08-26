@@ -323,7 +323,6 @@ val generateOrthodonticBiteImpl(
 	if ( holes.size() < 2 )
 	{
 		returnObj.set( "success", false );
-		returnObj.set( "scale", scale );
 
 		std::string errorMessage = "Expected 2+ holes, found " + std::to_string( holes.size() ) + "\n";
 		returnObj.set( "error: ", errorMessage );
@@ -427,12 +426,12 @@ val generateOrthodonticBiteWithFillHoleMetricImpl(
     float avgEdgeLength = mesh.averageEdgeLength();	
 
 	///
-    mesh.topology.flipOrientation();
+	// Let JS side do this!
+    // mesh.topology.flipOrientation();
     auto holes = mesh.topology.findHoleRepresentiveEdges();
 	if ( holes.size() < 2 )
 	{
 		returnObj.set( "success", false );
-		returnObj.set( "scale", scale );
 
 		std::string errorMessage = "Expected 2+ holes, found " + std::to_string( holes.size() ) + "\n";
 		returnObj.set( "error: ", errorMessage );
@@ -443,13 +442,13 @@ val generateOrthodonticBiteWithFillHoleMetricImpl(
     auto holesWithEdges = findRightBoundary( mesh.topology );
     auto hole1Boundary = extractHoleBoundaryPoints( mesh, holesWithEdges[0] );
     auto hole2Boundary = extractHoleBoundaryPoints( mesh, holesWithEdges[1] );
-	returnObj.set( "hole1Boundary", hole1Boundary );
-	returnObj.set( "hole2Boundary", hole2Boundary );
+	returnObj.set( "holeABoundary", hole1Boundary );
+	returnObj.set( "holeBBoundary", hole2Boundary );
 
     auto centroid1 = computeHoleCentroidAndNormal( hole1Boundary ).first;
     auto centroid2 = computeHoleCentroidAndNormal( hole2Boundary ).first;
-	returnObj.set( "centroid1", centroid1 );
-	returnObj.set( "centroid2", centroid2 );
+	returnObj.set( "centroidA", centroid1 );
+	returnObj.set( "centroidB", centroid2 );
 	///
 
 	val jsArray = val::array();
@@ -481,8 +480,8 @@ val generateOrthodonticBiteWithFillHoleMetricImpl(
 			holes.insert( holes.end() - 1, loopId );
 			holes.insert( holes.end() - 1, loopId.sym() );
 		}
-		returnObj.set( "holes", holes );
     }
+	returnObj.set( "holes", holes );
 	returnObj.set( "guidePoints", jsArray );
 	
 	
@@ -521,7 +520,6 @@ val generateOrthodonticBiteWithFillHoleMetricImpl(
 	/// inflate new faces
 	if ( inflateSettings.pressure > 0 ) {
 		inflate( mesh, vertRegion, inflateSettings );
-		returnObj.set( "inflated", true );
 	}
 	///
 

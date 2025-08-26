@@ -2612,6 +2612,8 @@ export interface Mesh extends ClassHandle {
   getDipolesNotCreate(): Dipoles | null;
   addMesh(_0: Mesh, _1: FaceMap | null, _2: VertMap | null, _3: WholeEdgeMap | null, _4: boolean): void;
   packWithMap(_0: FaceMap | null, _1: VertMap | null, _2: WholeEdgeMap | null, _3: boolean): void;
+  getPoints(): VertCoords | null;
+  getTopology(): MeshTopology | null;
   toTriPoint(_0: VertId): MeshTriPoint;
   getClosestVertexWithMeshTriPoint(_0: MeshTriPoint): VertId;
   getClosestEdgeWithMeshTriPoint(_0: MeshTriPoint): UndirectedEdgeId;

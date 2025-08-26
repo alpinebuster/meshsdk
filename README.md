@@ -74,8 +74,8 @@ git submodule update --init
 `docker compose up meshsdk-emscripten-build`
 `docker compose up meshsdk-emscripten-build -d`
 
-`docker compose --profile singlethreaded up meshlib-emscripten-build-singlethreaded`
-`docker compose --profile wasm64 up meshlib-emscripten-build-wasm64`
+`docker compose --profile singlethreaded up meshsdk-emscripten-build-singlethreaded`
+`docker compose --profile wasm64 up meshsdk-emscripten-build-wasm64`
 
 #
 # To run custom build commands:
@@ -173,7 +173,7 @@ yarn add @alpinebuster/meshsdk
 For Python, simply install via pip:  
 
 ```sh
-pip install meshlib
+pip install meshsdk
 ```
 
 ## **License**

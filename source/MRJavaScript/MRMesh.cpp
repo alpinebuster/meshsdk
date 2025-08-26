@@ -231,8 +231,14 @@ EMSCRIPTEN_BINDINGS( MeshModule )
 		.smart_ptr<std::shared_ptr<Mesh>>( "MeshSharedPtr" )
 		.constructor<>()
 
-		.property( "topology", &Mesh::topology )
+		.property( "topology", &Mesh::topology, return_value_policy::reference() )
+        .function( "getTopology", optional_override( []( Mesh& self ) {
+            return &self.topology;
+        }), allow_raw_pointers() )
 		.property( "points", &Mesh::points )
+        .function( "getPoints", optional_override( []( Mesh& self ) {
+            return &self.points;
+        }), allow_raw_pointers() )
 
 		///
 		// NOTE: Let `emscripten` to handle exceptions, it will throw them on the JS side
