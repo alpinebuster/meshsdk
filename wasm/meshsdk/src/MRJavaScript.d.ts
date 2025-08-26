@@ -10649,6 +10649,15 @@ interface EmbindModule {
     new(): MeshTopology;
   };
   fromSameTriangle(_0: MeshTopology, _1: EdgePoint, _2: EdgePoint): boolean;
+  expand(_0: MeshTopology, _1: FaceBitSet, _2: number): void;
+  expandWithFaceId(_0: MeshTopology, _1: FaceId, _2: number): FaceBitSet;
+  expandWithVertBitSet(_0: MeshTopology, _1: VertBitSet, _2: number): void;
+  expandWithVertId(_0: MeshTopology, _1: VertId, _2: number): VertBitSet;
+  shrink(_0: MeshTopology, _1: FaceBitSet, _2: number): void;
+  shrinkWithVertBitSet(_0: MeshTopology, _1: VertBitSet, _2: number): void;
+  expandFaces(_0: MeshTopology, _1: FaceBitSet, _2: UndirectedEdgeBitSet | null): FaceBitSet;
+  shrinkFaces(_0: MeshTopology, _1: FaceBitSet, _2: UndirectedEdgeBitSet | null): FaceBitSet;
+  getBoundaryFaces(_0: MeshTopology, _1: FaceBitSet): FaceBitSet;
   addTriangles(_0: MeshTopology, _1: Triangulation, _2: BuildSettings): void;
   hasFullySelectedComponentFromTopology(_0: MeshTopology, _1: VertBitSet): boolean;
   makeQuadBridge(_0: MeshTopology, _1: EdgeId, _2: EdgeId, _3: FaceBitSet | null): MakeBridgeResult;
@@ -10803,8 +10812,8 @@ interface EmbindModule {
   SpacingSettings: {
     new(): SpacingSettings;
   };
-  generateOrthodonticBiteImpl(_0: Mesh, _1: Mesh, _2: number, _3: InflateSettings, _4: GeneralOffsetParameters): any;
-  generateOrthodonticBiteWithFillHoleMetricImpl(_0: Mesh, _1: InflateSettings, _2: FillHoleMetric): any;
+  generateOrthodonticBiteImpl(_0: Mesh, _1: Mesh, _2: number, _3: number, _4: number, _5: InflateSettings, _6: GeneralOffsetParameters): any;
+  generateOrthodonticBiteWithFillHoleMetricImpl(_0: Mesh, _1: number, _2: number, _3: InflateSettings, _4: FillHoleMetric): any;
   positionVertsSmoothly(_0: Mesh, _1: VertBitSet, _2: EdgeWeights, _3: VertexMass, _4: VertBitSet | null): void;
   positionVertsSmoothlyWithTopology(_0: MeshTopology, _1: VertCoords, _2: VertBitSet, _3: EdgeWeights, _4: VertexMass, _5: VertBitSet | null): void;
   positionVertsSmoothlySharpBd(_0: Mesh, _1: VertBitSet, _2: VertCoords | null, _3: VertScalars | null): void;

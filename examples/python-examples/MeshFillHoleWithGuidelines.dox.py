@@ -160,7 +160,7 @@ mesh = mm.Mesh()
 mesh.addMesh(meshA)
 mesh.addMesh(meshB)
 # Flip normals to ensure consistent orientation
-mesh.topology.flipOrientation()
+# mesh.topology.flipOrientation()
 
 # Store average edge length for later use in subdivision
 avgEdgeLength = mesh.averageEdgeLength()
@@ -198,8 +198,6 @@ print(f"Hole 2 centroid: ({centroid2.x:.2f}, {centroid2.y:.2f}, {centroid2.z:.2f
 # but require more conservative scaling to avoid intersections
 numGuides = 5
 scale = 1.7
-# Create intermediate guide curves by interpolating between the two holes
-guide_holes = mm.std_vector_Id_EdgeTag()
 bbox = mesh.computeBoundingBox()
 for i in range(numGuides):
     # Calculate interpolation ratio (0 = closer to hole1, 1 = closer to hole2)
@@ -240,6 +238,7 @@ for i in range(numGuides):
     else:
         holes.insert(holes.size() - 1, loopId)
         holes.insert(holes.size() - 1, loopId.sym())
+    pdb.set_trace()
 
 print(f"Total curves to stitch (original two + all guidelines): {holes.size()}")
 ###

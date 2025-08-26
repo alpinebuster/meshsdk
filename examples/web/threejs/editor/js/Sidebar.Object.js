@@ -340,7 +340,6 @@ function SidebarObject( editor ) {
 				}
 
 				/// IMPORTANT!!!
-				mesh.delete();
 				editor.MeshSDK._free( verticesPtr );
 				editor.MeshSDK._free( indicesPtr );
 			}
@@ -501,17 +500,13 @@ function SidebarObject( editor ) {
 
 		const currentUUID = editor.selected.uuid;
 		if ( currentUUID && selectorWasmResults.length >=2 ) {
-			const offsetParams = new editor.MeshSDK.GeneralOffsetParameters();
-			const meshPart = new editor.MeshSDK.MeshPart( selectorWasmResults[0] );
-			offsetParams.voxelSize = editor.MeshSDK.suggestVoxelSize( meshPart, 5e6 );
-			offsetParams.signDetectionMode = editor.MeshSDK.SignDetectionMode.Unsigned;
-
 			const inflateSettings = {
-				pressure: 12,
+				pressure: 0,
 				iterations: 1,
 				preSmooth: true,
 				gradualPressureGrowth: true
 			};
+
 
 			const selectorWasmResults_0_ch = editor.MeshSDK.makeConvexHull(selectorWasmResults[0]);
 			const result_0 = editor.MeshSDK.exportMeshMemoryView( selectorWasmResults_0_ch );
@@ -526,36 +521,46 @@ function SidebarObject( editor ) {
 			showMesh( selectorWasmResults_1_ch, newVertices_1, newIndices_1 );
 
 
-			const tension = 0;
-			const mpA = new editor.MeshSDK.MeshPart(selectorWasmResults[0]);
-			const mpB = new editor.MeshSDK.MeshPart(selectorWasmResults[1]);
-			// Handle tension
-			const curMeshA = (tension > 0) ? editor.MeshSDK.offsetOneDirection( mpA, tension, offsetParams).value() : selectorWasmResults[0];
-			curMeshA.topology.flipOrientation( null ); // only if tension > 0
 
-			const curMeshB = (tension > 0) ? editor.MeshSDK.offsetOneDirection( mpB, tension, offsetParams).value() : selectorWasmResults[1];
-			curMeshB.topology.flipOrientation( null ); // only if tension > 0
+			const meshAB = new editor.MeshSDK.Mesh();
+			meshAB.addMesh(selectorWasmResults[0], null, null, null, false);
+			meshAB.addMesh(selectorWasmResults[1], null, null, null, false);
+			// meshAB.topology.flipOrientation(null);
 
-			// Connect two meshes
-			const mp = new editor.MeshSDK.MeshPart( curMeshB );
-			
-			let thisContours = new editor.MeshSDK.VectorEdgePath();
-			let fromContours = new editor.MeshSDK.VectorEdgePath();
-			const partMapping = new editor.MeshSDK.PartMapping();
-			curMeshA.addMeshPart( mp, false, thisContours, fromContours, partMapping );
-			const fillHoleMetric = editor.MeshSDK.getCircumscribedMetric(curMeshA);
+			const curMeshThree = editor.MeshSDK.exportMeshMemoryView( meshAB );
+			const curMeshThreeVertices = curMeshThree.vertices;
+			const curMeshThreeIndices = curMeshThree.indices;
+			showMesh( meshAB, curMeshThreeVertices, curMeshThreeIndices );
+
+
+
+			const fillHoleMetric = editor.MeshSDK.getCircumscribedMetric(meshAB);
 			const result = editor.MeshSDK.generateOrthodonticBiteWithFillHoleMetricImpl( 
-				curMeshA, 
+				meshAB, 
 				6,
-				1.7,
-				inflateSettings, fillHoleMetric 
+				1.9,
+				inflateSettings, 
+				fillHoleMetric 
 			);
+
+			// const offsetParams = new editor.MeshSDK.GeneralOffsetParameters();
+			// const result = editor.MeshSDK.generateOrthodonticBiteImpl( 
+			// 	selectorWasmResults[0], selectorWasmResults[1],
+			// 	0,
+			// 	6,
+			// 	1.9,
+			// 	inflateSettings, 
+			// 	offsetParams 
+			// );
+
+			// result.mesh.topology.flipOrientation(null);
 
 			const newVertices = result.meshMV.vertices;
 			const newIndices = result.meshMV.indices;
 			showMesh( result.mesh, newVertices, newIndices );
 
 
+			///
 			const cb = new editor.MeshSDK.ProgressCallback.create(function(progress) {
 				console.log("Progress:", progress);
 				return true;
@@ -565,11 +570,11 @@ function SidebarObject( editor ) {
 			const newBooleanVertices = boolean_result.vertices;
 			const newBooleanIndices = boolean_result.indices;
 			showMesh( booleanResult.mesh, newBooleanVertices, newBooleanIndices );
+			///
 
 
-			meshPart.delete();
-			selectorWasmResults[0].delete();
-			selectorWasmResults[1].delete();
+			// selectorWasmResults[0].delete();
+			// selectorWasmResults[1].delete();
 		}
 	});
 

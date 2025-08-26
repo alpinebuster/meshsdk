@@ -133,7 +133,7 @@ Contour3f extractHoleBoundaryPoints( const Mesh & mesh, const std::vector<EdgeId
 }
 std::pair<Vector3f, Vector3f> computeHoleCentroidAndNormal( const Contour3f & boundaryPoints )
 {
-    int n = (int)boundaryPoints.size();
+    size_t n = boundaryPoints.size();
     if ( n < 3 )
         return { Vector3f( 0,0,0 ), Vector3f( 0,0,1 ) };
 
@@ -148,6 +148,7 @@ std::pair<Vector3f, Vector3f> computeHoleCentroidAndNormal( const Contour3f & bo
     Eigen::RowVector3f centroid_np = pts.colwise().mean();
     Vector3f centroid( centroid_np[0], centroid_np[1], centroid_np[2] );
 
+
     Eigen::MatrixXf pts_centered = pts.rowwise() - centroid_np;
     Eigen::Matrix3f cov = (pts_centered.adjoint() * pts_centered) / float(n);
 
@@ -158,29 +159,72 @@ std::pair<Vector3f, Vector3f> computeHoleCentroidAndNormal( const Contour3f & bo
 
     return { centroid, normal };
 }
-
 Contour3f scaleBoundaryToBBox( const Contour3f & originalPoints, 
                                const Vector3f & originalCentroid,
                                const Vector3f & targetCentroid,
                                const Box3f & bbox,
                                float customScale = 1.0f )
 {
+	Vector3f translationVector(
+		targetCentroid.x - originalCentroid.x,
+		targetCentroid.y - originalCentroid.y,
+		targetCentroid.z - originalCentroid.z
+	);
+
+
+	///
+	float absX = std::abs(translationVector.x);
+	float absY = std::abs(translationVector.y);
+	float absZ = std::abs(translationVector.z);
+
+	enum Axis { X, Y, Z };
+	Axis mainAxis;
+	if (absX >= absY && absX >= absZ) mainAxis = X;
+	else if (absY >= absX && absY >= absZ) mainAxis = Y;
+	else mainAxis = Z;
+	///
+
+
     Contour3f translatedPoints;
-    translatedPoints.reserve( originalPoints.size() );
-    for ( auto & p : originalPoints )
-    {
-        translatedPoints.push_back( Vector3f(
-            p.x + (targetCentroid.x - originalCentroid.x),
-            p.y + (targetCentroid.y - originalCentroid.y),
-            targetCentroid.z // Stay in the target z-plane
-        ) );
+    translatedPoints.resize( originalPoints.size() );
+    for ( int i = 0; i < originalPoints.size(); ++i )
+	{
+		switch(mainAxis)
+		{
+		case X:
+			translatedPoints[i] = Vector3f(
+				targetCentroid.x,
+				originalPoints[i].y + translationVector.y,
+				originalPoints[i].z + translationVector.z
+			);
+			break;
+		case Y:
+			translatedPoints[i] = Vector3f(
+				originalPoints[i].x + translationVector.x,
+				targetCentroid.y,
+				originalPoints[i].z + translationVector.z
+			);
+			break;
+		case Z:
+			translatedPoints[i] = Vector3f(
+				originalPoints[i].x + translationVector.x,
+				originalPoints[i].y + translationVector.y,
+				targetCentroid.z // Stay in the target z-plane
+			);
+
+			break;
+		}
     }
 
     // Calculate the scale
     float minScale = std::numeric_limits<float>::infinity();
-    for ( auto & p : translatedPoints )
-    {
-        Vector3f dirVec = p - targetCentroid;
+    for ( int i = 0; i < translatedPoints.size(); ++i )
+	{
+		Vector3f dirVec(
+			translatedPoints[i].x - targetCentroid.x,
+			translatedPoints[i].y - targetCentroid.y,
+			translatedPoints[i].z - targetCentroid.z
+		);
         if ( dirVec.lengthSq() < 1e-12f )
             continue;
 
@@ -209,31 +253,60 @@ Contour3f scaleBoundaryToBBox( const Contour3f & originalPoints,
 
     // Scale
     Contour3f scaledPoints;
-    scaledPoints.reserve( translatedPoints.size() + 1 );
-    for ( auto & p : translatedPoints )
-    {
-        Vector3f offset = p - targetCentroid;
-        scaledPoints.push_back( targetCentroid + offset * scaleFactor );
+    scaledPoints.resize( translatedPoints.size() + 1 );
+    for ( int i = 0; i < translatedPoints.size(); ++i )
+	{
+		Vector3f offset(
+			translatedPoints[i].x - targetCentroid.x,
+			translatedPoints[i].y - targetCentroid.y,
+            translatedPoints[i].z - targetCentroid.z
+		);	
+
+		switch(mainAxis)
+		{
+		case X:
+			scaledPoints [i] = Vector3f(
+				targetCentroid.x,
+				targetCentroid.y + offset.y * scaleFactor,
+				targetCentroid.z + offset.z * scaleFactor
+			);
+			break;
+		case Y:
+			scaledPoints[i] = Vector3f(
+				targetCentroid.x + offset.x * scaleFactor,
+				targetCentroid.y,
+				targetCentroid.z + offset.z * scaleFactor
+			);
+			break;
+		case Z:
+			scaledPoints[i] = Vector3f(
+				targetCentroid.x + offset.x * scaleFactor,
+				targetCentroid.y + offset.y * scaleFactor,
+				targetCentroid.z // Stay in the target z-plane
+			);
+
+			break;
+		}
     }
-    scaledPoints.push_back( scaledPoints.front() ); // Close the updated curve
+    scaledPoints[translatedPoints.size()] = scaledPoints.front(); // Close the updated curve
 
     return scaledPoints;
 }
+
 val generateOrthodonticBiteImpl( 
 	Mesh& meshA, Mesh& meshB, 
 	float tension, 
 	int numGuides,
 	float scale,
 	const InflateSettings& inflateSettings, 
-	GeneralOffsetParameters &params )
+	GeneralOffsetParameters &offsetParams )
 {
 	val returnObj = val::object();
 
 	///
 	// Handle tension when `tension > 0`
-	Mesh curMeshA = (tension > 0) ? offsetOneDirection(MeshPart(meshA), tension, params).value() : meshA;
-
-	Mesh curMeshB = (tension > 0) ? offsetOneDirection(MeshPart(meshB), tension, params).value() : meshB;
+	Mesh curMeshA = (tension > 0) ? offsetOneDirection(MeshPart(meshA), tension, offsetParams).value() : meshA;
+	Mesh curMeshB = (tension > 0) ? offsetOneDirection(MeshPart(meshB), tension, offsetParams).value() : meshB;
 
 	// Connect two meshes
     Mesh mesh;
@@ -250,6 +323,7 @@ val generateOrthodonticBiteImpl(
 	if ( holes.size() < 2 )
 	{
 		returnObj.set( "success", false );
+		returnObj.set( "scale", scale );
 
 		std::string errorMessage = "Expected 2+ holes, found " + std::to_string( holes.size() ) + "\n";
 		returnObj.set( "error: ", errorMessage );
@@ -263,11 +337,10 @@ val generateOrthodonticBiteImpl(
 
     auto centroid1 = computeHoleCentroidAndNormal( hole1Boundary ).first;
     auto centroid2 = computeHoleCentroidAndNormal( hole2Boundary ).first;
-
-    Box3f bbox = mesh.computeBoundingBox();
 	///
 
 	
+    Box3f bbox = mesh.computeBoundingBox();
     for ( int i = 0; i < numGuides; ++i )
     {
         float zRatio = float(i+1) / float(numGuides+1);
@@ -278,20 +351,20 @@ val generateOrthodonticBiteImpl(
     	// Choose which boundary to use as template (alternate or use the larger one)
 		// Generate dynamically scaled and positioned guide curve
         Contour3f guidePoints;
-        if ( zRatio < 1/2 )
+        if ( zRatio < 0.5f )
             guidePoints = scaleBoundaryToBBox( hole1Boundary, centroid1, intermediateCentroid, bbox, scale );
         else
             guidePoints = scaleBoundaryToBBox( hole2Boundary, centroid2, intermediateCentroid, bbox, scale );
 
     	// Add this guide curve to the mesh as a separate edge loop
         auto loopId = mesh.addSeparateEdgeLoop( guidePoints );
-        if ( zRatio < 1/2 ) {
-			holes.push_back( loopId.sym() );
-			holes.push_back( loopId );
+        if ( zRatio < 0.5f ) {
+			holes.insert( holes.end() - 1, loopId.sym() );
+			holes.insert( holes.end() - 1, loopId );
 		}
         else {
-			holes.push_back( loopId );
-			holes.push_back( loopId.sym() );
+			holes.insert( holes.end() - 1, loopId );
+			holes.insert( holes.end() - 1, loopId.sym() );
 		}
     }
 	
@@ -354,10 +427,12 @@ val generateOrthodonticBiteWithFillHoleMetricImpl(
     float avgEdgeLength = mesh.averageEdgeLength();	
 
 	///
+    mesh.topology.flipOrientation();
     auto holes = mesh.topology.findHoleRepresentiveEdges();
 	if ( holes.size() < 2 )
 	{
 		returnObj.set( "success", false );
+		returnObj.set( "scale", scale );
 
 		std::string errorMessage = "Expected 2+ holes, found " + std::to_string( holes.size() ) + "\n";
 		returnObj.set( "error: ", errorMessage );
@@ -368,40 +443,47 @@ val generateOrthodonticBiteWithFillHoleMetricImpl(
     auto holesWithEdges = findRightBoundary( mesh.topology );
     auto hole1Boundary = extractHoleBoundaryPoints( mesh, holesWithEdges[0] );
     auto hole2Boundary = extractHoleBoundaryPoints( mesh, holesWithEdges[1] );
+	returnObj.set( "hole1Boundary", hole1Boundary );
+	returnObj.set( "hole2Boundary", hole2Boundary );
 
     auto centroid1 = computeHoleCentroidAndNormal( hole1Boundary ).first;
     auto centroid2 = computeHoleCentroidAndNormal( hole2Boundary ).first;
-
-    Box3f bbox = mesh.computeBoundingBox();
+	returnObj.set( "centroid1", centroid1 );
+	returnObj.set( "centroid2", centroid2 );
 	///
 
-	
+	val jsArray = val::array();
+    Box3f bbox = mesh.computeBoundingBox();
     for ( int i = 0; i < numGuides; ++i )
     {
         float zRatio = float(i+1) / float(numGuides+1);
 
     	// Interpolate position between the two centroids
         Vector3f intermediateCentroid = centroid1 * (1.0f - zRatio) + centroid2 * zRatio;
+		returnObj.set( "intermediateCentroid", intermediateCentroid );
 
     	// Choose which boundary to use as template (alternate or use the larger one)
 		// Generate dynamically scaled and positioned guide curve
         Contour3f guidePoints;
-        if ( zRatio < 1/2 )
+        if ( zRatio < 0.5f )
             guidePoints = scaleBoundaryToBBox( hole1Boundary, centroid1, intermediateCentroid, bbox, scale );
         else
             guidePoints = scaleBoundaryToBBox( hole2Boundary, centroid2, intermediateCentroid, bbox, scale );
+		jsArray.set(i, guidePoints);
 
     	// Add this guide curve to the mesh as a separate edge loop
         auto loopId = mesh.addSeparateEdgeLoop( guidePoints );
-        if ( zRatio < 1/2 ) {
-			holes.push_back( loopId.sym() );
-			holes.push_back( loopId );
+        if ( zRatio < 0.5f ) {
+			holes.insert( holes.end() - 1, loopId.sym() );
+			holes.insert( holes.end() - 1, loopId );
 		}
         else {
-			holes.push_back( loopId );
-			holes.push_back( loopId.sym() );
+			holes.insert( holes.end() - 1, loopId );
+			holes.insert( holes.end() - 1, loopId.sym() );
 		}
+		returnObj.set( "holes", holes );
     }
+	returnObj.set( "guidePoints", jsArray );
 	
 	
 	///
@@ -411,7 +493,7 @@ val generateOrthodonticBiteWithFillHoleMetricImpl(
     auto oldFaces = mesh.topology.getValidFaces();
 
     for ( int i = 0; i < int(holes.size()/2); ++i )
-        buildCylinderBetweenTwoHoles( mesh, holes[i*2], holes[i*2+1], sParams );
+		buildCylinderBetweenTwoHoles( mesh, holes[i*2], holes[i*2+1], sParams );
 	///
 
 
@@ -439,6 +521,7 @@ val generateOrthodonticBiteWithFillHoleMetricImpl(
 	/// inflate new faces
 	if ( inflateSettings.pressure > 0 ) {
 		inflate( mesh, vertRegion, inflateSettings );
+		returnObj.set( "inflated", true );
 	}
 	///
 
