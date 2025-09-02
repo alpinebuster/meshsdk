@@ -476,11 +476,11 @@ function SidebarObject( editor ) {
 			const meshPart = new editor.MeshSDK.MeshPart( mesh );
 			params.voxelSize = editor.MeshSDK.suggestVoxelSize( meshPart, 5e6 );
 
-			const mp = new editor.MeshSDK.MeshPart( mesh );
-			const resultExpected = editor.MeshSDK.offsetOneDirection( mp, 1.2, params );
-			const resultWasmMesh = resultExpected.value();
+			// const mp = new editor.MeshSDK.MeshPart( mesh );
+			// const resultExpected = editor.MeshSDK.offsetOneDirection( mp, 1.2, params );
+			// const resultWasmMesh = resultExpected.value();
 
-			const result = editor.MeshSDK.thickenMeshFilledImpl( resultWasmMesh, 1.2, params );
+			const result = editor.MeshSDK.thickenMeshWithTensionImpl( mesh, 1.2, true, 1.2, params );
 			// const resultExpected = editor.MeshSDK.thickenMesh( mesh, 1.2, params );
 
 			// const result = editor.MeshSDK.exportMeshMemoryView(resultWasmMesh);

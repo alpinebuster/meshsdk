@@ -228,17 +228,12 @@ val thickenMeshWithTensionImpl( const Mesh& mesh, float offset, bool smooth, flo
 {
 	val returnObj = val::object();
 
-	Mesh meshCopy;
-	meshCopy.topology = mesh.topology;
-	meshCopy.points = mesh.points;
-
+	Mesh meshCopy = mesh;
 	MeshBuilder::uniteCloseVertices( meshCopy, meshCopy.computeBoundingBox().diagonal() * 1e-6 );
 
 
-	///
-	MeshPart mp = MeshPart( meshCopy );
-	auto mShell = offsetOneDirection( mp, tension, params );
-	auto mShellMesh = mShell.value();
+	/// Handle tension
+	Mesh mShellMesh = (tension > 0) ? offsetOneDirection(MeshPart(meshCopy), tension, params).value() : meshCopy;
 	///
 
 
