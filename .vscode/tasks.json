@@ -43,9 +43,9 @@
 			"options": {
 				"env": {
 					"MR_EMSCRIPTEN": "ON",
+					"MR_EMSCRIPTEN_SDK": "ON",
 					"MESHLIB_BUILD_RELEASE": "ON",
 					"MESHLIB_BUILD_DEBUG": "OFF",
-					"MR_EMSCRIPTEN_SDK": "ON",
 				}
 			},
 			"command": "./scripts/build_source.sh",
@@ -122,6 +122,100 @@
 				"env": {
 					"MR_EMSCRIPTEN": "ON",
 					"MR_EMSCRIPTEN_SDK": "ON",
+					"MESHLIB_BUILD_RELEASE": "OFF",
+					"MESHLIB_BUILD_DEBUG": "ON",
+					"MR_EMSCRIPTEN_SINGLE": "OFF",
+					"MR_EMSCRIPTEN_W64": "ON"
+				}
+			},
+			"command": "./scripts/build_source.sh",
+			"problemMatcher": []
+		},
+		{
+			"label": "Build Viewer (32‑bit, multithread)",
+			"type": "shell",
+			"options": {
+				"env": {
+					"MR_EMSCRIPTEN": "ON",
+					"MR_EMSCRIPTEN_SDK": "OFF",
+					"MESHLIB_BUILD_RELEASE": "ON",
+					"MESHLIB_BUILD_DEBUG": "OFF",
+				}
+			},
+			"command": "./scripts/build_source.sh",
+			"problemMatcher": []
+		},
+		{
+			"label": "Build Viewer (32‑bit, single‑thread)",
+			"type": "shell",
+			"options": {
+				"env": {
+					"MR_EMSCRIPTEN": "ON",
+					"MR_EMSCRIPTEN_SDK": "OFF",
+					"MESHLIB_BUILD_RELEASE": "ON",
+					"MESHLIB_BUILD_DEBUG": "OFF",
+					"MR_EMSCRIPTEN_SINGLE": "ON",
+				}
+			},
+			"command": "./scripts/build_source.sh",
+			"problemMatcher": []
+		},
+		{
+			"label": "Build Viewer (64‑bit, multithread)",
+			"type": "shell",
+			"options": {
+				"env": {
+					"MR_EMSCRIPTEN": "ON",
+					"MR_EMSCRIPTEN_SDK": "OFF",
+					"MESHLIB_BUILD_RELEASE": "ON",
+					"MESHLIB_BUILD_DEBUG": "OFF",
+					"MR_EMSCRIPTEN_SINGLE": "OFF",
+					"MR_EMSCRIPTEN_W64": "ON"
+				}
+			},
+			"command": "./scripts/build_source.sh",
+			"problemMatcher": []
+		},
+		{
+			"label": "Build Debuggable Viewer (32‑bit, multithread)",
+			"type": "shell",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"options": {
+				"env": {
+					"MR_EMSCRIPTEN": "ON",
+					"MR_EMSCRIPTEN_SDK": "OFF",
+					"MESHLIB_BUILD_RELEASE": "OFF",
+					"MESHLIB_BUILD_DEBUG": "ON",
+				}
+			},
+			"command": "./scripts/build_source.sh",
+			"problemMatcher": []
+		},
+		{
+			"label": "Build Debuggable Viewer (32‑bit, single‑thread)",
+			"type": "shell",
+			"options": {
+				"env": {
+					"MR_EMSCRIPTEN": "ON",
+					"MR_EMSCRIPTEN_SDK": "OFF",
+					"MESHLIB_BUILD_RELEASE": "OFF",
+					"MESHLIB_BUILD_DEBUG": "ON",
+					"MR_EMSCRIPTEN_SINGLE": "ON",
+				}
+			},
+			"command": "./scripts/build_source.sh",
+			"problemMatcher": []
+		},
+		{
+			"label": "Build Debuggable Viewer (64‑bit, multithread)",
+			"type": "shell",
+			"options": {
+				"env": {
+					"MR_EMSCRIPTEN": "ON",
+					"MR_EMSCRIPTEN_SDK": "OFF",
 					"MESHLIB_BUILD_RELEASE": "OFF",
 					"MESHLIB_BUILD_DEBUG": "ON",
 					"MR_EMSCRIPTEN_SINGLE": "OFF",
