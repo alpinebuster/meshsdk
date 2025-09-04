@@ -95,13 +95,19 @@ EMSCRIPTEN_BINDINGS( PositionVertsSmoothlyModule )
         .field( "preSmooth", &InflateSettings::preSmooth )
         .field( "gradualPressureGrowth", &InflateSettings::gradualPressureGrowth );
 
+    class_<PositionVertsSmoothlyParams>( "PositionVertsSmoothlyParams" )
+        .constructor<>()
+        .property( "region", &PositionVertsSmoothlyParams::region, allow_raw_pointers() )
+        .property( "vertShifts", &PositionVertsSmoothlyParams::vertShifts, allow_raw_pointers() )
+        .property( "stabilizer", &PositionVertsSmoothlyParams::stabilizer );
+
 
     ///
     function( "positionVertsSmoothly", select_overload<void( Mesh&, const VertBitSet&, EdgeWeights, VertexMass, const VertBitSet* )>( &positionVertsSmoothly ), allow_raw_pointers() );
     function( "positionVertsSmoothlyWithTopology", select_overload<void( const MeshTopology&, VertCoords&, const VertBitSet&, EdgeWeights, VertexMass, const VertBitSet* )>( &positionVertsSmoothly ), allow_raw_pointers() );
 
-    function( "positionVertsSmoothlySharpBd", select_overload<void( Mesh&, const VertBitSet&, const Vector<Vector3f, VertId>*, const VertScalars* )>( &positionVertsSmoothlySharpBd ), allow_raw_pointers() );
-    function( "positionVertsSmoothlySharpBdWithTopology", select_overload<void( const MeshTopology&, VertCoords&, const VertBitSet&, const Vector<Vector3f, VertId>*, const VertScalars* )>( &positionVertsSmoothlySharpBd ), allow_raw_pointers() );
+    function( "positionVertsSmoothlySharpBd", select_overload<void( Mesh&, const PositionVertsSmoothlyParams& )>( &positionVertsSmoothlySharpBd ) );
+    function( "positionVertsSmoothlySharpBdWithTopology", select_overload<void( const MeshTopology&, VertCoords&, const PositionVertsSmoothlyParams& )>( &positionVertsSmoothlySharpBd ), allow_raw_pointers() );
 
     function( "positionVertsWithSpacing", select_overload<void( Mesh&, const SpacingSettings& )>( &positionVertsWithSpacing ) );
     function( "positionVertsWithSpacingWithTopology", select_overload<void( const MeshTopology&, VertCoords&, const SpacingSettings& )>( &positionVertsWithSpacing ) );

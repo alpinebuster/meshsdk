@@ -5093,6 +5093,12 @@ export type InflateSettings = {
   gradualPressureGrowth: boolean
 };
 
+export interface PositionVertsSmoothlyParams extends ClassHandle {
+  region: VertBitSet | null;
+  vertShifts: VertCoords | null;
+  stabilizer: number;
+}
+
 export interface ConvertToFloatVector extends ClassHandle {
 }
 
@@ -10816,10 +10822,13 @@ interface EmbindModule {
   };
   generateOrthodonticBiteImpl(_0: Mesh, _1: Mesh, _2: number, _3: number, _4: number, _5: InflateSettings, _6: GeneralOffsetParameters): any;
   generateOrthodonticBiteWithFillHoleMetricImpl(_0: Mesh, _1: number, _2: number, _3: InflateSettings, _4: FillHoleMetric): any;
+  PositionVertsSmoothlyParams: {
+    new(): PositionVertsSmoothlyParams;
+  };
   positionVertsSmoothly(_0: Mesh, _1: VertBitSet, _2: EdgeWeights, _3: VertexMass, _4: VertBitSet | null): void;
   positionVertsSmoothlyWithTopology(_0: MeshTopology, _1: VertCoords, _2: VertBitSet, _3: EdgeWeights, _4: VertexMass, _5: VertBitSet | null): void;
-  positionVertsSmoothlySharpBd(_0: Mesh, _1: VertBitSet, _2: VertCoords | null, _3: VertScalars | null): void;
-  positionVertsSmoothlySharpBdWithTopology(_0: MeshTopology, _1: VertCoords, _2: VertBitSet, _3: VertCoords | null, _4: VertScalars | null): void;
+  positionVertsSmoothlySharpBd(_0: Mesh, _1: PositionVertsSmoothlyParams): void;
+  positionVertsSmoothlySharpBdWithTopology(_0: MeshTopology, _1: VertCoords, _2: PositionVertsSmoothlyParams): void;
   positionVertsWithSpacing(_0: Mesh, _1: SpacingSettings): void;
   positionVertsWithSpacingWithTopology(_0: MeshTopology, _1: VertCoords, _2: SpacingSettings): void;
   inflate(_0: Mesh, _1: VertBitSet, _2: InflateSettings): void;
