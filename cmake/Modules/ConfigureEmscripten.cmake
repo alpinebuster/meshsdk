@@ -61,5 +61,40 @@ IF(NOT MR_DISABLE_EMSCRIPTEN_ASYNCIFY)
   add_compile_definitions(MR_EMSCRIPTEN_ASYNCIFY)
 ENDIF()
 
+IF(MR_EMSCRIPTEN_BUILD_DEBUG)
+  # REF: `https://emscripten.org/docs/porting/Debugging.html`
+  string(JOIN " " CMAKE_EXE_LINKER_FLAGS
+    "${CMAKE_EXE_LINKER_FLAGS}"
+
+
+    # REF: `https://www.willusher.io/blog/build-ship-debug-wasm/`
+    "-g3" # DWARF
+    "-gsource-map" # Source‑map
+    "--source-map-base http://localhost:11009/"
+
+    # REF: `https://emscripten.org/docs/porting/exceptions.html#webassembly-exception-handling-based-support`
+    # "-fexceptions"
+    # "-fwasm-exceptions"
+
+    # REF: `https://developer.chrome.com/blog/wasm-debugging-2020/#release-builds`
+    # "-O0"
+    "-O3 -fno-inline"
+
+    # "-gseparate-dwarf=${CMAKE_BINARY_DIR}/bin/meshsdk.dbg.wasm" # Separate DWARF files
+    # "-s SEPARATE_DWARF_URL='file://${CMAKE_BINARY_DIR}/bin/meshsdk.dbg.wasm'"
+    "-gseparate-dwarf"
+
+
+    # REF: `https://emscripten.org/docs/porting/exceptions.html#webassembly-exception-handling-based-support`
+    # "-s DISABLE_EXCEPTION_CATCHING=1"
+
+    # "-sASSERTIONS=2" # More runtime assertions
+    # "-sASSERTIONS"
+
+    # "-sSTACK_OVERFLOW_CHECK=2" # Stack overflow check
+    # "-s SAFE_HEAP=1" # ⚠️ RuntimeError: Aborted(alignment fault)
+  )
+ENDIF()
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MESHLIB_EMSCRIPTEN_CXX_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${MESHLIB_EMSCRIPTEN_EXE_LINKER_FLAGS}")
