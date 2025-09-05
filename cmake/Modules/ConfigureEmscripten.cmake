@@ -83,6 +83,8 @@ IF(MR_EMSCRIPTEN_BUILD_DEBUG)
     # "-gseparate-dwarf=${CMAKE_BINARY_DIR}/bin/meshsdk.dbg.wasm" # Separate DWARF files
     # "-s SEPARATE_DWARF_URL='file://${CMAKE_BINARY_DIR}/bin/meshsdk.dbg.wasm'"
     "-gseparate-dwarf"
+    # "-fdebug-compilation-dir=${PROJECT_SOURCE_DIR}"
+    "-fdebug-compilation-dir=../../../source"
 
 
     # REF: `https://emscripten.org/docs/porting/exceptions.html#webassembly-exception-handling-based-support`
