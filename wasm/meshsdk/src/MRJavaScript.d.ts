@@ -10822,6 +10822,7 @@ interface EmbindModule {
   };
   generateOrthodonticBiteImpl(_0: Mesh, _1: Mesh, _2: number, _3: number, _4: number, _5: InflateSettings, _6: GeneralOffsetParameters): any;
   generateOrthodonticBiteWithFillHoleMetricImpl(_0: Mesh, _1: number, _2: number, _3: InflateSettings, _4: FillHoleMetric): any;
+  buildCylinderBetweenTwoHolesImpl(_0: Mesh, _1: InflateSettings, _2: FillHoleMetric): any;
   PositionVertsSmoothlyParams: {
     new(): PositionVertsSmoothlyParams;
   };

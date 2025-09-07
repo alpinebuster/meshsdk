@@ -69,6 +69,20 @@ npm run build
 ## Release
 
 ```sh
+npm config delete proxy
+npm config delete https-proxy
+
+npm config get proxy
+npm config get https-proxy
+
+npm config set proxy http://127.0.0.1:7890
+npm config set https-proxy http://127.0.0.1:7890
+
+npm config set registry https://registry.npmmirror.com
+npm config set registry https://registry.npmmirror.com --location=project
+
+npm config set registry https://registry.npmjs.org/
+
 npm login
 npm publish --tag beta --access public
 npm publish --tag latest --access public

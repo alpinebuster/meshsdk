@@ -532,6 +532,76 @@ val generateOrthodonticBiteWithFillHoleMetricImpl(
 	return returnObj;
 }
 
+val buildCylinderBetweenTwoHolesImpl( Mesh& mesh, const InflateSettings& inflateSettings, FillHoleMetric& metric )
+{
+	val returnObj = val::object();
+
+	///
+    float avgEdgeLength = mesh.averageEdgeLength();
+	///
+	
+
+	///
+    auto holes = mesh.topology.findHoleRepresentiveEdges();
+	if ( holes.size() < 2 )
+	{
+		returnObj.set( "success", false );
+
+		std::string errorMessage = "Expected 2+ holes, found " + std::to_string( holes.size() ) + "\n";
+		returnObj.set( "error: ", errorMessage );
+
+		return returnObj;
+	}
+	///
+	
+	
+	///
+    // stitch
+    StitchHolesParams sParams;
+    sParams.metric = metric;
+    auto oldFaces = mesh.topology.getValidFaces();
+
+    for ( int i = 0; i < int(holes.size()/2); ++i )
+        buildCylinderBetweenTwoHoles( mesh, holes[i*2], holes[i*2+1], sParams );
+	///
+
+
+	///
+    // Post-processing: improve the quality of the newly created surface with subdivide + relax
+	// Identify the newly created faces
+    auto newFaces = mesh.topology.getValidFaces() - oldFaces;
+
+	// Subdivide the new faces to improve surface quality
+    SubdivideSettings sSettings;
+    sSettings.maxEdgeLen = avgEdgeLength * 3.0f;
+    sSettings.maxEdgeSplits = 1000000;
+    sSettings.region = &newFaces;
+    subdivideMesh( mesh, sSettings );
+
+	// Get vertices in the new region for smoothing
+    auto vertRegion = getIncidentVerts( mesh.topology, newFaces );
+    // Shrink the region slightly to avoid affecting the original boundaries
+    shrink( mesh.topology, vertRegion, 2 );
+	// Smooth the vertices for a more natural surface
+    positionVertsSmoothly( mesh, vertRegion, EdgeWeights::Cotan, VertexMass::NeiArea );
+	///
+
+
+	/// inflate new faces
+	if ( inflateSettings.pressure > 0 ) {
+		inflate( mesh, vertRegion, inflateSettings );
+	}
+	///
+
+
+	val meshData = MRJS::exportMeshMemoryView( mesh );
+	returnObj.set( "success", true );
+	returnObj.set( "mesh", mesh );
+	returnObj.set( "meshMV", meshData );
+
+	return returnObj;
+}
+
 
 EMSCRIPTEN_BINDINGS( MeshFillHoleModule )
 {
@@ -623,5 +693,7 @@ EMSCRIPTEN_BINDINGS( MeshFillHoleModule )
 	function( "extendHoleWithFuncAndOutputImpl", &extendHoleWithFuncAndOutputImpl );
 	function( "generateOrthodonticBiteImpl", &generateOrthodonticBiteImpl );
 	function( "generateOrthodonticBiteWithFillHoleMetricImpl", &generateOrthodonticBiteWithFillHoleMetricImpl );
+
+	function( "buildCylinderBetweenTwoHolesImpl", &buildCylinderBetweenTwoHolesImpl );
 	///
 }

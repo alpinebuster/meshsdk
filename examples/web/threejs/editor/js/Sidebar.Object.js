@@ -162,6 +162,7 @@ function SidebarObject( editor ) {
 
 	///
 	const selectorWasmResults = [];
+	const betweenWasmResults = [];
 	///
 
 
@@ -324,6 +325,11 @@ function SidebarObject( editor ) {
 
 						const metric = editor.MeshSDK.edgeCurvMetric( mesh, 2.0, 0.0 );
 						const result_ = editor.MeshSDK.segmentByPointsImpl( mesh, metric, _pointArr, _dirArr );
+
+
+						betweenWasmResults.push(result_.smallerMesh);
+						betweenWasmResults.push(result_.largerMesh);
+
 
 						const smallerVertices_ = result_.smallerMeshMV.vertices;
 						const smallerIndices_ = result_.smallerMeshMV.indices;
@@ -575,6 +581,47 @@ function SidebarObject( editor ) {
 
 			// selectorWasmResults[0].delete();
 			// selectorWasmResults[1].delete();
+		}
+	});
+	const wasmOpBuildBetweenHoles = new UIButton( strings.getKey( 'sidebar/object/wasmOpBuildBetweenHoles') ).setMarginLeft( '7px' ).onClick( function () {
+		if ( !editor.selected ) return;
+
+		const currentUUID = editor.selected.uuid;
+		if ( currentUUID && betweenWasmResults.length >=2 ) {
+			const inflateSettings = {
+				pressure: 1.2,
+				iterations: 1,
+				preSmooth: true,
+				gradualPressureGrowth: true
+			};
+
+
+			const { verticesPtr, jsVertices, indicesPtr, jsIndices } = createMemoryViewFromGeometry( editor, editor.selected.geometry );
+			const toothWasmMesh = editor.MeshSDK.Mesh.fromTrianglesMemoryView( jsVertices, jsIndices, true );
+			betweenWasmResults[0].delete();
+			betweenWasmResults[0] = null;
+			betweenWasmResults[0] = toothWasmMesh;
+
+			const meshAB = new editor.MeshSDK.Mesh();
+			meshAB.addMesh(betweenWasmResults[0], null, null, null, false);
+			meshAB.addMesh(betweenWasmResults[1], null, null, null, false);
+			// meshAB.topology.flipOrientation( null );
+
+
+			const fillHoleMetric = editor.MeshSDK.getCircumscribedMetric(meshAB);
+			const result = editor.MeshSDK.buildCylinderBetweenTwoHolesImpl( 
+				meshAB,
+				inflateSettings, 
+				fillHoleMetric 
+			);
+
+			const newVertices = result.meshMV.vertices;
+			const newIndices = result.meshMV.indices;
+			showMesh( result.mesh, newVertices, newIndices );
+
+
+			editor.MeshSDK._free( verticesPtr );
+			editor.MeshSDK._free( indicesPtr );
 		}
 	});
 
@@ -843,6 +890,7 @@ function SidebarObject( editor ) {
 	const wasmOpsRowThicken = new UIRow();
 	wasmOpsRowThicken.add( wasmOpThickenMesh );
 	wasmOpsRowThicken.add( wasmOpThickenBites );
+	wasmOpsRowThicken.add( wasmOpBuildBetweenHoles );
 	
 	const wasmOpsRowLoad = new UIRow();
 	wasmOpsRowLoad.add( wasmOpLoadFromThreeJS );
