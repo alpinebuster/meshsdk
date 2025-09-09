@@ -37,6 +37,49 @@ The MeshSDK is an open-source library that provides advanced algorithms for 3D d
 
 ## Development
 
+### Clangd
+
+Install Clang 20, 19, or old versions in Ubuntu 24.04 | 22.04.
+
+```sh
+wget https://apt.llvm.org/llvm.sh
+chmod u+x llvm.sh
+sudo ./llvm.sh 20
+
+sudo mkdir -p /etc/apt/keyrings
+sudo mv /etc/apt/trusted.gpg.d/apt.llvm.org.asc /etc/apt/keyrings/
+# When file opens in terminal window, add following in between “deb” and “http://apt.llvm.org/…”:
+# [arch=amd64 signed-by=/etc/apt/keyrings/apt.llvm.org.asc]
+#   - arch=amd64, tells your OS type is amd64 (Intel/AMD). For non-Intel/AMD platform, run dpkg --print-architecture command tell OS type, and replace amd64 with the output. So far, arm64 and s390x are also supported
+#   - signed-by=/path/to/key-file, specify the key file.
+sudo nano /etc/apt/sources.list.d/archive_uri-http_apt_llvm_org_noble_*.list
+
+sudo apt install clang-20 lldb-20 lld-20 clangd-20
+# To install everything, use the command below instead:
+sudo apt install clang-tidy-20 clang-format-20 clang-tools-20 llvm-20-dev lld-20 lldb-20 llvm-20-tools libomp-20-dev libc++-20-dev libc++abi-20-dev libclang-common-20-dev libclang-20-dev libclang-cpp20-dev liblldb-20-dev libunwind-20-dev
+
+# If everything’s done successfully, just run clang-xx --version and/or locate clang-xx to verify.
+```
+
+#### Uninstall
+To remove the repository added by the script, just open terminal and run command to remove the corresponding source file:
+
+```sh
+sudo rm /etc/apt/sources.list.d/archive_uri-http_apt_llvm_org_*.list
+```
+
+And, remove the repository key file via command:
+
+```sh
+sudo rm /etc/apt/trusted.gpg.d/apt.llvm.org.asc
+```
+
+To remove Clang packages (replace 20 accordingly), just run command:
+
+```sh
+sudo apt remove --autoremove clang-20 lldb-20 lld-20 clangd-20
+```
+
 ### Linux & MacOS
 
 Install emscripten toolkit:

@@ -56,6 +56,7 @@
 #include <MRMesh/MRMesh.h>
 
 #include <MRVoxels/MRFixUndercuts.h>
+#include <MRVoxels/MRRebuildMesh.h>
 #include <MRVoxels/MROffset.h>
 
 #include "MRMesh.h"
@@ -172,21 +173,24 @@ val createMaxillaGypsumBaseImpl( Mesh& mesh, EdgeId maxAreaHole, VertId minVert,
 		///
 
 
-		///
 		// Connect two meshes
 		mesh.addMesh( mMaxillaBase );
 
-		///
-		// FIXME: this not working as expected
-		// buildCylinderBetweenTwoHoles( mesh, curREGypsumBase, curRE, stitchParams );
-		///
+
 		buildCylinderBetweenTwoHoles( mesh );
+
+
+		///
 		// these holes have exact matching by vertices
-		MeshBuilder::uniteCloseVertices( mesh, 0.0f, true );
+		// MeshBuilder::uniteCloseVertices( mesh, 0.0f, true );
+		RebuildMeshSettings params;
+		params.voxelSize = suggestVoxelSize(mesh, 5e6);
+
+		auto newMesh = rebuildMesh(mesh, params);
 		///
 	
 
-		val meshData = MRJS::exportMeshMemoryView( mesh );
+		val meshData = MRJS::exportMeshMemoryView( newMesh.value() );
 
 		obj.set( "success", true );
 		obj.set( "mesh", mesh );
