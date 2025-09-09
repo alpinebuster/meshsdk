@@ -215,7 +215,14 @@ val createMandibleGypsumBaseImpl( Mesh& mesh, EdgeId maxAreaHole, Vector3f dir, 
 	EdgeId newEdgeId = buildBottom( mesh, maxAreaHole, dir, extension );
 	fillHole( mesh, newEdgeId );
 
-	val meshData = MRJS::exportMeshMemoryView( mesh );
+	///
+	RebuildMeshSettings params;
+	params.voxelSize = suggestVoxelSize(mesh, 5e6);
+
+	auto newMesh = rebuildMesh(mesh, params);
+	///
+	
+	val meshData = MRJS::exportMeshMemoryView( newMesh.value() );
 
 	val obj = val::object();
 	obj.set( "success", true );
