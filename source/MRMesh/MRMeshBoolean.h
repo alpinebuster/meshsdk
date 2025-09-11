@@ -138,7 +138,7 @@ MRMESH_API Expected<BooleanResultPoints, std::string> getBooleanPoints( const Me
 
 /// converts all vertices of the mesh first in integer-coordinates, and then back in float-coordinates;
 /// this is necessary to avoid small self-intersections near newly introduced vertices on cut-contours;
-/// this actually sligntly moves only small perentage of vertices near x=0 or y=0 or z=0 planes, where float-precision is higher than int-precision;
+/// this actually slightly moves only small perentage of vertices near x=0 or y=0 or z=0 planes, where float-precision is higher than int-precision;
 /// newly introduced vertices on cut-contours are also converted, but we expected that they remain unchanged due to idempotent property of the conversion
 MRMESH_API void convertIntFloatAllVerts( Mesh & mesh, const CoordinateConverters& conv );
 

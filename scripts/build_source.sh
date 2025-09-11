@@ -168,9 +168,11 @@ if [ "${MESHLIB_BUILD_RELEASE}" = "ON" ]; then
     mkdir -p build/Release
   fi
   cd build/Release
-    cmake -S ../.. -B . -D CMAKE_BUILD_TYPE=Release ${MR_CMAKE_OPTIONS} | tee ${logfile}
+    # REF: `https://clangd.llvm.org/installation#project-setup`
+    cmake -S ../.. -B . -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -D CMAKE_BUILD_TYPE=Release ${MR_CMAKE_OPTIONS} | tee ${logfile}
     cmake --build . -j ${NPROC} | tee ${logfile}
   cd ../..
+  ln -sf build/Release/compile_commands.json compile_commands.json
 fi
 
 # build Debug
@@ -179,9 +181,10 @@ if [ "${MESHLIB_BUILD_DEBUG}" = "ON" ]; then
     mkdir -p build/Debug
   fi
   cd build/Debug
-    cmake -S ../.. -B . -D CMAKE_BUILD_TYPE=Debug ${MR_CMAKE_OPTIONS} | tee ${logfile}
+    cmake -S ../.. -B . -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -D CMAKE_BUILD_TYPE=Debug ${MR_CMAKE_OPTIONS} | tee ${logfile}
     EMCC_DEBUG=1 cmake --build . -j ${NPROC} | tee ${logfile}
   cd ../..
+  ln -sf build/Debug/compile_commands.json compile_commands.json
 fi
 
 if [ "${MESHLIB_BUILD_RELEASE}" = "ON" ]; then
