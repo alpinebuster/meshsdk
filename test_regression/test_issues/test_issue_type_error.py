@@ -2,7 +2,7 @@
 Set of tests to check if the bindings not crash on wrong arguments types.
 No corresponding issue was formally reported, but such crashes happened at some moment.
 """
-import meshlib.mrmeshpy as mr
+import meshsdk.mrmeshpy as mr
 import pytest
 from module_helper import *
 

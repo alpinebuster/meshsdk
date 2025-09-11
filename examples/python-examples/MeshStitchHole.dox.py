@@ -1,4 +1,4 @@
-import meshlib.mrmeshpy as mrmeshpy
+import meshsdk.mrmeshpy as mrmeshpy
 
 # Load meshes
 mesh_a = mrmeshpy.loadMesh("../_assets/maxilla.stl")

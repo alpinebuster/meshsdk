@@ -93,7 +93,7 @@ int main( int argc, char** argv )
             std::exit(1);
         }
         #else // if not on Windows:
-        auto mrmeshpyPath = MR::SystemPath::getExecutablePath().value().parent_path() / "meshlib/mrmeshpy.so";
+        auto mrmeshpyPath = MR::SystemPath::getExecutablePath().value().parent_path() / "meshsdk/mrmeshpy.so";
         auto lib = dlopen( mrmeshpyPath.c_str(), RTLD_NOW | RTLD_GLOBAL );
         if ( !lib )
         {

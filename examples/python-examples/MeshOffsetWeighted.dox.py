@@ -1,4 +1,4 @@
-from meshlib import mrmeshpy
+from meshsdk import mrmeshpy
 
 # Create some mesh
 mesh = mrmeshpy.makeTorus(primaryRadius=1.0,

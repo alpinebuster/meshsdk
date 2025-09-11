@@ -79,8 +79,8 @@ jobs:
 
       - name: Install thirdparty libs
         run: |
-          ln -s /usr/local/lib/meshlib-thirdparty-lib/lib ./lib
-          ln -s /usr/local/lib/meshlib-thirdparty-lib/include ./include
+          ln -s /usr/local/lib/meshsdk-thirdparty-lib/lib ./lib
+          ln -s /usr/local/lib/meshsdk-thirdparty-lib/include ./include
 
       - name: Install MRBind
         if: ${{ inputs.mrbind || inputs.mrbind_c }}
@@ -175,11 +175,11 @@ jobs:
           MESHLIB_BUILD_DEBUG: "OFF"
         run: |
           ./scripts/distribution.sh ${{inputs.app_version}}
-          mv ./distr/meshlib-dev.deb meshlib_${{matrix.os}}-dev.deb
+          mv ./distr/meshsdk-dev.deb meshsdk_${{matrix.os}}-dev.deb
 
       - name: Extract Deb
         if: ${{ matrix.compiler == 'GCC' && matrix.config == 'Release' }}
-        run: dpkg --extract meshlib_${{matrix.os}}-dev.deb $(pwd)/meshlib_install/
+        run: dpkg --extract meshsdk_${{matrix.os}}-dev.deb $(pwd)/meshsdk_install/
 
       - name: Build C++ examples and samples
         if: ${{ matrix.compiler == 'GCC' && matrix.config == 'Release' }}
@@ -187,7 +187,7 @@ jobs:
           cmake \
             -S examples/cpp-examples \
             -B cpp-examples-build \
-            -D CMAKE_FIND_ROOT_PATH=$(pwd)/meshlib_install/ \
+            -D CMAKE_FIND_ROOT_PATH=$(pwd)/meshsdk_install/ \
             -D CMAKE_CXX_COMPILER=${{ matrix.cxx-compiler }}
           cmake \
             --build cpp-examples-build \
@@ -195,7 +195,7 @@ jobs:
           cmake \
             -S examples/cpp-samples \
             -B cpp-samples-build \
-            -D CMAKE_FIND_ROOT_PATH=$(pwd)/meshlib_install/ \
+            -D CMAKE_FIND_ROOT_PATH=$(pwd)/meshsdk_install/ \
             -D CMAKE_CXX_COMPILER=${{ matrix.cxx-compiler }}
           cmake \
             --build cpp-samples-build \
@@ -207,7 +207,7 @@ jobs:
           cmake \
             -S examples/c-examples \
             -B c-examples-build \
-            -D CMAKE_FIND_ROOT_PATH=$(pwd)/meshlib_install/ \
+            -D CMAKE_FIND_ROOT_PATH=$(pwd)/meshsdk_install/ \
             -D CMAKE_C_COMPILER=${{ matrix.c-compiler }}
           cmake \
             --build c-examples-build \
@@ -218,7 +218,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Distributives_${{matrix.os}}-x86
-          path: meshlib_${{matrix.os}}-dev.deb
+          path: meshsdk_${{matrix.os}}-dev.deb
           retention-days: 1
 
       - name: Create and fix fake Wheel for NuGet

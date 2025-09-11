@@ -1,4 +1,4 @@
-from meshlib import mrmeshpy as mm
+from meshsdk import mrmeshpy as mm
 
 coords = [
     12.374342918395996, -8.568268775939941, 4.713981628417969,

@@ -1,4 +1,4 @@
-from meshlib import mrmeshpy
+from meshsdk import mrmeshpy
 
 ref_mesh = mrmeshpy.loadMesh("mesh1.ctm")
 mesh = mrmeshpy.loadMesh("mesh2.ctm")

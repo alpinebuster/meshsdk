@@ -1,6 +1,6 @@
-# ThreeJS supports for `meshlib`
+# ThreeJS supports for `meshsdk`
 
-🙂 Simple threejs editor for meshlib development.
+🙂 Simple threejs editor for meshsdk development.
 
 ## Getting Started
 

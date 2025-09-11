@@ -7,7 +7,7 @@ setlocal enableextensions
 
 rem Download the page with the list of available versions. We need this to get the latest minor version number.
 echo Downloading the list of known versions...
-set "tempfile=%tmp%\meshlib_pythons_downloader_%RANDOM%.tmp"
+set "tempfile=%tmp%\meshsdk_pythons_downloader_%RANDOM%.tmp"
 del %tempfile% 2>nul
 powershell -Command "Invoke-WebRequest https://www.python.org/ftp/python -OutFile %tempfile%"
 echo Finished downloading to: %tempfile%

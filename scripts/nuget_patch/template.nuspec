@@ -5,7 +5,7 @@
 		<version>$VERSION</version>
 		<authors>AMV Consulting</authors>
 		<owners>AMV Consulting</owners>
-		<projectUrl>https://meshlib.io</projectUrl>
+		<projectUrl>https://meshsdk.io</projectUrl>
 		<description>Mesh processing library</description>
 		<releaseNotes>https://github.com/MeshInspector/MeshLib/releases</releaseNotes>
 		<copyright>$COPYRIGHT</copyright>

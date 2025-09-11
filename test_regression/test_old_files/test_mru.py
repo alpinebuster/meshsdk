@@ -2,7 +2,7 @@ from pathlib import Path
 from constants import test_files_path
 import pytest
 from module_helper import *
-from helpers.meshlib_helpers import (compare_points_similarity, compare_meshes_similarity, compare_voxels,
+from helpers.meshsdk_helpers import (compare_points_similarity, compare_meshes_similarity, compare_voxels,
                                      compare_lines, compare_distance_maps)
 
 

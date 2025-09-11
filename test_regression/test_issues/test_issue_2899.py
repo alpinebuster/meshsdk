@@ -1,8 +1,8 @@
 import math
-import meshlib.mrmeshpy as mr
+import meshsdk.mrmeshpy as mr
 import pytest
 
-from helpers.meshlib_helpers import compare_meshes_similarity
+from helpers.meshsdk_helpers import compare_meshes_similarity
 from module_helper import *
 from pytest_check import check
 from constants import test_files_path

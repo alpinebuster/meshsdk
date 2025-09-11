@@ -8,7 +8,7 @@ setlocal
 rem Push enable extensions (for `mkdir` to behave like Linux `mkdir -p`).
 setlocal enableextensions
 
-if "%MSYS2_DIR%" == "" set MSYS2_DIR=C:\msys64_meshlib_mrbind
+if "%MSYS2_DIR%" == "" set MSYS2_DIR=C:\msys64_meshsdk_mrbind
 
 if "%MRBIND_DIR%" == "" set MRBIND_DIR=%~dp0\..\..\thirdparty\mrbind
 

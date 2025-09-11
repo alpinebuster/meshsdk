@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # run from repo root
-# NODE: using this script is deprecated! Better install meshlib(-dev).pkg package
+# NODE: using this script is deprecated! Better install meshsdk(-dev).pkg package
 # This script installs requirements by `brew` if not already installed
 
 requirements_file=requirements/macos.txt

@@ -121,9 +121,9 @@ bool EmbeddedPython::init_()
     // Initialize our patched pybind11.
     pybind11::non_limited_api::EnsureSharedLibraryIsLoaded(
         true,
-        "meshlib",
-        // This is normally equivalent to `SystemPath::getExecutableDirectory().value() / "meshlib"`, except on Macs, where they are somewhere else.
-        SystemPath::getPythonModulesDirectory() / "meshlib",
+        "meshsdk",
+        // This is normally equivalent to `SystemPath::getExecutableDirectory().value() / "meshsdk"`, except on Macs, where they are somewhere else.
+        SystemPath::getPythonModulesDirectory() / "meshsdk",
         {}
     );
 

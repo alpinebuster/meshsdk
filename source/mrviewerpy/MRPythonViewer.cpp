@@ -24,7 +24,7 @@ MR_INIT_PYTHON_MODULE_PRECALL( mrviewerpy, [] ()
 {
     try
     {
-        pybind11::module_::import( "meshlib.mrmeshpy" );
+        pybind11::module_::import( "meshsdk.mrmeshpy" );
     }
     catch ( const pybind11::error_already_set& )
     {
@@ -229,7 +229,7 @@ MR_ADD_PYTHON_CUSTOM_DEF( mrviewerpy, Viewer, [] ( pybind11::module_& m )
         return std::unique_ptr<MR::Viewer, pybind11::nodelete>( MR::Viewer::instance() );
     } ) ).
         def( "viewport", ( MR::Viewport& ( MR::Viewer::* )( MR::ViewportId ) )& MR::Viewer::viewport,
-            pybind11::arg_v( "viewportId", MR::ViewportId(), "meshlib.mrmeshpy.ViewportId()" ), pybind11::return_value_policy::reference_internal,
+            pybind11::arg_v( "viewportId", MR::ViewportId(), "meshsdk.mrmeshpy.ViewportId()" ), pybind11::return_value_policy::reference_internal,
             "Return the current viewport, or the viewport corresponding to a given unique identifier\n"
             "\tviewportId - unique identifier corresponding to the desired viewport (current viewport if 0)" ).
         def( "incrementForceRedrawFrames", MR::pythonRunFromGUIThread( &MR::Viewer::incrementForceRedrawFrames ),
@@ -239,7 +239,7 @@ MR_ADD_PYTHON_CUSTOM_DEF( mrviewerpy, Viewer, [] ( pybind11::module_& m )
             "if `swapOnLastOnly` only last forced frame will be present on screen and all previous will not" ).
         def( "skipFrames", pythonSkipFrames, pybind11::arg("frames") ).
         def( "preciseFitDataViewport", MR::pythonRunFromGUIThread( (void(MR::Viewer::*)( MR::ViewportMask, const MR::FitDataParams& )) &MR::Viewer::preciseFitDataViewport ),
-            pybind11::arg_v( "vpList", MR::ViewportMask::all(), "meshlib.mrmeshpy.ViewportMask.all()" ),
+            pybind11::arg_v( "vpList", MR::ViewportMask::all(), "meshsdk.mrmeshpy.ViewportMask.all()" ),
             pybind11::arg_v( "params", MR::FitDataParams(), "ViewportFitDataParams()" ),
             "Calls fitData and change FOV to match the screen size then\n"
             "params - params fit data" ).
@@ -256,7 +256,7 @@ MR_ADD_PYTHON_CUSTOM_DEF( mrviewerpy, Viewer, [] ( pybind11::module_& m )
                     v.mouseDown( b, int( m ) );
                 } );
             },
-            pybind11::arg( "button" ), pybind11::arg_v( "modifier", PythonKeyMod{}, "meshlib.mrviewerpy.KeyMod.Empty" ), "Simulate mouse down event."
+            pybind11::arg( "button" ), pybind11::arg_v( "modifier", PythonKeyMod{}, "meshsdk.mrviewerpy.KeyMod.Empty" ), "Simulate mouse down event."
         ).
         def( "mouseUp",
             []( MR::Viewer& v, MR::MouseButton b, PythonKeyMod m )
@@ -265,7 +265,7 @@ MR_ADD_PYTHON_CUSTOM_DEF( mrviewerpy, Viewer, [] ( pybind11::module_& m )
                     v.mouseUp( b, int( m ) );
                 } );
             },
-            pybind11::arg( "button" ), pybind11::arg_v( "modifier", PythonKeyMod{}, "meshlib.mrviewerpy.KeyMod.Empty" ), "Simulate mouse up event."
+            pybind11::arg( "button" ), pybind11::arg_v( "modifier", PythonKeyMod{}, "meshsdk.mrviewerpy.KeyMod.Empty" ), "Simulate mouse up event."
         ).
         def( "mouseMove",
             []( MR::Viewer& viewer, int x, int y )

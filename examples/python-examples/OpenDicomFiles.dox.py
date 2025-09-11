@@ -1,4 +1,4 @@
-from meshlib import mrmeshpy
+from meshsdk import mrmeshpy
 
 # Path to folder, that contains mutiple numbered files, like: 3DSlice1.dcm, 3DSlice2.dcm, 3DSlice3.dcm
 # Folder can contain subfolders - each will be loaded separately
@@ -10,7 +10,7 @@ dicoms = mrmeshpy.VoxelsLoad.loadDicomsFolderTreeAsVdb(dicom_folder)
 dicom = dicoms[0]
 # Check loading status
 if dicom:
-    # In case of success you can get mrmeshpy.VdbVolume object, that is common for meshlib library
+    # In case of success you can get mrmeshpy.VdbVolume object, that is common for meshsdk library
     vdb_volume = dicom.value().vol
 else:
     # print error if loading process failed

@@ -16,7 +16,7 @@ def get_vcpkg_root_from_where():
         print(e)
         return None
 
-def detect_vcpkg_python_version(vcpkg_root, triplet="x64-windows-meshlib"):
+def detect_vcpkg_python_version(vcpkg_root, triplet="x64-windows-meshsdk"):
     include_dir = vcpkg_root / "installed" / triplet / "include"
     if include_dir.exists():
         for entry in include_dir.iterdir():
@@ -128,8 +128,8 @@ for py_cmd in python_cmds:
     if platform.system() == "Darwin" and shutil.which(py_cmd) is None:
         continue; # Skip if no such command. Some python versions are not supported on some macs.
 
-    # remove meshlib package if installed to not shadow dynamically attached
-    os.system(py_cmd + " -m pip uninstall -y meshlib")
+    # remove meshsdk package if installed to not shadow dynamically attached
+    os.system(py_cmd + " -m pip uninstall -y meshsdk")
 
     if args.create_venv:
         print("CREATING VENV --- [  " + py_cmd + " -m venv venv_" + py_cmd)

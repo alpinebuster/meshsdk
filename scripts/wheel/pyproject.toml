@@ -3,7 +3,7 @@ requires = ["setuptools >= 61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "meshlib"
+name = "meshsdk"
 description = "3d processing library"
 authors = [
     { name = "MeshLib Team", email = "support@meshinspector.com" },
@@ -30,7 +30,7 @@ dependencies = [
 dynamic = ["version"]
 
 [project.urls]
-Homepage = "https://meshlib.io/"
-Documentation = "https://meshlib.io/documentation/"
+Homepage = "https://meshsdk.io/"
+Documentation = "https://meshsdk.io/documentation/"
 Source = "https://github.com/MeshInspector/MeshLib"
 "Bug Reports" = "https://github.com/MeshInspector/MeshLib/issues"

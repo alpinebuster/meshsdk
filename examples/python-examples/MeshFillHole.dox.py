@@ -1,4 +1,4 @@
-import meshlib.mrmeshpy as mrmeshpy
+import meshsdk.mrmeshpy as mrmeshpy
 
 # Load mesh
 mesh = mrmeshpy.loadMesh("../_assets/mesh.stl")

@@ -1,5 +1,5 @@
 ARG VCPKG_VERSION=2025.04.09
-ARG VCPKG_TRIPLET=x64-linux-meshlib
+ARG VCPKG_TRIPLET=x64-linux-meshsdk
 
 
 FROM rockylinux:8 AS build

@@ -1,4 +1,4 @@
-from meshlib import mrmeshpy
+from meshsdk import mrmeshpy
 
 mesh = mrmeshpy.loadMesh("mesh1.ctm")
 point = mrmeshpy.Vector3f(1.5, 1, 0.5)

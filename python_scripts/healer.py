@@ -1,4 +1,4 @@
-from meshlib import mrmeshpy as mm
+from meshsdk import mrmeshpy as mm
 
 def holeLength( mesh : mm.Mesh, hole : mm.vectorEdges )->float:
 	sumLength = 0.0

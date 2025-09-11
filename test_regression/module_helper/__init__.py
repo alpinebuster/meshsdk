@@ -5,8 +5,8 @@ import sys
 if "MeshLibPyModulesPath" in os.environ and not os.environ["MeshLibPyModulesPath"] in sys.path:
     sys.path.insert(0, os.environ["MeshLibPyModulesPath"])
 
-import meshlib.mrmeshpy as mrmeshpy
-import meshlib.mrmeshnumpy as mrmeshnumpy
+import meshsdk.mrmeshpy as mrmeshpy
+import meshsdk.mrmeshnumpy as mrmeshnumpy
 
 # Check if we're using the new parsed bindings.
 is_new_binding = True

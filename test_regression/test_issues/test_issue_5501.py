@@ -1,10 +1,10 @@
 import io
 from pathlib import Path
 
-import meshlib.mrmeshpy as mm
+import meshsdk.mrmeshpy as mm
 import pytest
 from constants import test_files_path
-from helpers.meshlib_helpers import compare_meshes_similarity
+from helpers.meshsdk_helpers import compare_meshes_similarity
 
 
 @pytest.mark.smoke

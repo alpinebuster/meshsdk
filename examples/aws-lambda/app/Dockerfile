@@ -1,6 +1,6 @@
 ARG LAMBDA_TASK_ROOT="/home/app/"
 
-FROM public.ecr.aws/c9e2p9l9/meshlib-aws-lambda:latest
+FROM public.ecr.aws/c9e2p9l9/meshsdk-aws-lambda:latest
 
 COPY app.py .
 

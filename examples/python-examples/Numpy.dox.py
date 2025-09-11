@@ -1,4 +1,4 @@
-import meshlib.mrmeshnumpy as mrmeshnumpy
+import meshsdk.mrmeshnumpy as mrmeshnumpy
 import numpy as np
 
 faces = np.ndarray(

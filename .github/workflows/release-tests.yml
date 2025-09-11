@@ -70,7 +70,7 @@ jobs:
           ${{ matrix.py-cmd }} -m pip install pytest
 
       - name: Meshlib wheel install
-        run:  ${{ matrix.py-cmd }} -m pip install meshlib
+        run:  ${{ matrix.py-cmd }} -m pip install meshsdk
 
       - name: Run Python tests
         working-directory: test_python
@@ -99,7 +99,7 @@ jobs:
         run: |
           py -${{matrix.py-version}} -m pip install --upgrade pip
           py -${{matrix.py-version}} -m pip install pytest
-          py -${{matrix.py-version}} -m pip install meshlib
+          py -${{matrix.py-version}} -m pip install meshsdk
 
       - name: Run Python tests
         working-directory: test_python
@@ -129,7 +129,7 @@ jobs:
           python${{matrix.py-version}} -m pip install pytest
 
       - name: Meshlib wheel install
-        run:  python${{matrix.py-version}} -m pip install meshlib
+        run:  python${{matrix.py-version}} -m pip install meshsdk
 
       - name: Run Python tests
         working-directory: test_python

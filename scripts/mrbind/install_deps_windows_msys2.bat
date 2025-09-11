@@ -3,13 +3,13 @@
 rem This script installs (or updates) MSYS2, and some Clang tools in it.
 rem Which is everything you need to generate MRBind bindings on Windows.
 
-rem We create a separate copy of MSYS2 at C:\msys64_meshlib_mrbind for simplicity.
+rem We create a separate copy of MSYS2 at C:\msys64_meshsdk_mrbind for simplicity.
 rem If you don't like that, you can manually install all dependencies into
 rem some other MSYS2 copy.
 
 setlocal
 
-if "%MSYS2_DIR%" == "" set MSYS2_DIR=C:\msys64_meshlib_mrbind
+if "%MSYS2_DIR%" == "" set MSYS2_DIR=C:\msys64_meshsdk_mrbind
 if "%CLANG_VER%" == "" set /p CLANG_VER=<%~dp0\clang_version_msys2.txt
 
 rem ------ Ensure MSYS2 is installed

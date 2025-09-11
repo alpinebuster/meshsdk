@@ -1,6 +1,6 @@
 # Script prints all available functions in 'mrpy' with their descriptions
 
-import meshlib.mrmeshpy as mrmesh
+import meshsdk.mrmeshpy as mrmesh
 
 funcs = dir (mrmesh)
 for f in funcs:

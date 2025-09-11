@@ -1,4 +1,4 @@
 awslambdaric
-meshlib
+meshsdk
 requests
 boto3

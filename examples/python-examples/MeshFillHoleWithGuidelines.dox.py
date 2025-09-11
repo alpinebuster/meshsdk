@@ -1,4 +1,4 @@
-from meshlib import mrmeshpy as mm
+from meshsdk import mrmeshpy as mm
 import math
 import os
 import pdb

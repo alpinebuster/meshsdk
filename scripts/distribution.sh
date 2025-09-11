@@ -24,24 +24,24 @@ if [ -d "./distr/" ]; then
  rm -rf distr
 fi
 
-cmake --install ./build/Release --prefix "./distr/meshlib-dev/usr/local"
+cmake --install ./build/Release --prefix "./distr/meshsdk-dev/usr/local"
 
 MR_INSTALL_LIB_DIR="/usr/local/lib/MeshLib"
 MR_INSTALL_INCLUDE_DIR="/usr/local/include/MeshLib"
 MR_INSTALL_RES_DIR="/usr/local/share/MeshLib"
 
 # Install the generated bindings, if needed.
-if [ ! -f "distr/meshlib-dev$MR_INSTALL_LIB_DIR/meshlib/mrmeshpy.so" ] && [ -f "build/Release/bin/meshlib/mrmeshpy.so" ]; then
+if [ ! -f "distr/meshsdk-dev$MR_INSTALL_LIB_DIR/meshsdk/mrmeshpy.so" ] && [ -f "build/Release/bin/meshsdk/mrmeshpy.so" ]; then
   echo "Installing the generated bindings..."
-  install -Dt "distr/meshlib-dev$MR_INSTALL_LIB_DIR/meshlib" build/Release/bin/meshlib/{mrmeshpy.so,mrmeshnumpy.so,__init__.py}
-  install -Dt "distr/meshlib-dev$MR_INSTALL_LIB_DIR"         build/Release/bin/meshlib/{mrmeshpy.so,mrmeshnumpy.so,__init__.py}
-  patchelf --set-rpath '' "distr/meshlib-dev$MR_INSTALL_LIB_DIR/"{,meshlib/}mrmeshpy.so
+  install -Dt "distr/meshsdk-dev$MR_INSTALL_LIB_DIR/meshsdk" build/Release/bin/meshsdk/{mrmeshpy.so,mrmeshnumpy.so,__init__.py}
+  install -Dt "distr/meshsdk-dev$MR_INSTALL_LIB_DIR"         build/Release/bin/meshsdk/{mrmeshpy.so,mrmeshnumpy.so,__init__.py}
+  patchelf --set-rpath '' "distr/meshsdk-dev$MR_INSTALL_LIB_DIR/"{,meshsdk/}mrmeshpy.so
 
-  if [ -f "build/Release/bin/meshlib/mrcudapy.so" ]; then
+  if [ -f "build/Release/bin/meshsdk/mrcudapy.so" ]; then
     echo "CUDA bindings found, installing with mrcudapy.so..."
-    install -Dt "distr/meshlib-dev$MR_INSTALL_LIB_DIR/meshlib" build/Release/bin/meshlib/mrcudapy.so
-    install -Dt "distr/meshlib-dev$MR_INSTALL_LIB_DIR"         build/Release/bin/meshlib/mrcudapy.so
-    patchelf --set-rpath '' "distr/meshlib-dev$MR_INSTALL_LIB_DIR/"{,meshlib/}mrcudapy.so
+    install -Dt "distr/meshsdk-dev$MR_INSTALL_LIB_DIR/meshsdk" build/Release/bin/meshsdk/mrcudapy.so
+    install -Dt "distr/meshsdk-dev$MR_INSTALL_LIB_DIR"         build/Release/bin/meshsdk/mrcudapy.so
+    patchelf --set-rpath '' "distr/meshsdk-dev$MR_INSTALL_LIB_DIR/"{,meshsdk/}mrcudapy.so
   fi
 fi
 
@@ -49,7 +49,7 @@ MR_VERSION="0.0.0.0"
 if [ "${1}" ]; then
   MR_VERSION="${1:1}"
 fi
-echo ${MR_VERSION} > distr/meshlib-dev${MR_INSTALL_RES_DIR}/mr.version
+echo ${MR_VERSION} > distr/meshsdk-dev${MR_INSTALL_RES_DIR}/mr.version
 
 BASE_DIR=$(realpath $(dirname "$0")/..)
 REQUIREMENTS_FILE="${BASE_DIR}/requirements/ubuntu.txt"
@@ -57,9 +57,9 @@ REQUIREMENTS_FILE="${BASE_DIR}/requirements/ubuntu.txt"
 DEPENDS_LINE=$(cat ${REQUIREMENTS_FILE} | tr '\n' ',' | sed -e "s/,\s*$//" -e "s/,/, /g")
 
 #create control file
-mkdir -p distr/meshlib-dev/DEBIAN
-cat << EOF > ./distr/meshlib-dev/DEBIAN/control
-Package: meshlib-dev
+mkdir -p distr/meshsdk-dev/DEBIAN
+cat << EOF > ./distr/meshsdk-dev/DEBIAN/control
+Package: meshsdk-dev
 Essential: no
 Priority: optional
 Section: model
@@ -70,26 +70,26 @@ Version: ${MR_VERSION}
 Depends: ${DEPENDS_LINE}
 EOF
 
-cp "./scripts/preinstall_trick.sh" ./distr/meshlib-dev/DEBIAN/preinst
-chmod +x ./distr/meshlib-dev/DEBIAN/preinst
+cp "./scripts/preinstall_trick.sh" ./distr/meshsdk-dev/DEBIAN/preinst
+chmod +x ./distr/meshsdk-dev/DEBIAN/preinst
 
-cp "./scripts/postinstall.sh" ./distr/meshlib-dev/DEBIAN/postinst
-chmod +x ./distr/meshlib-dev/DEBIAN/postinst
+cp "./scripts/postinstall.sh" ./distr/meshsdk-dev/DEBIAN/postinst
+chmod +x ./distr/meshsdk-dev/DEBIAN/postinst
 
-mkdir -p ./distr/meshlib-dev/usr/local/lib/udev/rules.d/
-cp "./scripts/70-space-mouse-meshlib.rules" ./distr/meshlib-dev/usr/local/lib/udev/rules.d/
+mkdir -p ./distr/meshsdk-dev/usr/local/lib/udev/rules.d/
+cp "./scripts/70-space-mouse-meshsdk.rules" ./distr/meshsdk-dev/usr/local/lib/udev/rules.d/
 
 #copy lib dir
 CURRENT_DIR="`pwd`"
-cp -rL ./lib "${CURRENT_DIR}/distr/meshlib-dev${MR_INSTALL_LIB_DIR}/"
-cp -rL ./include "${CURRENT_DIR}/distr/meshlib-dev${MR_INSTALL_INCLUDE_DIR}/"
+cp -rL ./lib "${CURRENT_DIR}/distr/meshsdk-dev${MR_INSTALL_LIB_DIR}/"
+cp -rL ./include "${CURRENT_DIR}/distr/meshsdk-dev${MR_INSTALL_INCLUDE_DIR}/"
 echo "Thirdparty libs and include copy done"
 
 #call dpkg
 cd distr
-dpkg-deb --build -Zxz ./meshlib-dev
+dpkg-deb --build -Zxz ./meshsdk-dev
 
-if [ -f "./meshlib-dev.deb" ]; then
+if [ -f "./meshsdk-dev.deb" ]; then
   echo "Dev deb package has been built."
 else
   echo "Failed to build dev.deb package!"

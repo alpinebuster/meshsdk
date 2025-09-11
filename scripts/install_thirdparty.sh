@@ -7,7 +7,7 @@
 set -eo pipefail
 
 if [ "$MR_STATE" != "DOCKER_BUILD" ]; then
-  read -t 10 -p "It is strongly recommended to use 'apt install ./meshlib*.deb' instead! Press (y) in 10 seconds to continue (y/N)" -rsn 1
+  read -t 10 -p "It is strongly recommended to use 'apt install ./meshsdk*.deb' instead! Press (y) in 10 seconds to continue (y/N)" -rsn 1
   echo;
   if ! [[ $REPLY =~ ^[Yy]$ ]]; then
     exit 0

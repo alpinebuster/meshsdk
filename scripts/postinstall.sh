@@ -6,7 +6,7 @@ if command -v udevadm >/dev/null 2>&1 ; then
 fi
 
 echo "Updating ldconfig"
-cat << EOF > /etc/ld.so.conf.d/meshlib_libs.conf
+cat << EOF > /etc/ld.so.conf.d/meshsdk_libs.conf
 /usr/local/lib/MeshLib
 /usr/local/lib/MeshLib/lib
 EOF

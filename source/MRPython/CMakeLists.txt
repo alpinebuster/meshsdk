@@ -59,9 +59,9 @@ ENDIF()
 IF(WIN32)
   # Copy Windows-specific `__init__.py`. Since we also need to rename the file, we can't use `file(COPY ...)`.
   execute_process(
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/meshlib"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/meshsdk"
     COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_SOURCE_DIR}/../../test_python/helper/win_init.py" "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/__init__.py"
-    COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_SOURCE_DIR}/../../test_python/helper/win_init.py" "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/meshlib/__init__.py"
+    COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_SOURCE_DIR}/../../test_python/helper/win_init.py" "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/meshsdk/__init__.py"
     COMMAND_ERROR_IS_FATAL ANY
   )
 ENDIF()

@@ -31,7 +31,7 @@ services:
       - ./source:/meshsdk/source
       - ./wasm:/meshsdk/wasm
       - ./CMakeLists.txt:/meshsdk/CMakeLists.txt
-      - ./meshlib-config.cmake.in:/meshsdk/meshlib-config.cmake.in
+      - ./meshsdk-config.cmake.in:/meshsdk/meshsdk-config.cmake.in
       # Create a volume for build artifacts to persist between runs (Optional)
       - meshsdk-build-cache:/meshsdk/build
     environment:
@@ -84,7 +84,7 @@ services:
       - ./source:/meshsdk/source
       - ./wasm:/meshsdk/wasm
       - ./CMakeLists.txt:/meshsdk/CMakeLists.txt
-      - ./meshlib-config.cmake.in:/meshsdk/meshlib-config.cmake.in
+      - ./meshsdk-config.cmake.in:/meshsdk/meshsdk-config.cmake.in
       - meshsdk-build-cache-single:/meshsdk/build
     environment:
       - MR_EMSCRIPTEN=ON
@@ -131,7 +131,7 @@ services:
       - ./source:/meshsdk/source
       - ./wasm:/meshsdk/wasm
       - ./CMakeLists.txt:/meshsdk/CMakeLists.txt
-      - ./meshlib-config.cmake.in:/meshsdk/meshlib-config.cmake.in
+      - ./meshsdk-config.cmake.in:/meshsdk/meshsdk-config.cmake.in
       - meshsdk-build-cache-wasm64:/meshsdk/build
     environment:
       - MR_EMSCRIPTEN=ON

@@ -4,13 +4,13 @@ import platform
 import shutil
 import sys
 
-WHEEL_SRC_DIR = os.path.join(os.getcwd(), "scripts/wheel/meshlib/meshlib/")
-WHEEL_ROOT_DIR = os.path.join(os.getcwd(), "scripts/wheel/meshlib/")
+WHEEL_SRC_DIR = os.path.join(os.getcwd(), "scripts/wheel/meshsdk/meshsdk/")
+WHEEL_ROOT_DIR = os.path.join(os.getcwd(), "scripts/wheel/meshsdk/")
 WHEEL_SCRIPT_DIR = os.path.join(os.getcwd(), "scripts/wheel/")
 
 PYLIB_PATH = {"Windows": r'./source/x64/Release/*.pyd',
-              "Linux": r'./build/Release/bin/meshlib/mr*.so',
-              "Darwin": r'./build/Release/bin/meshlib/mr*.so'}
+              "Linux": r'./build/Release/bin/meshsdk/mr*.so',
+              "Darwin": r'./build/Release/bin/meshsdk/mr*.so'}
 
 
 def prepare_workspace():

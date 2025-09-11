@@ -117,7 +117,7 @@ jobs:
     runs-on: ${{ matrix.runner }}
     env:
       image: meshsdk/meshsdk-${{ matrix.os }}-vcpkg-${{ matrix.arch }}:${{ inputs.vcpkg_docker_image_tag }}
-      vcpkg_triplet: ${{ matrix.arch }}-linux-meshlib
+      vcpkg_triplet: ${{ matrix.arch }}-linux-meshsdk
     steps:
       - name: Remove unused Docker data
         run: docker system prune --force --all --volumes

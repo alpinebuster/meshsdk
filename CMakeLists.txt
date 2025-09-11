@@ -101,7 +101,7 @@ IF(APPLE)
 
   # need to hardcode some path to fix wheel (no option to pass path)
   # TODO: revise
-  set(CMAKE_INSTALL_RPATH "@loader_path;@loader_path/..;@loader_path/../lib;@loader_path/../lib/lib;@loader_path/meshlib;${MESHLIB_THIRDPARTY_ROOT_DIR}/lib;${CMAKE_BINARY_DIR}/bin")
+  set(CMAKE_INSTALL_RPATH "@loader_path;@loader_path/..;@loader_path/../lib;@loader_path/../lib/lib;@loader_path/meshsdk;${MESHLIB_THIRDPARTY_ROOT_DIR}/lib;${CMAKE_BINARY_DIR}/bin")
   set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 
   IF(BUILD_TESTING)
@@ -194,7 +194,7 @@ IF(MESHLIB_USE_VCPKG)
   set(MR_BIN_DIR bin)
   set(MR_INCLUDE_DIR include/MeshLib)
   set(MR_MAIN_LIB_DIR lib/${MESHLIB_PROJECT_NAME})
-  set(MR_PY_LIB_DIR lib/${MESHLIB_PROJECT_NAME}/meshlib)
+  set(MR_PY_LIB_DIR lib/${MESHLIB_PROJECT_NAME}/meshsdk)
   set(MR_CONFIG_DIR lib/cmake/MeshLib)
   set(MR_RESOURCES_DIR share/${MESHLIB_PROJECT_NAME})
   set(MR_FONTS_DIR share/${MESHLIB_PROJECT_NAME}/fonts)
@@ -206,7 +206,7 @@ ELSEIF(NOT APPLE)
   set(MR_BIN_DIR "${CMAKE_INSTALL_BINDIR}")
   set(MR_INCLUDE_DIR "${CMAKE_INSTALL_INCLUDEDIR}/MeshLib")
   set(MR_MAIN_LIB_DIR "${CMAKE_INSTALL_LIBDIR}/${MESHLIB_PROJECT_NAME}")
-  set(MR_PY_LIB_DIR "${CMAKE_INSTALL_LIBDIR}/${MESHLIB_PROJECT_NAME}/meshlib")
+  set(MR_PY_LIB_DIR "${CMAKE_INSTALL_LIBDIR}/${MESHLIB_PROJECT_NAME}/meshsdk")
   set(MR_CONFIG_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/MeshLib")
   set(MR_RESOURCES_DIR "${CMAKE_INSTALL_DATADIR}/${MESHLIB_PROJECT_NAME}")
   set(MR_FONTS_DIR "${CMAKE_INSTALL_DATADIR}/${MESHLIB_PROJECT_NAME}/fonts")
@@ -218,7 +218,7 @@ ELSE()
     set(MR_BIN_DIR "${MR_ROOT}/bin")
     set(MR_INCLUDE_DIR "${MR_ROOT}/include")
     set(MR_MAIN_LIB_DIR "${MR_ROOT}/lib")
-    set(MR_PY_LIB_DIR "${MR_ROOT}/lib/meshlib")
+    set(MR_PY_LIB_DIR "${MR_ROOT}/lib/meshsdk")
     set(MR_RESOURCES_DIR "${MR_ROOT}/Resources")
     set(MR_FONTS_DIR "${MR_ROOT}/Resources/fonts")
     set(MR_CONFIG_DIR "${MR_ROOT}/Resources/cmake")
@@ -228,7 +228,7 @@ ELSE()
     set(MR_BIN_DIR "${MR_ROOT}/bin")
     set(MR_INCLUDE_DIR "${MR_ROOT}/include/MeshLib")
     set(MR_MAIN_LIB_DIR "${MR_ROOT}/lib/MeshLib")
-    set(MR_PY_LIB_DIR "${MR_ROOT}/lib/MeshLib/meshlib")
+    set(MR_PY_LIB_DIR "${MR_ROOT}/lib/MeshLib/meshsdk")
     set(MR_RESOURCES_DIR "${MR_ROOT}/etc/MeshLib")
     set(MR_FONTS_DIR "${MR_ROOT}/share/fonts")
     set(MR_CONFIG_DIR "${MR_ROOT}/lib/MeshLib")
@@ -300,14 +300,14 @@ ENDIF()
 IF(MESHLIB_PYTHON_SUPPORT)
   set(PYBIND11_NONLIMITEDAPI_PYTHON_MIN_VERSION_HEX 0x030800f0 CACHE STRING "") # Python 3.8
   set(PYBIND11_NONLIMITEDAPI_SUFFIX "${MESHLIB_PYBIND11_LIB_SUFFIX}" CACHE STRING "")
-  set(PYBIND11_NONLIMITEDAPI_LIBRARY_OUTPUT_DIR "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/meshlib" CACHE PATH "")
+  set(PYBIND11_NONLIMITEDAPI_LIBRARY_OUTPUT_DIR "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/meshsdk" CACHE PATH "")
   set(PYBIND11_NONLIMITEDAPI_INSTALL_LIBDIR_STUBS "${MR_MAIN_LIB_DIR}" CACHE PATH "")
   set(PYBIND11_NONLIMITEDAPI_INSTALL_LIBDIR_SHIMS "${MR_PY_LIB_DIR}" CACHE PATH "")
   # We want to always build stubs here because we want to set `PYBIND11_COMPILER_TYPE`, `PYBIND11_BUILD_ABI` for them, and accessing them in `thirdparty/CMakeLists.txt` gets weird.
   # If not for that, we'd build them here only on Windows (because there we don't have a thirdparty build script).
   option(PYBIND11_NONLIMITEDAPI_BUILD_STUBS "" ON)
   option(PYBIND11_NONLIMITEDAPI_INSTALL_EXPORTS "" ON)
-  add_subdirectory(${MESHLIB_THIRDPARTY_DIR}/mrbind-pybind11/source/non_limited_api ./meshlib)
+  add_subdirectory(${MESHLIB_THIRDPARTY_DIR}/mrbind-pybind11/source/non_limited_api ./meshsdk)
 ENDIF()
 
 IF(MSVC)
@@ -347,20 +347,20 @@ IF(BUILD_TESTING)
 ENDIF()
 
 include(CMakePackageConfigHelpers)
-configure_package_config_file(meshlib-config.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/meshlib-config.cmake
+configure_package_config_file(meshsdk-config.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/meshsdk-config.cmake
   INSTALL_DESTINATION ${MR_CONFIG_DIR}
   PATH_VARS CMAKE_INSTALL_INCLUDEDIR CMAKE_INSTALL_LIBDIR MR_INCLUDE_DIR MR_MAIN_LIB_DIR
 )
 
-write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/meshlib-config-version.cmake
+write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/meshsdk-config-version.cmake
   VERSION ${MESHLIB_VERSION}
   COMPATIBILITY ExactVersion
 )
 
 install(
   FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/meshlib-config.cmake
-    ${CMAKE_CURRENT_BINARY_DIR}/meshlib-config-version.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/meshsdk-config.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/meshsdk-config-version.cmake
   DESTINATION ${MR_CONFIG_DIR}
 )
 

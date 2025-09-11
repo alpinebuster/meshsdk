@@ -2,7 +2,7 @@ from conftest import cuda_module
 from module_helper import *
 from pathlib import Path
 from constants import test_files_path
-from helpers.meshlib_helpers import compare_voxels
+from helpers.meshsdk_helpers import compare_voxels
 import pytest
 
 

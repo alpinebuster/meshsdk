@@ -38,7 +38,7 @@ here = pathlib.Path(__file__).parent.resolve()
 long_description = (here / "readme.md").read_text(encoding="utf-8")
 
 setuptools.setup(
-    name="meshlib",
+    name="meshsdk",
     version=VERSION,
     author="MeshLib Team",
     author_email="support@meshinspector.com",
@@ -47,9 +47,9 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/MeshInspector/MeshLib",
     license_files=('LICENSE',),
-    packages=['meshlib'],
+    packages=['meshsdk'],
     package_data={
-        'meshlib':
+        'meshsdk':
             [f"{module}.{LIBS_EXTENSION}" for module in MODULES] +
             [f"{module}.pyi" for module in MODULES]
     },

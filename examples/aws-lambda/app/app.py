@@ -3,7 +3,7 @@ import json
 import sys
 import requests
 
-from meshlib import mrmeshpy
+from meshsdk import mrmeshpy
 
 
 def handler(event, context):

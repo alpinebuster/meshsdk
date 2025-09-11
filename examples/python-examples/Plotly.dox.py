@@ -1,5 +1,5 @@
-from meshlib import mrmeshpy as mm
-from meshlib import mrmeshnumpy as mn
+from meshsdk import mrmeshpy as mm
+from meshsdk import mrmeshnumpy as mn
 import numpy as np
 import plotly.graph_objects as go
 

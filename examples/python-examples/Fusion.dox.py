@@ -1,4 +1,4 @@
-from meshlib import mrmeshpy as mm
+from meshsdk import mrmeshpy as mm
 
 points = mm.loadPoints("Points.ply")
 

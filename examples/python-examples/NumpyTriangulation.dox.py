@@ -1,4 +1,4 @@
-from meshlib import mrmeshnumpy as mn
+from meshsdk import mrmeshnumpy as mn
 import numpy as np
 
 u, v = np.mgrid[0:2 * np.pi:50j, 0:np.pi:100j]

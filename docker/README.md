@@ -3,9 +3,9 @@
 ## Release
 
 ```sh
-docker tag zzz/meshlib-emscripten-build-server:latest imzqqq/meshlib-emscripten-bui
+docker tag zzz/meshsdk-emscripten-build-server:latest imzqqq/meshsdk-emscripten-bui
 ld-server:latest
-docker push imzqqq/meshlib-emscripten-build-server:latest
+docker push imzqqq/meshsdk-emscripten-build-server:latest
 ```
 
 ## Some useful commands
@@ -13,20 +13,20 @@ docker push imzqqq/meshlib-emscripten-build-server:latest
 At project root directory, building image with
 
 ```sh
-docker build -f ./docker/fedora39Dockerfile -t meshlib/fedora39-build-server .
-docker build -f ./docker/ubuntu22Dockerfile -t meshlib/ubuntu22-build-server .
+docker build -f ./docker/fedora39Dockerfile -t meshsdk/fedora39-build-server .
+docker build -f ./docker/ubuntu22Dockerfile -t meshsdk/ubuntu22-build-server .
 ```
 
 Run a temporary container:
 
 ```sh
-docker run --rm -it meshlib/fedora39-build-server bash
+docker run --rm -it meshsdk/fedora39-build-server bash
 ```
 
 Run a container in background:
 
 ```sh
-docker run -d --name angry_fedora meshlib/fedora39-build-server tail -f /dev/null
+docker run -d --name angry_fedora meshsdk/fedora39-build-server tail -f /dev/null
 ```
 
 [Start an existing container](https://docs.docker.com/engine/reference/commandline/container_start/) and "Attach STDOUT/STDERR and forward signals" (-a), "Attach container's STDIN" (-i):

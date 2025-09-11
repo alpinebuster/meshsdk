@@ -12,8 +12,8 @@ MODULES = [
 
 
 WHEEL_SCRIPT_DIR = Path(__file__).parent.resolve()
-WHEEL_ROOT_DIR = WHEEL_SCRIPT_DIR / "meshlib"
-WHEEL_SRC_DIR = WHEEL_ROOT_DIR / "meshlib"
+WHEEL_ROOT_DIR = WHEEL_SCRIPT_DIR / "meshsdk"
+WHEEL_SRC_DIR = WHEEL_ROOT_DIR / "meshsdk"
 SOURCE_DIR = (WHEEL_SCRIPT_DIR / ".." / "..").resolve()
 
 LIB_EXTENSION = {
@@ -26,4 +26,4 @@ LIB_DIR = {
     'Linux': SOURCE_DIR / "build" / "Release" / "bin",
     'Windows': SOURCE_DIR / "source" / "x64" / "Release",
 }[SYSTEM]
-LIB_DIR_MESHLIB = LIB_DIR / "meshlib"
+LIB_DIR_MESHLIB = LIB_DIR / "meshsdk"

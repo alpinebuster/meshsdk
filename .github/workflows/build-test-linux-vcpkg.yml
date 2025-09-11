@@ -150,7 +150,7 @@ jobs:
         if: ${{ inputs.mrbind_c && !matrix.skip_mrbind }}
         env:
           CXX: ${{ matrix.cxx-compiler }}
-        run: make -f scripts/mrbind/generate.mk -B --trace TARGET=c DEPS_BASE_DIR=/opt/vcpkg/installed/${{ matrix.arch }}-linux-meshlib CXX_FOR_BINDINGS=/usr/bin/clang++
+        run: make -f scripts/mrbind/generate.mk -B --trace TARGET=c DEPS_BASE_DIR=/opt/vcpkg/installed/${{ matrix.arch }}-linux-meshsdk CXX_FOR_BINDINGS=/usr/bin/clang++
 
       - name: Build
         run: ./scripts/build_source.sh
@@ -170,7 +170,7 @@ jobs:
         if: ${{ inputs.mrbind && !matrix.skip_mrbind }}
         env:
           CXX: ${{ matrix.cxx-compiler }}
-        run: make -f scripts/mrbind/generate.mk MODE=none -B --trace MESHLIB_SHLIB_DIR=build/${{matrix.config}}/bin CXX_FOR_BINDINGS=/usr/bin/clang++ DEPS_BASE_DIR=/opt/vcpkg/installed/${{ matrix.arch }}-linux-meshlib
+        run: make -f scripts/mrbind/generate.mk MODE=none -B --trace MESHLIB_SHLIB_DIR=build/${{matrix.config}}/bin CXX_FOR_BINDINGS=/usr/bin/clang++ DEPS_BASE_DIR=/opt/vcpkg/installed/${{ matrix.arch }}-linux-meshsdk
 
       - name: Collect Timings
         run: ./scripts/devops/collect_timing_logs.sh linux-vcpkg-${{ matrix.arch }} ${{matrix.config}} "${{matrix.compiler}}"
@@ -218,13 +218,13 @@ jobs:
         if: ${{ matrix.config == 'Release' && matrix.compiler == 'Clang 19' }}
         run: |
           ./scripts/distribution_vcpkg.sh ${{ inputs.app_version }}
-          mv meshlib_linux-vcpkg.tar.xz meshlib_linux-vcpkg-${{ matrix.arch }}.tar.xz
+          mv meshsdk_linux-vcpkg.tar.xz meshsdk_linux-vcpkg-${{ matrix.arch }}.tar.xz
 
       - name: Extract Package
         if: ${{ matrix.config == 'Release' && matrix.compiler == 'Clang 19' }}
         run: |
-          mkdir meshlib_install
-          tar -xf meshlib_linux-vcpkg-${{ matrix.arch }}.tar.xz -C meshlib_install
+          mkdir meshsdk_install
+          tar -xf meshsdk_linux-vcpkg-${{ matrix.arch }}.tar.xz -C meshsdk_install
 
       - name: Build C++ examples
         if: ${{ matrix.config == 'Release' && matrix.compiler == 'Clang 19' }}
@@ -232,7 +232,7 @@ jobs:
           cmake \
             -S examples/cpp-examples \
             -B cpp-examples-build \
-            -D CMAKE_FIND_ROOT_PATH=$(pwd)/meshlib_install/ \
+            -D CMAKE_FIND_ROOT_PATH=$(pwd)/meshsdk_install/ \
             -D CMAKE_CXX_COMPILER=${{ matrix.cxx-compiler }}
           cmake \
             --build cpp-examples-build \
@@ -244,7 +244,7 @@ jobs:
           cmake \
             -S examples/c-examples \
             -B c-examples-build \
-            -D CMAKE_FIND_ROOT_PATH=$(pwd)/meshlib_install/ \
+            -D CMAKE_FIND_ROOT_PATH=$(pwd)/meshsdk_install/ \
             -D CMAKE_C_COMPILER=${{ matrix.c-compiler }}
           cmake \
             --build c-examples-build \
@@ -255,5 +255,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Distributives_linux-vcpkg-${{ matrix.arch }}
-          path: meshlib_linux-vcpkg-${{ matrix.arch }}.tar.xz
+          path: meshsdk_linux-vcpkg-${{ matrix.arch }}.tar.xz
           retention-days: 1

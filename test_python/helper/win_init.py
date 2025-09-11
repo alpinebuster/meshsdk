@@ -1,4 +1,4 @@
-# copy to source\x64\{config}\meshlib to fix dll loading
+# copy to source\x64\{config}\meshsdk to fix dll loading
 
 
 def _init_patch():

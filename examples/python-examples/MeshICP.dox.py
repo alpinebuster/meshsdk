@@ -1,4 +1,4 @@
-import meshlib.mrmeshpy as mrmeshpy
+import meshsdk.mrmeshpy as mrmeshpy
 
 # Load meshes
 meshFloating = mrmeshpy.loadMesh("../_assets/mandible.stl")

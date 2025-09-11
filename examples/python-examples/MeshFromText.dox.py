@@ -1,6 +1,6 @@
 import sys
 
-import meshlib.mrmeshpy as mrmeshpy
+import meshsdk.mrmeshpy as mrmeshpy
 
 if len(sys.argv) < 3:
     print("Usage: ./MeshFromText fontpath text", file=sys.stderr)

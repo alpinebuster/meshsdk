@@ -6,9 +6,9 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <PostBuildEvent>
-      <Command>if not exist $(TargetDir)meshlib mkdir $(TargetDir)meshlib
-      copy $(TargetDir)$(TargetName).pyd $(TargetDir)meshlib\$(TargetName).pyd
-      copy $(ProjectDir)..\..\test_python\helper\win_init.py $(TargetDir)meshlib\__init__.py
+      <Command>if not exist $(TargetDir)meshsdk mkdir $(TargetDir)meshsdk
+      copy $(TargetDir)$(TargetName).pyd $(TargetDir)meshsdk\$(TargetName).pyd
+      copy $(ProjectDir)..\..\test_python\helper\win_init.py $(TargetDir)meshsdk\__init__.py
       </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

@@ -50,11 +50,11 @@ By pre-building libraries for all configurations, the system eliminates the need
 
 ## Practical Usage Patterns
 
-Understanding the architecture enables more effective usage patterns. For daily development work, you'll typically use the default configuration with `docker compose up --build meshlib-emscripten-build`. The build process completes quickly because only your application code needs compilation, while the pre-built libraries provide immediate dependency satisfaction.
+Understanding the architecture enables more effective usage patterns. For daily development work, you'll typically use the default configuration with `docker compose up --build meshsdk-emscripten-build`. The build process completes quickly because only your application code needs compilation, while the pre-built libraries provide immediate dependency satisfaction.
 
-When you need to test different configurations, switching between them becomes nearly instantaneous. Running `docker compose --profile singlethreaded up meshlib-emscripten-build-singlethreaded` leverages the pre-built single-threaded libraries without requiring any compilation delay.
+When you need to test different configurations, switching between them becomes nearly instantaneous. Running `docker compose --profile singlethreaded up meshsdk-emscripten-build-singlethreaded` leverages the pre-built single-threaded libraries without requiring any compilation delay.
 
-For debugging purposes, the persistent containers provide full access to the build environment. You can execute `docker compose exec meshlib-emscripten-build bash` to enter the container and run custom build commands, examine intermediate files, or test specific compilation flags. This debugging capability proves essential when troubleshooting complex build issues or experimenting with new features.
+For debugging purposes, the persistent containers provide full access to the build environment. You can execute `docker compose exec meshsdk-emscripten-build bash` to enter the container and run custom build commands, examine intermediate files, or test specific compilation flags. This debugging capability proves essential when troubleshooting complex build issues or experimenting with new features.
 
 ## Maintenance and Evolution
 

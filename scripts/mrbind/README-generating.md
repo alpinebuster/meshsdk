@@ -12,7 +12,7 @@ Among other things, the scripts do following:
 
 * On Ubuntu, they may add [the LLVM repository](https://apt.llvm.org/) to install the specific version of Clang and libclang that we need.
 
-* On Windows, install MSYS2 to `C:\msys64_meshlib_mrbind`.
+* On Windows, install MSYS2 to `C:\msys64_meshsdk_mrbind`.
 
 More details on what the scripts do on different platforms:
 
@@ -111,18 +111,18 @@ How to run the generator on different platforms:
 Create and fix Wheel:
 
 ```sh
-# This will generate the `meshlib` wheel to `./scripts/wheel/meshlib`
+# This will generate the `meshsdk` wheel to `./scripts/wheel/meshsdk`
 python ./scripts/wheel/build_wheel.py --version 'v0.0.0.1'
 ```
 
-Install the built `meshlib`:
+Install the built `meshsdk`:
 
 ```sh
-cd  ./scripts/wheel/meshlib
+cd  ./scripts/wheel/meshsdk
 pip install .
 
-# Check the installed `meshlib`
-pip list | grep meshlib
+# Check the installed `meshsdk`
+pip list | grep meshsdk
 ```
 
 ### Some common flags:

@@ -1,4 +1,4 @@
-import meshlib.mrmeshpy as mrmeshpy
+import meshsdk.mrmeshpy as mrmeshpy
 
 # create first sphere with radius of 1 unit
 sphere1 = mrmeshpy.makeUVSphere(1.0, 64, 64)

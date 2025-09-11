@@ -1,6 +1,6 @@
 import math
 
-import meshlib.mrmeshpy as mrmeshpy
+import meshsdk.mrmeshpy as mrmeshpy
 
 mesh = mrmeshpy.loadMesh("../_assets/mesh.stl")
 

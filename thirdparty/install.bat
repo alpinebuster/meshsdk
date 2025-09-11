@@ -5,7 +5,7 @@ REM options: use --write-s3 to push vcpkg binary cache to S3
 REM The VCPKG_TAG variable represents the S3 folder and may not always exist in S3
 REM use "aws s3 ls s3://vcpkg-export/" to list all available tags
 
-set VCPKG_DEFAULT_TRIPLET=x64-windows-meshlib
+set VCPKG_DEFAULT_TRIPLET=x64-windows-meshsdk
 
 REM Check if AWS CLI is installed
 aws --version >nul 2>&1
@@ -41,10 +41,10 @@ for %%i in (%*) do (
 REM Configure VCPKG_BINARY_SOURCES
 if "!write_s3_option!"=="true" (
     echo Mode: pull-push vcpkg binary cache. AWS credentials are required.
-    set "VCPKG_BINARY_SOURCES=clear;x-aws,s3://vcpkg-export/!VCPKG_TAG!/x64-windows-meshlib/,readwrite;"
+    set "VCPKG_BINARY_SOURCES=clear;x-aws,s3://vcpkg-export/!VCPKG_TAG!/x64-windows-meshsdk/,readwrite;"
 ) else (
     echo Mode: pull vcpkg binary cache. No AWS credentials are required.
-    set "VCPKG_BINARY_SOURCES=clear;x-aws-config,no-sign-request;x-aws,s3://vcpkg-export/!VCPKG_TAG!/x64-windows-meshlib/,readwrite;"
+    set "VCPKG_BINARY_SOURCES=clear;x-aws-config,no-sign-request;x-aws,s3://vcpkg-export/!VCPKG_TAG!/x64-windows-meshsdk/,readwrite;"
 )
 
 REM Ensure vcpkg downloads folder exists

@@ -2,7 +2,7 @@
 Check that the `mrcudapy` module exists. Even on Mac, it should at least contain a stub `isCudaAvailable()` returning false.
 """
 
-from meshlib import mrcudapy
+from meshsdk import mrcudapy
 import pytest
 from module_helper import *
 

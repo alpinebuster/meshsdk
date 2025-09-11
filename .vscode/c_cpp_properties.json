@@ -32,7 +32,7 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${vcpkgRoot}/x64-windows-meshlib/include",
+                "${vcpkgRoot}/x64-windows-meshsdk/include",
                 "${env:EMSDK}/upstream/emscripten/system/include",
                 "${env:EMSDK}/upstream/emscripten"
             ],

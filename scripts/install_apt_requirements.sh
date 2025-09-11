@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# NOTE: using this script is deprecated! Better install meshlib(-dev).deb package
+# NOTE: using this script is deprecated! Better install meshsdk(-dev).deb package
 # This script installs requirements by `apt` if not already installed
 # `distribution.sh` uses this script as preinstall
 

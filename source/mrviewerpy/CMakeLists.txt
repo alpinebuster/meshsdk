@@ -11,7 +11,7 @@ add_library(${PROJECT_NAME} SHARED ${SOURCES} ${HEADERS})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
   PREFIX ""
-  LIBRARY_OUTPUT_DIRECTORY "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/meshlib"
+  LIBRARY_OUTPUT_DIRECTORY "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/meshsdk"
 )
 
 IF(WIN32)
@@ -19,9 +19,9 @@ IF(WIN32)
     SUFFIX ".pyd"
   )
 
-  # We build directly in `bin`, then copy to `bin/meshlib`, to prevent Vcpkg from polluting `bin/meshlib` with the dependency DLLs.
+  # We build directly in `bin`, then copy to `bin/meshsdk`, to prevent Vcpkg from polluting `bin/meshsdk` with the dependency DLLs.
   add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/meshlib"
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/meshsdk"
   )
 ENDIF()
 

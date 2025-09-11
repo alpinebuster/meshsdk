@@ -4,7 +4,7 @@ from pytest_check import check
 from module_helper import *
 from pathlib import Path
 from constants import test_files_path
-from helpers.meshlib_helpers import compare_distance_maps
+from helpers.meshsdk_helpers import compare_distance_maps
 
 
 @pytest.mark.skipif(

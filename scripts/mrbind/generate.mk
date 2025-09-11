@@ -105,7 +105,7 @@ FOR_WHEEL := 0
 override FOR_WHEEL := $(filter-out 0,$(FOR_WHEEL))
 $(info Those modules are for a Python wheel? $(if $(FOR_WHEEL),YES,NO))
 
-# Build `libpybind11nonlimitedapi_meshlib_X.Y.so` shims automatically?
+# Build `libpybind11nonlimitedapi_meshsdk_X.Y.so` shims automatically?
 # You can always build them manually via `make shims -B`.
 BUILD_SHIMS := $(FOR_WHEEL)
 override BUILD_SHIMS := $(filter-out 0,$(BUILD_SHIMS))
@@ -187,7 +187,7 @@ MRBIND_GEN_C_EXE = $(MRBIND_EXE)_gen_c
 
 # Look for MeshLib dependencies relative to this. On Linux should point to the project root, because that's where `./include` and `./lib` are.
 ifneq ($(IS_WINDOWS),)
-DEPS_BASE_DIR := $(VCPKG_DIR)/installed/x64-windows-meshlib
+DEPS_BASE_DIR := $(VCPKG_DIR)/installed/x64-windows-meshsdk
 DEPS_LIB_DIR := $(DEPS_BASE_DIR)/$(if $(filter Debug,$(VS_MODE)),debug/)lib
 else
 DEPS_BASE_DIR := .
@@ -408,7 +408,7 @@ $(info Build machine: $(nproc_string), $(ram_string); NUM_FRAGMENTS=$(NUM_FRAGME
 endif
 
 # You can change this to something else to rename the module, to have it side-by-side with the legacy one.
-PACKAGE_NAME := meshlib
+PACKAGE_NAME := meshsdk
 
 endif # $(TARGET) == python
 
@@ -552,7 +552,7 @@ COMPILER_FLAGS += -D_SILENCE_ALL_CXX23_DEPRECATION_WARNINGS
 COMPILER_FLAGS += -DPYBIND11_EXPORT_EXCEPTION=
 ifeq ($(VS_MODE),Debug)
 COMPILER_FLAGS += -Xclang --dependent-lib=msvcrtd -D_DEBUG
-# Override to match meshlib:
+# Override to match meshsdk:
 COMPILER_FLAGS += -D_ITERATOR_DEBUG_LEVEL=0
 else # VS_MODE == Release
 COMPILER_FLAGS += -Xclang --dependent-lib=msvcrt
@@ -581,7 +581,7 @@ ifeq ($(TARGET),python)
 LINKER_FLAGS += -L$(HOMEBREW_DIR)/lib
 LINKER_FLAGS += -ltbb
 # This fixes an error during wheel creation:
-#   /Library/Developer/CommandLineTools/usr/bin/install_name_tool: changing install names or rpaths can't be redone for: /private/var/folders/c2/_t7lgq_s3zb_r01vy_1qd6nh0000gs/T/tmpatczljnu/wheel/meshlib/mrmeshpy.so (for architecture arm64) because larger updated load commands do not fit (the program must be relinked, and you may need to use -headerpad or -headerpad_max_install_names)
+#   /Library/Developer/CommandLineTools/usr/bin/install_name_tool: changing install names or rpaths can't be redone for: /private/var/folders/c2/_t7lgq_s3zb_r01vy_1qd6nh0000gs/T/tmpatczljnu/wheel/meshsdk/mrmeshpy.so (for architecture arm64) because larger updated load commands do not fit (the program must be relinked, and you may need to use -headerpad or -headerpad_max_install_names)
 # Apparently there's not enough space in the binary to fit longer library paths, and this pads it to have to up MAXPATHLEN space for each path.
 LINKER_FLAGS += -Wl,-headerpad_max_install_names
 # Those fix a segfault when importing the module, that only happens for wheels, not raw binaries.
@@ -603,7 +603,7 @@ COMPILER += -fvisibility=hidden
 COMPILER_FLAGS += -fPIC
 
 # Override Pybind ABI identifiers to force compatibility with `mrviewerpy` (which is compiled with some other compiler, but is also made to define those).
-COMPILER_FLAGS += -DPYBIND11_COMPILER_TYPE='"_meshlib"' -DPYBIND11_BUILD_ABI='"_meshlib"'
+COMPILER_FLAGS += -DPYBIND11_COMPILER_TYPE='"_meshsdk"' -DPYBIND11_BUILD_ABI='"_meshsdk"'
 # MacOS rpath is quirky: 1. Must use `-rpath,` instead of `-rpath=`. 2. Must specify the flag several times, apparently can't use
 #   `:` or `;` as a separators inside of one big flag. 3. As you've noticed, it uses `@loader_path` instead of `$ORIGIN`.
 rpath_origin := $(if $(IS_MACOS),@loader_path,$$$$ORIGIN)
@@ -631,7 +631,7 @@ ifeq ($(TARGET),python)
 
 # Things for our patched pybind: --- [
 # Also setting `Py_LIMITED_API` is a part of this, but it's spread all over this makefile.
-COMPILER += -DPYBIND11_NONLIMITEDAPI_LIB_SUFFIX_FOR_MODULE='"meshlib"'
+COMPILER += -DPYBIND11_NONLIMITEDAPI_LIB_SUFFIX_FOR_MODULE='"meshsdk"'
 # Pybind normally sets this to 5 in Python 3.12 and newer, and to 4 before that. But we need the same number everywhere for our modules to work on
 #   multiple different Python versions. We can't set it to 4 (since that's not compatible with the new Python, see https://github.com/pybind/pybind11/pull/4570),
 #   but we can set it to 5 unconditionally (Pybind doesn't do it by default only for ABI compatibility).
@@ -642,7 +642,7 @@ COMPILER += -DPYBIND11_INTERNALS_VERSION=5
 PYBIND_LIBS_OUTPUT_DIR := $(MODULE_OUTPUT_DIR)
 PYBIND_SOURCE_DIR := $(makefile_dir)../../thirdparty/mrbind-pybind11
 PYBIND_NONLIMITEDAPI_CPP := $(PYBIND_SOURCE_DIR)/source/non_limited_api/non_limited_api.cpp
-PYBIND_NONLIMITEDAPI_LIB_NAME_PREFIX := pybind11nonlimitedapi_meshlib_
+PYBIND_NONLIMITEDAPI_LIB_NAME_PREFIX := pybind11nonlimitedapi_meshsdk_
 
 override shim_outputs :=
 $(foreach v,$(PYTHON_VERSIONS),\
@@ -832,7 +832,7 @@ override all_outputs += $(INIT_SCRIPT)
 # Copying modules next to the exe on Windows.
 # I don't think this is actually needed, since we erase them when creating the installer.
 # That was originally done because it's hard to make VS build them directly in the correct directory,
-#   so some of our scripts look for them outside of `meshlib/`. Probably a good idea to fix that and not copy here at all.
+#   so some of our scripts look for them outside of `meshsdk/`. Probably a good idea to fix that and not copy here at all.
 ifneq ($(IS_WINDOWS),)
 override all_outputs += $(MESHLIB_SHLIB_DIR)/__init__.py
 $(MESHLIB_SHLIB_DIR)/__init__.py: $(INIT_SCRIPT)

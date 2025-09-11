@@ -9,7 +9,7 @@
 //
 // Pre-build binaries from MeshLib distribution are prepared with _ITERATOR_DEBUG_LEVEL=0,
 // and if you build MeshLib by yourself then _ITERATOR_DEBUG_LEVEL=0 is also selected see
-// 1) vcpkg/triplets/x64-windows-meshlib.cmake and
+// 1) vcpkg/triplets/x64-windows-meshsdk.cmake and
 // 2) MeshLib/source/common.props
 // Please note that all other modules (.exe, .dll, .lib) with MS STL calls in your application also need
 // to define exactly the same value of _ITERATOR_DEBUG_LEVEL to be operational after linking.

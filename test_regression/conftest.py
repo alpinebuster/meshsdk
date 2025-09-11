@@ -39,5 +39,5 @@ def csharp_sample_dir(request):
 
 @pytest.fixture(scope="module")
 def cuda_module():
-    from meshlib import mrcudapy as mc
+    from meshsdk import mrcudapy as mc
     return mc

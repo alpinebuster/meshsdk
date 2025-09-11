@@ -1,7 +1,7 @@
-# MeshSDK - Javascript/Typescript Binding for the meshlib
+# MeshSDK - Javascript/Typescript Binding for the meshsdk
 
-`meshlib` JS/TS implementation. It supports compilation
-to WASM via [Emscripten](https://emscripten.org/) so that `meshlib` features can be used in a browser.
+`meshsdk` JS/TS implementation. It supports compilation
+to WASM via [Emscripten](https://emscripten.org/) so that `meshsdk` features can be used in a browser.
 
 ## Using `meshsdk` in JavaScript/TypeScript
 

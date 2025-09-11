@@ -191,7 +191,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: PythonStubs
-          path: ./scripts/wheel/meshlib/meshlib/*.pyi
+          path: ./scripts/wheel/meshsdk/meshsdk/*.pyi
           retention-days: 1
 
       - name: Generate C bindings
@@ -212,7 +212,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ManyLinux-${{matrix.platform}}
-          path: ./scripts/wheel/meshlib/wheelhouse/meshlib-*.whl
+          path: ./scripts/wheel/meshsdk/wheelhouse/meshsdk-*.whl
           retention-days: 1
 
   update-documentation:
@@ -317,7 +317,7 @@ jobs:
         with:
           msystem: clang64
           install: make gawk procps-ng mingw-w64-clang-x86_64-cmake
-          location: C:\msys64_meshlib_mrbind
+          location: C:\msys64_meshsdk_mrbind
 
       - name: Install Clang in MSYS2
         shell: msys2 {0}
@@ -327,15 +327,15 @@ jobs:
       - name: Build MRBind
         shell: cmd
         env:
-          # Need this env variable because our .bat files assume msys2 installed directly to `C:\msys64_meshlib_mrbind`,
+          # Need this env variable because our .bat files assume msys2 installed directly to `C:\msys64_meshsdk_mrbind`,
           #   and the setup-msys2 action always adds the `...\msys64` component at the end, and it's a tiny bit wasteful to move it around when running in the CI.
-          MSYS2_DIR: C:\msys64_meshlib_mrbind\msys64
+          MSYS2_DIR: C:\msys64_meshsdk_mrbind\msys64
         run: call ./scripts/mrbind/install_mrbind_windows_msys2.bat
 
       - name: Generate and build MRBind bindings
         shell: cmd
         env:
-          MSYS2_DIR: C:\msys64_meshlib_mrbind\msys64
+          MSYS2_DIR: C:\msys64_meshsdk_mrbind\msys64
         run: |
           call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat" -arch=amd64
           call ./scripts/mrbind/generate_win.bat -B --trace FOR_WHEEL=1
@@ -362,7 +362,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Windows
-          path: wheelhouse\meshlib-*.whl
+          path: wheelhouse\meshsdk-*.whl
           retention-days: 1
 
   macos-pip-build:
@@ -446,7 +446,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Macos-${{matrix.platform}}
-          path: meshlib-*.whl
+          path: meshsdk-*.whl
           retention-days: 1
 
   manylinux-pip-test:
@@ -505,7 +505,7 @@ jobs:
       - name: Pip setup
         run: |
           ${{ env.PYTHON_CMD }} -m pip install --upgrade pip
-          ${{ env.PYTHON_CMD }} -m pip uninstall -y meshlib
+          ${{ env.PYTHON_CMD }} -m pip uninstall -y meshsdk
           ${{ env.PYTHON_CMD }} -m pip install --upgrade -r ./requirements/python.txt
           ${{ env.PYTHON_CMD }} -m pip install pytest
 
@@ -516,7 +516,7 @@ jobs:
           merge-multiple: true
 
       - name: Meshlib wheel install
-        run: ${{ env.PYTHON_CMD }} -m pip install ${{ matrix.pip-options }} ./meshlib-*.whl
+        run: ${{ env.PYTHON_CMD }} -m pip install ${{ matrix.pip-options }} ./meshsdk-*.whl
 
       - name: Run Python tests
         working-directory: test_python
@@ -550,13 +550,13 @@ jobs:
       - name: Setup pip
         run: |
           py -${{matrix.py-version}} -m pip install --upgrade pip
-          py -${{matrix.py-version}} -m pip uninstall -y meshlib
+          py -${{matrix.py-version}} -m pip uninstall -y meshsdk
           py -${{matrix.py-version}} -m pip install --upgrade -r ./requirements/python.txt
           py -${{matrix.py-version}} -m pip install pytest
 
       - name: Install Meshlib wheel
         shell: pwsh
-        run: $wheel_file=Get-ChildItem -Filter meshlib*win*.whl; py -${{matrix.py-version}} -m pip install $wheel_file
+        run: $wheel_file=Get-ChildItem -Filter meshsdk*win*.whl; py -${{matrix.py-version}} -m pip install $wheel_file
 
       - name: Run Python tests
         working-directory: test_python
@@ -617,7 +617,7 @@ jobs:
       - name: Pip setup
         run: |
           ${{ matrix.py-cmd }} -m pip install --upgrade pip
-          ${{ matrix.py-cmd }} -m pip uninstall -y meshlib
+          ${{ matrix.py-cmd }} -m pip uninstall -y meshsdk
           ${{ matrix.py-cmd }} -m pip install --upgrade -r ./requirements/python.txt
           ${{ matrix.py-cmd }} -m pip install pytest
 
@@ -628,7 +628,7 @@ jobs:
           merge-multiple: true
 
       - name: Meshlib wheel install
-        run: ${{ matrix.py-cmd }} -m pip install ${{ matrix.pip-options }} ./meshlib-*${{matrix.platform}}*.whl
+        run: ${{ matrix.py-cmd }} -m pip install ${{ matrix.pip-options }} ./meshsdk-*${{matrix.platform}}*.whl
 
       - name: Run Python tests
         working-directory: test_python
@@ -662,7 +662,7 @@ jobs:
         run: python3 -m pip install --upgrade pip twine packaging
 
       - name: Upload to Production PyPi
-        run: twine upload ./meshlib-*.whl -u __token__ -p ${{ secrets.PYPI_MESHINSPECTOR_TOKEN }} --skip-existing
+        run: twine upload ./meshsdk-*.whl -u __token__ -p ${{ secrets.PYPI_MESHINSPECTOR_TOKEN }} --skip-existing
 
   post-release-test:
     if: ${{ github.event_name == 'release' || inputs.publish }}

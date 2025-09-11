@@ -161,7 +161,7 @@ jobs:
         with:
           msystem: clang64
           install: make gawk procps-ng mingw-w64-clang-x86_64-cmake
-          location: C:\msys64_meshlib_mrbind
+          location: C:\msys64_meshsdk_mrbind
 
       - name: Install Clang in MSYS2
         if: ${{inputs.mrbind || (inputs.mrbind_c && matrix.build_system == 'CMake')}}
@@ -177,16 +177,16 @@ jobs:
         if: ${{inputs.mrbind || (inputs.mrbind_c && matrix.build_system == 'CMake')}}
         shell: cmd
         env:
-          # Need this env variable because our .bat files assume msys2 installed directly to `C:\msys64_meshlib_mrbind`,
+          # Need this env variable because our .bat files assume msys2 installed directly to `C:\msys64_meshsdk_mrbind`,
           #   and the setup-msys2 action always adds the `...\msys64` component at the end, and it's a tiny bit wasteful to move it around when running in the CI.
-          MSYS2_DIR: C:\msys64_meshlib_mrbind\msys64
+          MSYS2_DIR: C:\msys64_meshsdk_mrbind\msys64
         run: call ./scripts/mrbind/install_mrbind_windows_msys2.bat
 
       - name: Generate C bindings
         if: ${{inputs.mrbind_c && matrix.build_system == 'CMake'}}
         shell: cmd
         env:
-          MSYS2_DIR: C:\msys64_meshlib_mrbind\msys64
+          MSYS2_DIR: C:\msys64_meshsdk_mrbind\msys64
         # Note that `\` doesn't work here as a line continuation, and will lead to weird errors.
         run: |
           call "${{matrix.vc-path}}\Common7\Tools\VsDevCmd.bat" -arch=amd64
@@ -227,7 +227,7 @@ jobs:
         if: ${{inputs.mrbind}}
         shell: cmd
         env:
-          MSYS2_DIR: C:\msys64_meshlib_mrbind\msys64
+          MSYS2_DIR: C:\msys64_meshsdk_mrbind\msys64
         # Note that `\` doesn't work here as a line continuation, and will lead to weird errors.
         run: |
           call "${{matrix.vc-path}}\Common7\Tools\VsDevCmd.bat" -arch=amd64
@@ -273,8 +273,8 @@ jobs:
         # Those files should not exist when using CMake.
         shell: cmd
         run: |
-          if exist source\x64\Debug\pybind11nonlimitedapi_meshlib_3*.dll del /Q source\x64\Debug\pybind11nonlimitedapi_meshlib_3*.dll
-          if exist source\x64\Release\pybind11nonlimitedapi_meshlib_3*.dll del /Q source\x64\Release\pybind11nonlimitedapi_meshlib_3*.dll
+          if exist source\x64\Debug\pybind11nonlimitedapi_meshsdk_3*.dll del /Q source\x64\Debug\pybind11nonlimitedapi_meshsdk_3*.dll
+          if exist source\x64\Release\pybind11nonlimitedapi_meshsdk_3*.dll del /Q source\x64\Release\pybind11nonlimitedapi_meshsdk_3*.dll
 
         # https://github.com/actions/download-artifact#maintaining-file-permissions-and-case-sensitive-files
       - name: Archive files

@@ -1,5 +1,5 @@
-from meshlib import mrmeshpy as mlib
-from meshlib import mrcudapy as mc
+from meshsdk import mrmeshpy as mlib
+from meshsdk import mrcudapy as mc
 
 
 mesh = mlib.loadMesh("../_assets/mesh.stl")

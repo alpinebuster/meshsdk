@@ -12,10 +12,10 @@ if (
     sys.path.insert(0, os.environ["MeshLibPyModulesPath"])
     working_directory = os.environ["MeshLibPyModulesPath"]
 
-import meshlib.mrmeshpy as mrmesh
-import meshlib.mrmeshnumpy as mrmeshnumpy
+import meshsdk.mrmeshpy as mrmesh
+import meshsdk.mrmeshnumpy as mrmeshnumpy
 
-# Check if we're using the bindings of meshlib v3.*
+# Check if we're using the bindings of meshsdk v3.*
 is_bindings_v3 = True
 try:
     mrmesh.UniformSamplingSettings

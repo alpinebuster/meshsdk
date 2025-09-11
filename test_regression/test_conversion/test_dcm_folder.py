@@ -2,7 +2,7 @@ from module_helper import *
 from pathlib import Path
 import pytest
 from constants import test_files_path
-from helpers.meshlib_helpers import compare_voxels
+from helpers.meshsdk_helpers import compare_voxels
 
 @pytest.mark.bindingsV3
 def test_dcm_folder(tmp_path):

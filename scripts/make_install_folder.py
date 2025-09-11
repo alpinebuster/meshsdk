@@ -30,7 +30,7 @@ def vcpkg_dir():
 			vcpkg_exe_dir = "C:\\vcpkg"
 		else:
 			vcpkg_exe_dir = os.path.dirname( vcpkg_exe_dir )
-	return os.path.join(os.path.join(vcpkg_exe_dir, "installed"),"x64-windows-meshlib")
+	return os.path.join(os.path.join(vcpkg_exe_dir, "installed"),"x64-windows-meshsdk")
 
 
 vcpkg_directory = vcpkg_dir()
@@ -77,13 +77,13 @@ def copy_lib():
 				os.remove(os.path.join(address,file))
 
 	# Prune .pyd Python modules, but only in the Debug/Release directories, not in their subdirectories.
-	# This is only needed on Windows. On Windows they are initially present both there and in `__/meshlib`, because it's hard
+	# This is only needed on Windows. On Windows they are initially present both there and in `__/meshsdk`, because it's hard
 	# to make VS build them directly in the subdirectory. And the `.pyd` extension is only used on Windows.
 	for f in glob.glob(os.path.join(it.path_to_app, "*/*.pyd")):
 		os.remove(f)
 	for f in glob.glob(os.path.join(it.path_to_libs, "__init__.py")):
 		os.remove(f)
-	for f in glob.glob(os.path.join(it.path_to_app, "*/*pybind11nonlimitedapi_meshlib_*")):
+	for f in glob.glob(os.path.join(it.path_to_app, "*/*pybind11nonlimitedapi_meshsdk_*")):
 		os.remove(f)
 
 it.prepare_includes_list = prepare_includes_list
