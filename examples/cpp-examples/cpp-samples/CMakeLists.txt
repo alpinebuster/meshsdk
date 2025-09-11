@@ -14,7 +14,7 @@ set(SAMPLES
 
 foreach(TARGET ${SAMPLES})
   add_executable(${TARGET} ${TARGET}.cpp)
-  target_include_directories(${TARGET} PUBLIC ${MESHLIB_INCLUDE_DIR} ${MESHLIB_THIRDPARTY_INCLUDE_DIR})
+  target_include_directories(${TARGET} PUBLIC ${MESHSDK_INCLUDE_DIR} ${MESHSDK_THIRDPARTY_INCLUDE_DIR})
   target_link_libraries(${TARGET} PRIVATE MeshLib::MRMesh TBB::tbb)
-  target_link_directories(${TARGET} PUBLIC ${MESHLIB_THIRDPARTY_LIB_DIR})
+  target_link_directories(${TARGET} PUBLIC ${MESHSDK_THIRDPARTY_LIB_DIR})
 endforeach()

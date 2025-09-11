@@ -33,7 +33,7 @@ IF(MR_EMSCRIPTEN)
     jsoncpp
     spdlog
   )
-ELSEIF(WIN32 OR MESHLIB_USE_VCPKG)
+ELSEIF(WIN32 OR MESHSDK_USE_VCPKG)
   find_package(glad REQUIRED)
   find_package(OpenVDB REQUIRED)
 
@@ -72,12 +72,12 @@ ELSE()
   )
 ENDIF()
 
-IF(MESHLIB_BUILD_VOXELS)
+IF(MESHSDK_BUILD_VOXELS)
   target_link_libraries(${PROJECT_NAME} PRIVATE
     MRVoxels
   )
 ELSE()
-  target_compile_definitions(${PROJECT_NAME} PRIVATE MESHLIB_NO_VOXELS)
+  target_compile_definitions(${PROJECT_NAME} PRIVATE MESHSDK_NO_VOXELS)
 ENDIF()
 
 install(

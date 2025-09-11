@@ -120,14 +120,14 @@ jobs:
       - name: Build
         run: ./scripts/build_source.sh
         env:
-          MESHLIB_BUILD_RELEASE: ${{ fromJSON('["OFF", "ON"]')[matrix.config == 'Release'] }}
-          MESHLIB_BUILD_DEBUG: ${{ fromJSON('["OFF", "ON"]')[matrix.config == 'Debug'] }}
+          MESHSDK_BUILD_RELEASE: ${{ fromJSON('["OFF", "ON"]')[matrix.config == 'Release'] }}
+          MESHSDK_BUILD_DEBUG: ${{ fromJSON('["OFF", "ON"]')[matrix.config == 'Debug'] }}
           CMAKE_CXX_COMPILER: ${{ matrix.cxx-compiler }}
           MR_VERSION: ${{ inputs.app_version }}
           MR_CMAKE_OPTIONS: >
-            -DMESHLIB_BUILD_MRMESH_PY_LEGACY=${{ fromJSON('["ON", "OFF"]')[inputs.mrbind] }}
+            -DMESHSDK_BUILD_MRMESH_PY_LEGACY=${{ fromJSON('["ON", "OFF"]')[inputs.mrbind] }}
             -DMR_CXX_STANDARD=23
-            -DMESHLIB_BUILD_GENERATED_C_BINDINGS=${{ fromJSON('["OFF", "ON"]')[inputs.mrbind_c] }}
+            -DMESHSDK_BUILD_GENERATED_C_BINDINGS=${{ fromJSON('["OFF", "ON"]')[inputs.mrbind_c] }}
 
       - name: Generate and build Python bindings
         if: ${{ inputs.mrbind }}
@@ -138,7 +138,7 @@ jobs:
           make -f scripts/mrbind/generate.mk \
             -B --trace \
             PYTHON_PKGCONF_NAME=python-3.10-embed \
-            MESHLIB_SHLIB_DIR=build/${{matrix.config}}/bin
+            MESHSDK_SHLIB_DIR=build/${{matrix.config}}/bin
 
       - name: Run Start-and-Exit Tests
         timeout-minutes: 3

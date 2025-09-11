@@ -101,8 +101,8 @@ jobs:
         env:
           MR_EMSCRIPTEN: "ON"
           MR_EMSCRIPTEN_SDK: "ON"
-          MESHLIB_BUILD_RELEASE: "ON"
-          MESHLIB_BUILD_DEBUG: "OFF"
+          MESHSDK_BUILD_RELEASE: "ON"
+          MESHSDK_BUILD_DEBUG: "OFF"
           MR_EMSCRIPTEN_SINGLE: ${{ fromJSON('["OFF", "ON"]')[matrix.config == 'Singlethreaded'] }}
           MR_EMSCRIPTEN_WASM64: ${{ fromJSON('["OFF", "ON"]')[matrix.config == 'Multithreaded-64Bit'] }}
           # options to be passed to cmake

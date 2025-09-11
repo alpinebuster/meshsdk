@@ -53,29 +53,29 @@ if [ $MR_EMSCRIPTEN == "ON" ]; then
   fi
 fi
 
-if [ ! -n "$MESHLIB_BUILD_RELEASE" ]; then
+if [ ! -n "$MESHSDK_BUILD_RELEASE" ]; then
   read -t 5 -p "Build MeshSDK Release? Press (n) in 5 seconds to cancel (Y/n)" -rsn 1
   echo;
   if [[ $REPLY =~ ^[Nn]$ ]]; then
-    MESHLIB_BUILD_RELEASE="OFF"
+    MESHSDK_BUILD_RELEASE="OFF"
   else
-    MESHLIB_BUILD_RELEASE="ON"
+    MESHSDK_BUILD_RELEASE="ON"
   fi
-  echo "Release ${MESHLIB_BUILD_RELEASE}"
+  echo "Release ${MESHSDK_BUILD_RELEASE}"
 fi
 
-if [ ! -n "$MESHLIB_BUILD_DEBUG" ]; then
+if [ ! -n "$MESHSDK_BUILD_DEBUG" ]; then
   read -t 5 -p "Build MeshSDK Debug? Press (y) in 5 seconds to build (y/N)" -rsn 1
   echo;
   if [[ $REPLY =~ ^[Yy]$ ]]; then
-    MESHLIB_BUILD_DEBUG="ON"
+    MESHSDK_BUILD_DEBUG="ON"
   else
-    MESHLIB_BUILD_DEBUG="OFF"
+    MESHSDK_BUILD_DEBUG="OFF"
   fi
-  echo "Debug ${MESHLIB_BUILD_DEBUG}"
+  echo "Debug ${MESHSDK_BUILD_DEBUG}"
 fi
 
-echo "Emscripten ${MR_EMSCRIPTEN:-OFF}, singlethread ${MR_EMSCRIPTEN_SINGLE:-OFF}, 64-bit ${MR_EMSCRIPTEN_W64:-OFF}, SDK only ${MR_EMSCRIPTEN_SDK:-OFF}, Release ${MESHLIB_BUILD_RELEASE:-OFF}, Debug ${MESHLIB_BUILD_DEBUG:-OFF}"
+echo "Emscripten ${MR_EMSCRIPTEN:-OFF}, singlethread ${MR_EMSCRIPTEN_SINGLE:-OFF}, 64-bit ${MR_EMSCRIPTEN_W64:-OFF}, SDK only ${MR_EMSCRIPTEN_SDK:-OFF}, Release ${MESHSDK_BUILD_RELEASE:-OFF}, Debug ${MESHSDK_BUILD_DEBUG:-OFF}"
 
 # add env options to cmake
 MR_CMAKE_OPTIONS="${MR_CMAKE_OPTIONS:-}"
@@ -84,9 +84,9 @@ if command -v ninja >/dev/null 2>&1 ; then
   MR_CMAKE_OPTIONS="${MR_CMAKE_OPTIONS} -G Ninja"
 fi
 
-if [ "${MESHLIB_USE_VCPKG}" == "ON" ]; then
+if [ "${MESHSDK_USE_VCPKG}" == "ON" ]; then
   MR_CMAKE_OPTIONS="${MR_CMAKE_OPTIONS} \
-    -D MESHLIB_USE_VCPKG=ON \
+    -D MESHSDK_USE_VCPKG=ON \
     -D VCPKG_TARGET_TRIPLET=${VCPKG_TRIPLET:?VCPKG_TRIPLET must be set} \
   "
 fi
@@ -122,15 +122,15 @@ if [ "${MR_EMSCRIPTEN}" == "ON" ]; then
     MR_CMAKE_OPTIONS="${MR_CMAKE_OPTIONS} -D MR_EMSCRIPTEN_SDK=1"
   fi
   
-  if [ "${MESHLIB_BUILD_DEBUG}" == "ON" ]; then
+  if [ "${MESHSDK_BUILD_DEBUG}" == "ON" ]; then
     MR_CMAKE_OPTIONS="${MR_CMAKE_OPTIONS} -D MR_EMSCRIPTEN_BUILD_DEBUG=1"
   fi
 fi
 
 if [[ $OSTYPE == 'darwin'* ]]; then
   PYTHON_VERSION="3.10"
-  if [ "${MESHLIB_PYTHON_VERSION}" != "" ]; then
-    PYTHON_VERSION="${MESHLIB_PYTHON_VERSION}"
+  if [ "${MESHSDK_PYTHON_VERSION}" != "" ]; then
+    PYTHON_VERSION="${MESHSDK_PYTHON_VERSION}"
   fi
   PYTHON_PREFIX=$(python"${PYTHON_VERSION}"-config --prefix)
   echo "PYTHON_PREFIX=${PYTHON_PREFIX}"
@@ -157,14 +157,14 @@ fi
 set -eo pipefail
 
 # build MeshSDK
-if [ "${MESHLIB_KEEP_BUILD}" != "ON" ]; then
+if [ "${MESHSDK_KEEP_BUILD}" != "ON" ]; then
   # Use `rm -rf ./build/*` instead of `rm -rf ./build` to allow delete in docker volume
   rm -rf ./build/*
 fi
 
 # build Release
-if [ "${MESHLIB_BUILD_RELEASE}" = "ON" ]; then
-  if [ "${MESHLIB_KEEP_BUILD}" != "ON" ]; then
+if [ "${MESHSDK_BUILD_RELEASE}" = "ON" ]; then
+  if [ "${MESHSDK_KEEP_BUILD}" != "ON" ]; then
     mkdir -p build/Release
   fi
   cd build/Release
@@ -176,8 +176,8 @@ if [ "${MESHLIB_BUILD_RELEASE}" = "ON" ]; then
 fi
 
 # build Debug
-if [ "${MESHLIB_BUILD_DEBUG}" = "ON" ]; then
-  if [ "${MESHLIB_KEEP_BUILD}" != "ON" ]; then
+if [ "${MESHSDK_BUILD_DEBUG}" = "ON" ]; then
+  if [ "${MESHSDK_KEEP_BUILD}" != "ON" ]; then
     mkdir -p build/Debug
   fi
   cd build/Debug
@@ -187,10 +187,10 @@ if [ "${MESHLIB_BUILD_DEBUG}" = "ON" ]; then
   ln -sf build/Debug/compile_commands.json compile_commands.json
 fi
 
-if [ "${MESHLIB_BUILD_RELEASE}" = "ON" ]; then
+if [ "${MESHSDK_BUILD_RELEASE}" = "ON" ]; then
   printf "\rAutoinstall script successfully finished.\n\n"
 else
-  if [ "${MESHLIB_BUILD_DEBUG}" = "ON" ]; then
+  if [ "${MESHSDK_BUILD_DEBUG}" = "ON" ]; then
     printf "\rAutoinstall script successfully finished.\n\n"
   else
     printf "\rNothing was built.\n\n"

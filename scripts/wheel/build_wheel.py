@@ -67,7 +67,7 @@ def setup_workspace(version, modules, plat_name):
     ]
     pybind_shims = []
     py_versions = []
-    for pybind_shim in LIB_DIR_MESHLIB.glob("*pybind11nonlimitedapi_meshsdk_*"):
+    for pybind_shim in LIB_DIR_MESHSDK.glob("*pybind11nonlimitedapi_meshsdk_*"):
         shutil.copy(pybind_shim, WHEEL_SRC_DIR)
         pybind_shim_name = os.path.basename(pybind_shim)
         pybind_shims.append(pybind_shim_name)

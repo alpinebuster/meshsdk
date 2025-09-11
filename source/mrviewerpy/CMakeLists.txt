@@ -39,7 +39,7 @@ IF(APPLE)
     pybind11nonlimitedapi_stubs
     ${CMAKE_DL_LIBS}
   )
-ELSEIF(WIN32 OR MESHLIB_USE_VCPKG)
+ELSEIF(WIN32 OR MESHSDK_USE_VCPKG)
   target_link_libraries(${PROJECT_NAME} PRIVATE
     MRViewer
     imgui
@@ -72,13 +72,13 @@ ENDIF()
 # The flag we're removing here is something we only set on Linux, in `CompilerOptions.cmake`.
 string(REPLACE "-Wl,-z,defs" "" CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS}")
 
-IF(MESHLIB_BUILD_VOXELS)
+IF(MESHSDK_BUILD_VOXELS)
   IF(APPLE)
     target_link_libraries(${PROJECT_NAME} PRIVATE
       MRVoxels
       OpenVDB
     )
-  ELSEIF(WIN32 OR MESHLIB_USE_VCPKG)
+  ELSEIF(WIN32 OR MESHSDK_USE_VCPKG)
     find_package(OpenVDB REQUIRED)
     target_link_libraries(${PROJECT_NAME} PRIVATE
       MRVoxels
@@ -91,7 +91,7 @@ IF(MESHLIB_BUILD_VOXELS)
     )
   ENDIF()
 ELSE()
-  target_compile_definitions(${PROJECT_NAME} PRIVATE MESHLIB_NO_VOXELS)
+  target_compile_definitions(${PROJECT_NAME} PRIVATE MESHSDK_NO_VOXELS)
 ENDIF()
 
 install(TARGETS ${PROJECT_NAME} DESTINATION "${MR_PY_LIB_DIR}")

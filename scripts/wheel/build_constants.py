@@ -26,4 +26,4 @@ LIB_DIR = {
     'Linux': SOURCE_DIR / "build" / "Release" / "bin",
     'Windows': SOURCE_DIR / "source" / "x64" / "Release",
 }[SYSTEM]
-LIB_DIR_MESHLIB = LIB_DIR / "meshsdk"
+LIB_DIR_MESHSDK = LIB_DIR / "meshsdk"

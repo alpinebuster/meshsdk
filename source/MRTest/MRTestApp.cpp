@@ -12,7 +12,7 @@
 #include "MRPch/MRJson.h"
 #include "MRPch/MRSpdlog.h"
 
-#ifndef MESHLIB_NO_PYTHON
+#ifndef MESHSDK_NO_PYTHON
 #include "MRPython/MRPython.h"
 #include "MREmbeddedPython/MREmbeddedPython.h"
 #endif
@@ -79,7 +79,7 @@ int main( int argc, char** argv )
 #endif
 
     spdlog::info( "System info:\n{}", MR::GetSystemInfoJson().toStyledString() );
-#ifndef MESHLIB_NO_PYTHON
+#ifndef MESHSDK_NO_PYTHON
     if ( !consumeFlag( "--no-python-tests" ) )
     {
         // Load mrmeshpy. We do it here instead of linking against it for two reasons:

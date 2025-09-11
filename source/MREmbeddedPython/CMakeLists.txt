@@ -21,7 +21,7 @@ IF(APPLE)
     pybind11nonlimitedapi_stubs
     ${CMAKE_DL_LIBS}
   )
-ELSEIF(WIN32 OR MESHLIB_USE_VCPKG)
+ELSEIF(WIN32 OR MESHSDK_USE_VCPKG)
   target_link_libraries(${PROJECT_NAME} PRIVATE
     MRMesh
     MRPython
@@ -62,7 +62,7 @@ ENDIF()
 
 # On Windows, copy the zipped Python environment to the output directory.
 IF(WIN32)
-  file(COPY ${MESHLIB_THIRDPARTY_DIR}/python/python${Python_VERSION_MAJOR}${Python_VERSION_MINOR}.zip DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+  file(COPY ${MESHSDK_THIRDPARTY_DIR}/python/python${Python_VERSION_MAJOR}${Python_VERSION_MINOR}.zip DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 ENDIF()
 
 set(CMAKE_INSTALL_PREFIX "/Library/Frameworks")

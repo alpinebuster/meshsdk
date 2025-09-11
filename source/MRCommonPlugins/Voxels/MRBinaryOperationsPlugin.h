@@ -1,5 +1,5 @@
 #pragma once
-#ifndef MESHLIB_NO_VOXELS
+#ifndef MESHSDK_NO_VOXELS
 #include "MRMesh/MRMeshFwd.h"
 #include "MRCommonPlugins/exports.h"
 #include "MRViewer/MRStatePlugin.h"

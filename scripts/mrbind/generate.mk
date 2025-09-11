@@ -115,12 +115,12 @@ endif # $(TARGET) == python
 
 # Set to 1 if MeshLib was built in debug mode. Ignore this on Windows. By default we're trying to guess this based on the CMake cache.
 # Currently this isn't needed for anything, hence commented out.
-# MESHLIB_IS_DEBUG :=
+# MESHSDK_IS_DEBUG :=
 # ifeq ($(IS_WINDOWS),)
-# MESHLIB_IS_DEBUG := $(if $(filter Debug,$(shell cmake -L $(MESHLIB_SHLIB_DIR)/.. 2>/dev/null | grep -Po '(?<=CMAKE_BUILD_TYPE:STRING=).*')),1)
-# $(info MeshLib built in debug mode? $(if $(filter-out 0,$(MESHLIB_IS_DEBUG)),YES,NO))
+# MESHSDK_IS_DEBUG := $(if $(filter Debug,$(shell cmake -L $(MESHSDK_SHLIB_DIR)/.. 2>/dev/null | grep -Po '(?<=CMAKE_BUILD_TYPE:STRING=).*')),1)
+# $(info MeshLib built in debug mode? $(if $(filter-out 0,$(MESHSDK_IS_DEBUG)),YES,NO))
 # endif
-# override MESHLIB_IS_DEBUG := $(filter-out 0,$(MESHLIB_IS_DEBUG))
+# override MESHSDK_IS_DEBUG := $(filter-out 0,$(MESHSDK_IS_DEBUG))
 
 
 # ---- Windows-only vars: [
@@ -200,12 +200,12 @@ ifeq ($(TARGET),python)
 
 # Where to find MeshLib.
 ifneq ($(IS_WINDOWS),)
-MESHLIB_SHLIB_DIR := source/x64/$(VS_MODE)
+MESHSDK_SHLIB_DIR := source/x64/$(VS_MODE)
 else
-MESHLIB_SHLIB_DIR := build/Release/bin
+MESHSDK_SHLIB_DIR := build/Release/bin
 endif
-ifeq ($(wildcard $(MESHLIB_SHLIB_DIR)),)
-$(warning MeshLib build directory `$(abspath $(MESHLIB_SHLIB_DIR))` doesn't exist! You either forgot to build MeshLib, or are running this script with the wrong current directory. Call this from your project's root)
+ifeq ($(wildcard $(MESHSDK_SHLIB_DIR)),)
+$(warning MeshLib build directory `$(abspath $(MESHSDK_SHLIB_DIR))` doesn't exist! You either forgot to build MeshLib, or are running this script with the wrong current directory. Call this from your project's root)
 endif
 
 # Which C++ compiler we should try to match for ABI.
@@ -462,7 +462,7 @@ endif # is_c == false
 .DELETE_ON_ERROR: # Delete output on command failure. Otherwise you'll get incomplete bindings.
 
 ifeq ($(TARGET),python)
-MODULE_OUTPUT_DIR := $(MESHLIB_SHLIB_DIR)/$(PACKAGE_NAME)
+MODULE_OUTPUT_DIR := $(MESHSDK_SHLIB_DIR)/$(PACKAGE_NAME)
 endif
 ifeq ($(TARGET),c)
 C_CODE_OUTPUT_DIR := $(makefile_dir)../../source/MeshLibC2
@@ -515,7 +515,7 @@ endif
 LINKER := $(CXX_FOR_BINDINGS) -fuse-ld=lld
 # Unsure if `-dynamiclib` vs `-shared` makes any difference on MacOS. I'm using the former because that's what CMake does.
 # No $(PYTHON_LDFLAGS) here, that's only for our patched Pybind library.
-LINKER_FLAGS := $(EXTRA_LDFLAGS) -L$(DEPS_LIB_DIR) -L$(DEPS_BASE_DIR)/lib -L$(MESHLIB_SHLIB_DIR) $(if $(is_py),-lMRPython) $(if $(IS_MACOS),-dynamiclib,-shared) $(call load_file,$(makefile_dir)linker_flags.txt)
+LINKER_FLAGS := $(EXTRA_LDFLAGS) -L$(DEPS_LIB_DIR) -L$(DEPS_BASE_DIR)/lib -L$(MESHSDK_SHLIB_DIR) $(if $(is_py),-lMRPython) $(if $(IS_MACOS),-dynamiclib,-shared) $(call load_file,$(makefile_dir)linker_flags.txt)
 
 # Set resource directory. Otherwise e.g. `offsetof` becomes non-constexpr,
 #   because the header override with it being constexpr is in this resource directory.
@@ -607,7 +607,7 @@ COMPILER_FLAGS += -DPYBIND11_COMPILER_TYPE='"_meshsdk"' -DPYBIND11_BUILD_ABI='"_
 # MacOS rpath is quirky: 1. Must use `-rpath,` instead of `-rpath=`. 2. Must specify the flag several times, apparently can't use
 #   `:` or `;` as a separators inside of one big flag. 3. As you've noticed, it uses `@loader_path` instead of `$ORIGIN`.
 rpath_origin := $(if $(IS_MACOS),@loader_path,$$$$ORIGIN)
-LINKER_FLAGS += -Wl,-rpath,'$(rpath_origin)' -Wl,-rpath,'$(rpath_origin)/..' -Wl,-rpath,$(call quote,$(abspath $(MODULE_OUTPUT_DIR))) -Wl,-rpath,$(call quote,$(abspath $(MESHLIB_SHLIB_DIR))) -Wl,-rpath,$(call quote,$(abspath $(DEPS_LIB_DIR)))
+LINKER_FLAGS += -Wl,-rpath,'$(rpath_origin)' -Wl,-rpath,'$(rpath_origin)/..' -Wl,-rpath,$(call quote,$(abspath $(MODULE_OUTPUT_DIR))) -Wl,-rpath,$(call quote,$(abspath $(MESHSDK_SHLIB_DIR))) -Wl,-rpath,$(call quote,$(abspath $(DEPS_LIB_DIR)))
 endif # Linux or MacOS.
 endif # Python-only.
 
@@ -834,13 +834,13 @@ override all_outputs += $(INIT_SCRIPT)
 # That was originally done because it's hard to make VS build them directly in the correct directory,
 #   so some of our scripts look for them outside of `meshsdk/`. Probably a good idea to fix that and not copy here at all.
 ifneq ($(IS_WINDOWS),)
-override all_outputs += $(MESHLIB_SHLIB_DIR)/__init__.py
-$(MESHLIB_SHLIB_DIR)/__init__.py: $(INIT_SCRIPT)
+override all_outputs += $(MESHSDK_SHLIB_DIR)/__init__.py
+$(MESHSDK_SHLIB_DIR)/__init__.py: $(INIT_SCRIPT)
 	@cp $< $@
 override modules_copied_to_bin_dir := $(patsubst %,,$(MODULES))
 $(foreach m,$(MODULES),\
 	$(call var,_in := $(MODULE_OUTPUT_DIR)/$($m_PyName)$(PYTHON_MODULE_SUFFIX))\
-	$(call var,_out := $(MESHLIB_SHLIB_DIR)/$($m_PyName)$(PYTHON_MODULE_SUFFIX))\
+	$(call var,_out := $(MESHSDK_SHLIB_DIR)/$($m_PyName)$(PYTHON_MODULE_SUFFIX))\
 	$(call var,all_outputs += $(_out))\
 	$(eval $(_out): $(_in) ; @cp $(_in) $(_out))\
 )

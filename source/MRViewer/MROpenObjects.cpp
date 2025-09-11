@@ -33,7 +33,7 @@ Expected<LoadedObject> makeObjectTreeFromFolder( const std::filesystem::path & f
         std::filesystem::path path;
         std::vector<FilePathNode> subfolders;
         std::vector<FilePathNode> files;
-        #if !defined( MESHLIB_NO_VOXELS ) && !defined( MRVOXELS_NO_DICOM )
+        #if !defined( MESHSDK_NO_VOXELS ) && !defined( MRVOXELS_NO_DICOM )
             bool dicomFolder = false;
             VoxelsLoad::DicomStatus dicomStatus = VoxelsLoad::DicomStatusEnum::Invalid;
         #endif
@@ -41,7 +41,7 @@ Expected<LoadedObject> makeObjectTreeFromFolder( const std::filesystem::path & f
         bool empty() const
         {
             return files.empty() && subfolders.empty()
-            #if !defined( MESHLIB_NO_VOXELS ) && !defined( MRVOXELS_NO_DICOM )
+            #if !defined( MESHSDK_NO_VOXELS ) && !defined( MRVOXELS_NO_DICOM )
                 && !dicomFolder
             #endif
                 ;
@@ -66,7 +66,7 @@ Expected<LoadedObject> makeObjectTreeFromFolder( const std::filesystem::path & f
                 for ( auto& c : ext )
                     c = ( char )tolower( c );
 
-                #if !defined( MESHLIB_NO_VOXELS ) && !defined( MRVOXELS_NO_DICOM )
+                #if !defined( MESHSDK_NO_VOXELS ) && !defined( MRVOXELS_NO_DICOM )
                 if ( auto dicomStatus = VoxelsLoad::isDicomFile( path ); dicomStatus != VoxelsLoad::DicomStatusEnum::Invalid ) // unsupported will be reported later
                 {
                     node.dicomStatus = dicomStatus;
@@ -123,7 +123,7 @@ Expected<LoadedObject> makeObjectTreeFromFolder( const std::filesystem::path & f
             for ( const FilePathNode& file : node.files )
                 nodes.push_back( { file, objPtr, cb.newTask() } );
 
-        #if !defined( MESHLIB_NO_VOXELS ) && !defined( MRVOXELS_NO_DICOM )
+        #if !defined( MESHSDK_NO_VOXELS ) && !defined( MRVOXELS_NO_DICOM )
         if ( node.dicomFolder )
             nodes.push_back( { node, objPtr, cb.newTask( 10.f ) } );
         #endif
@@ -161,7 +161,7 @@ Expected<LoadedObject> makeObjectTreeFromFolder( const std::filesystem::path & f
             {
                 nodeAndRes.result = loadObjectFromFile( nodeAndRes.node.path, nodeAndRes.cb );
             }
-            #if !defined( MESHLIB_NO_VOXELS ) && !defined( MRVOXELS_NO_DICOM )
+            #if !defined( MESHSDK_NO_VOXELS ) && !defined( MRVOXELS_NO_DICOM )
             else
             {
                 if ( !nodeAndRes.node.dicomStatus )

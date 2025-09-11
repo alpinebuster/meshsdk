@@ -28,10 +28,10 @@ IF(MSVC)
 
   # Common C/C++ flags:
 
-  set(MESHLIB_COMMON_C_CXX_FLAGS "/utf-8 /fp:precise /permissive- /Zc:wchar_t /Zc:forScope /Zc:inline /DNOMINMAX /D_CRT_SECURE_NO_DEPRECATE")
+  set(MESHSDK_COMMON_C_CXX_FLAGS "/utf-8 /fp:precise /permissive- /Zc:wchar_t /Zc:forScope /Zc:inline /DNOMINMAX /D_CRT_SECURE_NO_DEPRECATE")
 
   # Vcpkg automatically adds `/external:W0`, but we duplicate it here because it somehow doesn't propagate to Lazperf.
-  set(MESHLIB_COMMON_C_CXX_FLAGS "${MESHLIB_COMMON_C_CXX_FLAGS} /W4 /WX /external:W0 /external:env:INCLUDE")
+  set(MESHSDK_COMMON_C_CXX_FLAGS "${MESHSDK_COMMON_C_CXX_FLAGS} /W4 /WX /external:W0 /external:env:INCLUDE")
 
   # Following warnings are silenced:
   # !! NOTE: Sync this list with `common.props` !!
@@ -71,17 +71,17 @@ IF(MSVC)
   #   warning C5264: 'const' variable is not used
   #   warning C26451: Arithmetic overflow: Using operator '+' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '+' to avoid overflow (io.2).
   # !! NOTE: Sync this list with `common.props` !!
-  set(MESHLIB_COMMON_C_CXX_FLAGS "${MESHLIB_COMMON_C_CXX_FLAGS} /wd4061 /wd4250 /wd4324 /wd4365 /wd4371 /wd4388 /wd4435 /wd4514 /wd4582 /wd4583 /wd4599 /wd4605 /wd4623 /wd4625 /wd4626 /wd4668 /wd4686 /wd4710 /wd4711 /wd4820 /wd4866 /wd4868 /wd5026 /wd5027 /wd5031 /wd5039 /wd5045 /wd5104 /wd5105 /wd5219 /wd5243 /wd5246 /wd5262 /wd5264 /wd26451")
+  set(MESHSDK_COMMON_C_CXX_FLAGS "${MESHSDK_COMMON_C_CXX_FLAGS} /wd4061 /wd4250 /wd4324 /wd4365 /wd4371 /wd4388 /wd4435 /wd4514 /wd4582 /wd4583 /wd4599 /wd4605 /wd4623 /wd4625 /wd4626 /wd4668 /wd4686 /wd4710 /wd4711 /wd4820 /wd4866 /wd4868 /wd5026 /wd5027 /wd5031 /wd5039 /wd5045 /wd5104 /wd5105 /wd5219 /wd5243 /wd5246 /wd5262 /wd5264 /wd26451")
 ELSE()
-  set(MESHLIB_COMMON_C_CXX_FLAGS "${MESHLIB_COMMON_C_CXX_FLAGS} -Wall -Wextra -Wno-missing-field-initializers -Wno-unknown-pragmas -Wno-sign-compare -Werror -fvisibility=hidden -pedantic-errors")
+  set(MESHSDK_COMMON_C_CXX_FLAGS "${MESHSDK_COMMON_C_CXX_FLAGS} -Wall -Wextra -Wno-missing-field-initializers -Wno-unknown-pragmas -Wno-sign-compare -Werror -fvisibility=hidden -pedantic-errors")
 
   IF(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-    set(MESHLIB_COMMON_C_CXX_FLAGS "${MESHLIB_COMMON_C_CXX_FLAGS} -Wno-newline-eof")
+    set(MESHSDK_COMMON_C_CXX_FLAGS "${MESHSDK_COMMON_C_CXX_FLAGS} -Wno-newline-eof")
   ENDIF()
 ENDIF()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MESHLIB_COMMON_C_CXX_FLAGS}")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${MESHLIB_COMMON_C_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MESHSDK_COMMON_C_CXX_FLAGS}")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${MESHSDK_COMMON_C_CXX_FLAGS}")
 
 IF(WIN32)
   IF(MINGW)
@@ -114,13 +114,13 @@ ENDIF()
 # We allow customizing those so that our clients can prevent their modules from talking to ours, e.g. to provide their own simplified bindings
 #   for our classes, to avoid having our modules as dependencies.
 # Pass empty strings to those to avoid customizing them at all.
-set(MESHLIB_PYBIND11_COMPILER_TYPE_STRING "_meshsdk" CACHE STRING "")
-set(MESHLIB_PYBIND11_BUILD_ABI_STRING "_meshsdk" CACHE STRING "")
-IF(NOT "${MESHLIB_PYBIND11_COMPILER_TYPE_STRING}" STREQUAL "")
-  add_compile_definitions(PYBIND11_COMPILER_TYPE=\"${MESHLIB_PYBIND11_COMPILER_TYPE_STRING}\")
+set(MESHSDK_PYBIND11_COMPILER_TYPE_STRING "_meshsdk" CACHE STRING "")
+set(MESHSDK_PYBIND11_BUILD_ABI_STRING "_meshsdk" CACHE STRING "")
+IF(NOT "${MESHSDK_PYBIND11_COMPILER_TYPE_STRING}" STREQUAL "")
+  add_compile_definitions(PYBIND11_COMPILER_TYPE=\"${MESHSDK_PYBIND11_COMPILER_TYPE_STRING}\")
 ENDIF()
-IF(NOT "${MESHLIB_PYBIND11_BUILD_ABI_STRING}" STREQUAL "")
-  add_compile_definitions(PYBIND11_BUILD_ABI=\"${MESHLIB_PYBIND11_BUILD_ABI_STRING}\")
+IF(NOT "${MESHSDK_PYBIND11_BUILD_ABI_STRING}" STREQUAL "")
+  add_compile_definitions(PYBIND11_BUILD_ABI=\"${MESHSDK_PYBIND11_BUILD_ABI_STRING}\")
 ENDIF()
 
 # Things for our patched pybind: --- [
@@ -133,8 +133,8 @@ add_compile_definitions(Py_LIMITED_API=0x030800f0)
 add_compile_definitions(PYBIND11_INTERNALS_VERSION=5)
 
 # This affects the naming of our pybind shims.
-set(MESHLIB_PYBIND11_LIB_SUFFIX "meshsdk" CACHE STRING "")
-add_compile_definitions(PYBIND11_NONLIMITEDAPI_LIB_SUFFIX_FOR_MODULE=\"${MESHLIB_PYBIND11_LIB_SUFFIX}\")
+set(MESHSDK_PYBIND11_LIB_SUFFIX "meshsdk" CACHE STRING "")
+add_compile_definitions(PYBIND11_NONLIMITEDAPI_LIB_SUFFIX_FOR_MODULE=\"${MESHSDK_PYBIND11_LIB_SUFFIX}\")
 
 # ] --- end things for our patched pybind
 

@@ -40,7 +40,7 @@ ELSE()
       MRViewer
       -Wl,--no-whole-archive
     )
-  ELSEIF(WIN32 OR MESHLIB_USE_VCPKG)
+  ELSEIF(WIN32 OR MESHSDK_USE_VCPKG)
     find_package(GTest REQUIRED)
     find_package(OpenVDB REQUIRED)
     target_link_libraries(${PROJECT_NAME} PRIVATE
@@ -76,15 +76,15 @@ add_test(
   COMMAND ${PROJECT_NAME}
 )
 
-IF(MESHLIB_BUILD_VOXELS)
+IF(MESHSDK_BUILD_VOXELS)
   target_link_libraries(${PROJECT_NAME} PRIVATE
     MRVoxels
   )
 ELSE()
-  target_compile_definitions(${PROJECT_NAME} PRIVATE MESHLIB_NO_VOXELS)
+  target_compile_definitions(${PROJECT_NAME} PRIVATE MESHSDK_NO_VOXELS)
 ENDIF()
 
-IF(MESHLIB_PYTHON_SUPPORT)
+IF(MESHSDK_PYTHON_SUPPORT)
   target_link_libraries(${PROJECT_NAME} PRIVATE
     MRPython
     MREmbeddedPython
@@ -94,7 +94,7 @@ IF(MESHLIB_PYTHON_SUPPORT)
     target_link_libraries(${PROJECT_NAME} PRIVATE Python::Python)
   ENDIF()
 ELSE()
-  target_compile_definitions(${PROJECT_NAME} PRIVATE MESHLIB_NO_PYTHON)
+  target_compile_definitions(${PROJECT_NAME} PRIVATE MESHSDK_NO_PYTHON)
 ENDIF()
 
 IF(MR_PCH)

@@ -103,7 +103,7 @@
 #include "MRMesh/MRTimer.h"
 #include "MRMesh/MRVisualObject.h"
 
-#ifndef MESHLIB_NO_VIEWER
+#ifndef MESHSDK_NO_VIEWER
 #include "MRViewer/MRAppendHistory.h"
 #include "MRViewer/MRRibbonMenu.h"
 #include "MRViewer/MRStatePlugin.h"

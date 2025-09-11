@@ -1,4 +1,4 @@
-#ifndef MESHLIB_NO_VOXELS
+#ifndef MESHSDK_NO_VOXELS
 
 #include "MRVoxels/MRBoolean.h"
 #include "MRMesh/MRTorus.h"
@@ -34,4 +34,4 @@ TEST( MRMesh, MeshVoxelsConverterSelfIntersections )
 
 } //namespace MR
 
-#endif //!MESHLIB_NO_VOXELS
+#endif //!MESHSDK_NO_VOXELS

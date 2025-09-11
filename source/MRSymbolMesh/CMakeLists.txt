@@ -32,7 +32,7 @@ ELSEIF(APPLE)
     spdlog
     tbb
   )
-ELSEIF(WIN32 OR MESHLIB_USE_VCPKG)
+ELSEIF(WIN32 OR MESHSDK_USE_VCPKG)
   target_link_libraries(${PROJECT_NAME} PRIVATE
     MRMesh
     Freetype::Freetype

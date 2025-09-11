@@ -44,8 +44,8 @@
 				"env": {
 					"MR_EMSCRIPTEN": "ON",
 					"MR_EMSCRIPTEN_SDK": "ON",
-					"MESHLIB_BUILD_RELEASE": "ON",
-					"MESHLIB_BUILD_DEBUG": "OFF",
+					"MESHSDK_BUILD_RELEASE": "ON",
+					"MESHSDK_BUILD_DEBUG": "OFF",
 				}
 			},
 			"command": "./scripts/build_source.sh",
@@ -58,8 +58,8 @@
 				"env": {
 					"MR_EMSCRIPTEN": "ON",
 					"MR_EMSCRIPTEN_SDK": "ON",
-					"MESHLIB_BUILD_RELEASE": "ON",
-					"MESHLIB_BUILD_DEBUG": "OFF",
+					"MESHSDK_BUILD_RELEASE": "ON",
+					"MESHSDK_BUILD_DEBUG": "OFF",
 					"MR_EMSCRIPTEN_SINGLE": "ON",
 				}
 			},
@@ -73,8 +73,8 @@
 				"env": {
 					"MR_EMSCRIPTEN": "ON",
 					"MR_EMSCRIPTEN_SDK": "ON",
-					"MESHLIB_BUILD_RELEASE": "ON",
-					"MESHLIB_BUILD_DEBUG": "OFF",
+					"MESHSDK_BUILD_RELEASE": "ON",
+					"MESHSDK_BUILD_DEBUG": "OFF",
 					"MR_EMSCRIPTEN_SINGLE": "OFF",
 					"MR_EMSCRIPTEN_W64": "ON"
 				}
@@ -93,8 +93,8 @@
 				"env": {
 					"MR_EMSCRIPTEN": "ON",
 					"MR_EMSCRIPTEN_SDK": "ON",
-					"MESHLIB_BUILD_RELEASE": "OFF",
-					"MESHLIB_BUILD_DEBUG": "ON",
+					"MESHSDK_BUILD_RELEASE": "OFF",
+					"MESHSDK_BUILD_DEBUG": "ON",
 				}
 			},
 			"command": "./scripts/build_source.sh",
@@ -107,8 +107,8 @@
 				"env": {
 					"MR_EMSCRIPTEN": "ON",
 					"MR_EMSCRIPTEN_SDK": "ON",
-					"MESHLIB_BUILD_RELEASE": "OFF",
-					"MESHLIB_BUILD_DEBUG": "ON",
+					"MESHSDK_BUILD_RELEASE": "OFF",
+					"MESHSDK_BUILD_DEBUG": "ON",
 					"MR_EMSCRIPTEN_SINGLE": "ON",
 				}
 			},
@@ -122,8 +122,8 @@
 				"env": {
 					"MR_EMSCRIPTEN": "ON",
 					"MR_EMSCRIPTEN_SDK": "ON",
-					"MESHLIB_BUILD_RELEASE": "OFF",
-					"MESHLIB_BUILD_DEBUG": "ON",
+					"MESHSDK_BUILD_RELEASE": "OFF",
+					"MESHSDK_BUILD_DEBUG": "ON",
 					"MR_EMSCRIPTEN_SINGLE": "OFF",
 					"MR_EMSCRIPTEN_W64": "ON"
 				}
@@ -138,8 +138,8 @@
 				"env": {
 					"MR_EMSCRIPTEN": "ON",
 					"MR_EMSCRIPTEN_SDK": "OFF",
-					"MESHLIB_BUILD_RELEASE": "ON",
-					"MESHLIB_BUILD_DEBUG": "OFF",
+					"MESHSDK_BUILD_RELEASE": "ON",
+					"MESHSDK_BUILD_DEBUG": "OFF",
 				}
 			},
 			"command": "./scripts/build_source.sh",
@@ -152,8 +152,8 @@
 				"env": {
 					"MR_EMSCRIPTEN": "ON",
 					"MR_EMSCRIPTEN_SDK": "OFF",
-					"MESHLIB_BUILD_RELEASE": "ON",
-					"MESHLIB_BUILD_DEBUG": "OFF",
+					"MESHSDK_BUILD_RELEASE": "ON",
+					"MESHSDK_BUILD_DEBUG": "OFF",
 					"MR_EMSCRIPTEN_SINGLE": "ON",
 				}
 			},
@@ -167,8 +167,8 @@
 				"env": {
 					"MR_EMSCRIPTEN": "ON",
 					"MR_EMSCRIPTEN_SDK": "OFF",
-					"MESHLIB_BUILD_RELEASE": "ON",
-					"MESHLIB_BUILD_DEBUG": "OFF",
+					"MESHSDK_BUILD_RELEASE": "ON",
+					"MESHSDK_BUILD_DEBUG": "OFF",
 					"MR_EMSCRIPTEN_SINGLE": "OFF",
 					"MR_EMSCRIPTEN_W64": "ON"
 				}
@@ -187,8 +187,8 @@
 				"env": {
 					"MR_EMSCRIPTEN": "ON",
 					"MR_EMSCRIPTEN_SDK": "OFF",
-					"MESHLIB_BUILD_RELEASE": "OFF",
-					"MESHLIB_BUILD_DEBUG": "ON",
+					"MESHSDK_BUILD_RELEASE": "OFF",
+					"MESHSDK_BUILD_DEBUG": "ON",
 				}
 			},
 			"command": "./scripts/build_source.sh",
@@ -201,8 +201,8 @@
 				"env": {
 					"MR_EMSCRIPTEN": "ON",
 					"MR_EMSCRIPTEN_SDK": "OFF",
-					"MESHLIB_BUILD_RELEASE": "OFF",
-					"MESHLIB_BUILD_DEBUG": "ON",
+					"MESHSDK_BUILD_RELEASE": "OFF",
+					"MESHSDK_BUILD_DEBUG": "ON",
 					"MR_EMSCRIPTEN_SINGLE": "ON",
 				}
 			},
@@ -216,8 +216,8 @@
 				"env": {
 					"MR_EMSCRIPTEN": "ON",
 					"MR_EMSCRIPTEN_SDK": "OFF",
-					"MESHLIB_BUILD_RELEASE": "OFF",
-					"MESHLIB_BUILD_DEBUG": "ON",
+					"MESHSDK_BUILD_RELEASE": "OFF",
+					"MESHSDK_BUILD_DEBUG": "ON",
 					"MR_EMSCRIPTEN_SINGLE": "OFF",
 					"MR_EMSCRIPTEN_W64": "ON"
 				}

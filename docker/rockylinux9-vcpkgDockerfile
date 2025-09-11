@@ -40,7 +40,7 @@ FROM nvidia/cuda:12.6.0-devel-rockylinux9 AS production
 COPY --from=build /opt/vcpkg /opt/vcpkg
 
 ENV MR_STATE=DOCKER_BUILD
-ENV MESHLIB_USE_VCPKG=ON
+ENV MESHSDK_USE_VCPKG=ON
 ENV VCPKG_ROOT=/opt/vcpkg
 
 ARG VCPKG_TRIPLET

@@ -15,9 +15,9 @@ echo "You could find output in ${logfile}"
 BASE_DIR=$( cd "$( dirname "$0" )"/.. ; pwd -P )
 SCRIPT_DIR=${BASE_DIR}/scripts/
 
-MESHLIB_THIRDPARTY_DIR=${BASE_DIR}/thirdparty/
-MESHLIB_THIRDPARTY_BUILD_DIR="${MESHLIB_THIRDPARTY_BUILD_DIR:-${BASE_DIR}/thirdparty_build/}"
-MESHLIB_THIRDPARTY_ROOT_DIR="${MESHLIB_THIRDPARTY_ROOT_DIR:-${BASE_DIR}}"
+MESHSDK_THIRDPARTY_DIR=${BASE_DIR}/thirdparty/
+MESHSDK_THIRDPARTY_BUILD_DIR="${MESHSDK_THIRDPARTY_BUILD_DIR:-${BASE_DIR}/thirdparty_build/}"
+MESHSDK_THIRDPARTY_ROOT_DIR="${MESHSDK_THIRDPARTY_ROOT_DIR:-${BASE_DIR}}"
 
 if [[ $OSTYPE == 'darwin'* ]]; then
   echo "Host system: MacOS"
@@ -74,16 +74,16 @@ fi
 echo "Emscripten ${MR_EMSCRIPTEN:-OFF}, singlethread ${MR_EMSCRIPTEN_SINGLE:-OFF}, 64-bit ${MR_EMSCRIPTEN_W64:-OFF}"
 
 # FIXME: make it optional
-rm -rf "${MESHLIB_THIRDPARTY_BUILD_DIR}"
-mkdir -p "${MESHLIB_THIRDPARTY_BUILD_DIR}"
+rm -rf "${MESHSDK_THIRDPARTY_BUILD_DIR}"
+mkdir -p "${MESHSDK_THIRDPARTY_BUILD_DIR}"
 # FIXME: make it optional
 for SUBDIR in lib include ; do
-  rm -rf "${MESHLIB_THIRDPARTY_ROOT_DIR}"/${SUBDIR}
-  mkdir -p "${MESHLIB_THIRDPARTY_ROOT_DIR}"/${SUBDIR}
+  rm -rf "${MESHSDK_THIRDPARTY_ROOT_DIR}"/${SUBDIR}
+  mkdir -p "${MESHSDK_THIRDPARTY_ROOT_DIR}"/${SUBDIR}
 done
 
 MR_CMAKE_OPTIONS="\
-  -D CMAKE_INSTALL_PREFIX=${MESHLIB_THIRDPARTY_ROOT_DIR} \
+  -D CMAKE_INSTALL_PREFIX=${MESHSDK_THIRDPARTY_ROOT_DIR} \
   -D CMAKE_BUILD_TYPE=Release \
 "
 
@@ -103,7 +103,7 @@ if [ "${MR_EMSCRIPTEN}" == "ON" ]; then
   export LDFLAGS=""
   MR_CMAKE_OPTIONS="${MR_CMAKE_OPTIONS} \
     -D CMAKE_TOOLCHAIN_FILE=${EMSCRIPTEN_ROOT}/cmake/Modules/Platform/Emscripten.cmake \
-    -D CMAKE_FIND_ROOT_PATH=${MESHLIB_THIRDPARTY_ROOT_DIR} \
+    -D CMAKE_FIND_ROOT_PATH=${MESHSDK_THIRDPARTY_ROOT_DIR} \
     -D MR_EMSCRIPTEN=1 \
     -D MR_EMSCRIPTEN_SINGLETHREAD=${MR_EMSCRIPTEN_SINGLETHREAD} \
     -D MR_EMSCRIPTEN_WASM64=${MR_EMSCRIPTEN_WASM64} \
@@ -127,21 +127,21 @@ fi
 
 # build
 echo "Starting build..."
-pushd "${MESHLIB_THIRDPARTY_BUILD_DIR}"
+pushd "${MESHSDK_THIRDPARTY_BUILD_DIR}"
 if [ "${MR_EMSCRIPTEN}" == "ON" ]; then
   # build libjpeg-turbo separately
-  CMAKE_OPTIONS="${MR_CMAKE_OPTIONS}" ${SCRIPT_DIR}/thirdparty/libjpeg-turbo.sh ${MESHLIB_THIRDPARTY_DIR}/libjpeg-turbo
+  CMAKE_OPTIONS="${MR_CMAKE_OPTIONS}" ${SCRIPT_DIR}/thirdparty/libjpeg-turbo.sh ${MESHSDK_THIRDPARTY_DIR}/libjpeg-turbo
 
-  cmake -S ${MESHLIB_THIRDPARTY_DIR} -B . ${MR_CMAKE_OPTIONS}
+  cmake -S ${MESHSDK_THIRDPARTY_DIR} -B . ${MR_CMAKE_OPTIONS}
   cmake --build . -j ${NPROC}
   cmake --install .
 
   # build libE57Format separately
-  CMAKE_OPTIONS="${MR_CMAKE_OPTIONS}" ${SCRIPT_DIR}/thirdparty/libE57Format.sh ${MESHLIB_THIRDPARTY_DIR}/libE57Format
+  CMAKE_OPTIONS="${MR_CMAKE_OPTIONS}" ${SCRIPT_DIR}/thirdparty/libE57Format.sh ${MESHSDK_THIRDPARTY_DIR}/libE57Format
   # build OpenVDB separately
-  CMAKE_OPTIONS="${MR_CMAKE_OPTIONS}" ${SCRIPT_DIR}/thirdparty/openvdb.sh ${MESHLIB_THIRDPARTY_DIR}/openvdb/v10/openvdb
+  CMAKE_OPTIONS="${MR_CMAKE_OPTIONS}" ${SCRIPT_DIR}/thirdparty/openvdb.sh ${MESHSDK_THIRDPARTY_DIR}/openvdb/v10/openvdb
 else
-  cmake -S ${MESHLIB_THIRDPARTY_DIR} -B . ${MR_CMAKE_OPTIONS}
+  cmake -S ${MESHSDK_THIRDPARTY_DIR} -B . ${MR_CMAKE_OPTIONS}
   cmake --build . -j ${NPROC}
   cmake --install .
 fi
@@ -156,6 +156,6 @@ elif [[ $OSTYPE == 'darwin'* ]]; then
 else
   LIB_SUFFIX="*.so"
 fi
-cp "${MESHLIB_THIRDPARTY_BUILD_DIR}"/${LIB_SUFFIX} "${MESHLIB_THIRDPARTY_ROOT_DIR}/lib/"
+cp "${MESHSDK_THIRDPARTY_BUILD_DIR}"/${LIB_SUFFIX} "${MESHSDK_THIRDPARTY_ROOT_DIR}/lib/"
 
 printf "\rThirdparty build script successfully finished. Required libs located in ./lib folder. You could run ./scripts/build_source.sh.\n\n"

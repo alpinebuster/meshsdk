@@ -1,5 +1,5 @@
 #pragma once
-#ifndef MESHLIB_NO_VOXELS
+#ifndef MESHSDK_NO_VOXELS
 
 #include "MRViewer/MRStatePlugin.h"
 #include "MRVoxels/MRVoxelsLoad.h"

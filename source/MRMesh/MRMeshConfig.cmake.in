@@ -2,7 +2,7 @@
 
 include(CMakeFindDependencyMacro)
 
-if(@MESHLIB_USE_VCPKG@)
+if(@MESHSDK_USE_VCPKG@)
   find_dependency(tl-expected CONFIG REQUIRED)
   find_dependency(fmt CONFIG REQUIRED)
   find_dependency(spdlog CONFIG REQUIRED)

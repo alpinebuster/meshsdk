@@ -1,4 +1,4 @@
-#ifndef MESHLIB_NO_VOXELS
+#ifndef MESHSDK_NO_VOXELS
 #include "MRPython/MRPython.h"
 #include "MRMesh/MRVector3.h"
 #include "MRMesh/MRParallelMinMax.h"

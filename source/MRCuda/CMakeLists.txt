@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
 
-IF(MESHLIB_EXPERIMENTAL_HIP)
+IF(MESHSDK_EXPERIMENTAL_HIP)
   project(MRCuda CXX HIP)
 ELSE()
   project(MRCuda CXX CUDA)
@@ -10,7 +10,7 @@ include(CudaCompilerOptions)
 
 option(MRCUDA_NO_VOXELS "Disable voxels support" OFF)
 
-IF(NOT MESHLIB_BUILD_VOXELS)
+IF(NOT MESHSDK_BUILD_VOXELS)
   set(MRCUDA_NO_VOXELS ON)
 ENDIF()
 
@@ -19,7 +19,7 @@ file(GLOB HEADERS "*.h" "*.hpp")
 file(GLOB CUDA_SOURCES "*.cu")
 file(GLOB CUDA_HEADERS "*.cuh")
 
-IF(MESHLIB_EXPERIMENTAL_HIP)
+IF(MESHSDK_EXPERIMENTAL_HIP)
   set_source_files_properties(${CUDA_SOURCES}
     PROPERTIES
       LANGUAGE HIP
@@ -42,7 +42,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
   ${CUDA_INCLUDE_DIRS}
 )
 
-IF(WIN32 OR MESHLIB_USE_VCPKG)
+IF(WIN32 OR MESHSDK_USE_VCPKG)
   target_link_libraries(${PROJECT_NAME} PRIVATE
     MRMesh
     spdlog::spdlog
@@ -60,7 +60,7 @@ ELSE()
   )
 ENDIF()
 
-IF(MESHLIB_EXPERIMENTAL_HIP)
+IF(MESHSDK_EXPERIMENTAL_HIP)
   target_compile_options(${PROJECT_NAME} PRIVATE -Wno-unused-result)
 
   target_link_libraries(${PROJECT_NAME}_device PRIVATE hip::device)

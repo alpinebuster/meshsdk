@@ -30,7 +30,7 @@ file(GLOB_RECURSE HEADERS "include/*.h")
 
 add_library(${PROJECT_NAME} SHARED ${SOURCES} ${HEADERS})
 
-IF(MESHLIB_C_BINDINGS_UNITY_BUILD)
+IF(MESHSDK_C_BINDINGS_UNITY_BUILD)
   set_target_properties(${PROJECT_NAME} PROPERTIES
     UNITY_BUILD ON
     UNITY_BUILD_MODE BATCH
@@ -57,7 +57,7 @@ ELSEIF(MR_EMSCRIPTEN)
   target_link_libraries(${PROJECT_NAME} PRIVATE
     jsoncpp
   )
-ELSEIF(WIN32 OR MESHLIB_USE_VCPKG)
+ELSEIF(WIN32 OR MESHSDK_USE_VCPKG)
   target_link_libraries(${PROJECT_NAME} PRIVATE
     JsonCpp::JsonCpp
   )
@@ -88,7 +88,7 @@ ELSEIF(WIN32)
   target_link_libraries(${PROJECT_NAME} PRIVATE
     OpenVDB::openvdb
   )
-ELSEIF(MESHLIB_USE_VCPKG)
+ELSEIF(MESHSDK_USE_VCPKG)
   find_package(OpenVDB REQUIRED)
   target_link_libraries(${PROJECT_NAME} PRIVATE
     OpenVDB::openvdb
@@ -100,7 +100,7 @@ ELSE()
 ENDIF()
 
 
-IF(WIN32 OR MESHLIB_USE_VCPKG)
+IF(WIN32 OR MESHSDK_USE_VCPKG)
   target_link_libraries(${PROJECT_NAME} PRIVATE
     TBB::tbb
   )

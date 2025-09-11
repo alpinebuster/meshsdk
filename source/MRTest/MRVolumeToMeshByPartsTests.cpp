@@ -1,4 +1,4 @@
-#ifndef MESHLIB_NO_VOXELS
+#ifndef MESHSDK_NO_VOXELS
 
 #include "MRVoxels/MRVoxelsConversionsByParts.h"
 #include "MRVoxels/MRVDBFloatGrid.h"
@@ -163,4 +163,4 @@ TEST( MRMesh, volumeToMeshByParts )
 
 } //namespace MR
 
-#endif //!MESHLIB_NO_VOXELS
+#endif //!MESHSDK_NO_VOXELS

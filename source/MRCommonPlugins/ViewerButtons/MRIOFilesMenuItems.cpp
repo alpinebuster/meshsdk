@@ -44,7 +44,7 @@
 #include "MRViewer/MRLambdaRibbonItem.h"
 #include "MRIOExtras/MRPng.h"
 
-#ifndef MESHLIB_NO_VOXELS
+#ifndef MESHSDK_NO_VOXELS
 #include "MRVoxels/MRObjectVoxels.h"
 #include "MRVoxels/MRVoxelsLoad.h"
 #include "MRVoxels/MRVoxelsSave.h"
@@ -435,7 +435,7 @@ OpenDirectoryMenuItem::OpenDirectoryMenuItem() :
 {
 }
 
-#if !defined( MESHLIB_NO_VOXELS ) && !defined( MRVOXELS_NO_DICOM )
+#if !defined( MESHSDK_NO_VOXELS ) && !defined( MRVOXELS_NO_DICOM )
 void sOpenDICOMs( const std::filesystem::path & directory )
 {
     ProgressBar::orderWithMainThreadPostProcessing( "Open DICOMs", [directory] () -> std::function<void()>
@@ -517,7 +517,7 @@ void OpenDirectoryMenuItem::openDirectory( const std::filesystem::path& director
     }
 }
 
-#if !defined( MESHLIB_NO_VOXELS ) && !defined( MRVOXELS_NO_DICOM )
+#if !defined( MESHSDK_NO_VOXELS ) && !defined( MRVOXELS_NO_DICOM )
 OpenDICOMsMenuItem::OpenDICOMsMenuItem() :
     RibbonMenuItem( "Open DICOMs" )
 {
@@ -563,7 +563,7 @@ std::optional<SaveInfo> getSaveInfo( const std::vector<std::shared_ptr<T>> & obj
     || checkObjects.template operator()<ObjectLines>( { ViewerSettingsManager::ObjType::Lines, LinesSave::getFilters() } )
     || checkObjects.template operator()<ObjectPoints>( { ViewerSettingsManager::ObjType::Points, PointsSave::getFilters() } )
     || checkObjects.template operator()<ObjectDistanceMap>( { ViewerSettingsManager::ObjType::DistanceMap, DistanceMapSave::getFilters() } )
-#ifndef MESHLIB_NO_VOXELS
+#ifndef MESHSDK_NO_VOXELS
     || checkObjects.template operator()<ObjectVoxels>( { ViewerSettingsManager::ObjType::Voxels, VoxelsSave::getFilters() } )
 #endif
     ;
@@ -1073,7 +1073,7 @@ MR_REGISTER_RIBBON_ITEM( SaveSceneAsMenuItem )
 
 MR_REGISTER_RIBBON_ITEM( OpenDirectoryMenuItem )
 
-#if !defined( MESHLIB_NO_VOXELS ) && !defined( MRVOXELS_NO_DICOM )
+#if !defined( MESHSDK_NO_VOXELS ) && !defined( MRVOXELS_NO_DICOM )
 MR_REGISTER_RIBBON_ITEM( OpenDICOMsMenuItem )
 #endif
 
@@ -1092,7 +1092,7 @@ MR_REGISTER_RIBBON_ITEM( CaptureScreenshotToClipBoardMenuItem )
 #endif
 
 }
-#if defined( __EMSCRIPTEN__ ) && ( defined( MESHLIB_NO_VOXELS ) || defined( MRVOXELS_NO_DICOM ) )
+#if defined( __EMSCRIPTEN__ ) && ( defined( MESHSDK_NO_VOXELS ) || defined( MRVOXELS_NO_DICOM ) )
 #include "MRCommonPlugins/Basic/MRWasmUnavailablePlugin.h"
 MR_REGISTER_WASM_UNAVAILABLE_ITEM( OpenDICOMsMenuItem, "Open DICOMs" )
 #endif

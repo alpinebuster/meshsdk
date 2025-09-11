@@ -1,4 +1,4 @@
-#ifndef MESHLIB_NO_VOXELS
+#ifndef MESHSDK_NO_VOXELS
 #include "MRBinaryOperationsPlugin.h"
 #include "MRViewer/ImGuiHelpers.h"
 #include "MRViewer/MRUIStyle.h"

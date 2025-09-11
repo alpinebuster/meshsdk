@@ -102,29 +102,29 @@ jobs:
         env:
           CXX: ${{ matrix.cxx-compiler }}
           ENABLE_CUDA: ${{ fromJSON('{"ON":1, "OFF":0}') [matrix.build_mrcuda] }}
-        run: make -f scripts/mrbind/generate.mk TARGET=c -B --trace MESHLIB_SHLIB_DIR=build/${{matrix.config}}/bin
+        run: make -f scripts/mrbind/generate.mk TARGET=c -B --trace MESHSDK_SHLIB_DIR=build/${{matrix.config}}/bin
 
       - name: Build
         run: ./scripts/build_source.sh
         env:
-          MESHLIB_BUILD_RELEASE: ${{ fromJSON('["OFF", "ON"]')[matrix.config == 'Release'] }}
-          MESHLIB_BUILD_DEBUG: ${{ fromJSON('["OFF", "ON"]')[matrix.config == 'Debug'] }}
+          MESHSDK_BUILD_RELEASE: ${{ fromJSON('["OFF", "ON"]')[matrix.config == 'Release'] }}
+          MESHSDK_BUILD_DEBUG: ${{ fromJSON('["OFF", "ON"]')[matrix.config == 'Debug'] }}
           CMAKE_CXX_COMPILER: ${{ matrix.cxx-compiler }}
           MR_VERSION: ${{ inputs.app_version }}
           # options to be passed to cmake
           MR_CMAKE_OPTIONS: >
             -DMR_CXX_STANDARD=${{ matrix.cxx-standard }}
-            -DMESHLIB_BUILD_MRCUDA=${{ matrix.build_mrcuda }}
+            -DMESHSDK_BUILD_MRCUDA=${{ matrix.build_mrcuda }}
             -DMR_PCH_USE_EXTRA_HEADERS=ON
-            -DMESHLIB_BUILD_MRMESH_PY_LEGACY=${{ fromJSON('["ON", "OFF"]')[inputs.mrbind] }}
-            -DMESHLIB_BUILD_GENERATED_C_BINDINGS=${{ fromJSON('["OFF", "ON"]')[inputs.mrbind_c] }}
+            -DMESHSDK_BUILD_MRMESH_PY_LEGACY=${{ fromJSON('["ON", "OFF"]')[inputs.mrbind] }}
+            -DMESHSDK_BUILD_GENERATED_C_BINDINGS=${{ fromJSON('["OFF", "ON"]')[inputs.mrbind_c] }}
 
       - name: Generate and build Python bindings
         if: ${{ inputs.mrbind }}
         env:
           CXX: ${{ matrix.cxx-compiler }}
           ENABLE_CUDA: ${{ fromJSON('{"ON":1, "OFF":0}') [matrix.build_mrcuda] }}
-        run: make -f scripts/mrbind/generate.mk MODE=none -B --trace MESHLIB_SHLIB_DIR=build/${{matrix.config}}/bin ENABLE_CUDA=${{env.ENABLE_CUDA}}
+        run: make -f scripts/mrbind/generate.mk MODE=none -B --trace MESHSDK_SHLIB_DIR=build/${{matrix.config}}/bin ENABLE_CUDA=${{env.ENABLE_CUDA}}
 
       - name: Collect Timings
         run: ./scripts/devops/collect_timing_logs.sh ${{matrix.os}} ${{matrix.config}} "${{matrix.cxx-compiler}}"
@@ -171,8 +171,8 @@ jobs:
       - name: Create Deb
         if: ${{ matrix.compiler == 'GCC' && matrix.config == 'Release' }}
         env:
-          MESHLIB_BUILD_RELEASE: "ON"
-          MESHLIB_BUILD_DEBUG: "OFF"
+          MESHSDK_BUILD_RELEASE: "ON"
+          MESHSDK_BUILD_DEBUG: "OFF"
         run: |
           ./scripts/distribution.sh ${{inputs.app_version}}
           mv ./distr/meshsdk-dev.deb meshsdk_${{matrix.os}}-dev.deb

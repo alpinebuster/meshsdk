@@ -92,7 +92,7 @@ More details on what the scripts do on different platforms:
 
 **Python**: If you're generating Python bindings, you should build MeshLib first, then run the generator, which will take care of building the bindings.
 
-**C**: If you're generating C bindings, run the generator first, and *then* build MeshLib along with the freshly generated bindings. Building C bindings is only supported with CMake, not MSBuild. Pass `-DMESHLIB_BUILD_GENERATED_C_BINDINGS=ON` to CMake to build the bindings (in addition to the rest of MeshLib). The generated bindings are human-readable and are located in `source/MeshLibC2`.
+**C**: If you're generating C bindings, run the generator first, and *then* build MeshLib along with the freshly generated bindings. Building C bindings is only supported with CMake, not MSBuild. Pass `-DMESHSDK_BUILD_GENERATED_C_BINDINGS=ON` to CMake to build the bindings (in addition to the rest of MeshLib). The generated bindings are human-readable and are located in `source/MeshLibC2`.
 
 How to run the generator on different platforms:
 
@@ -104,7 +104,7 @@ How to run the generator on different platforms:
 
 * **On Linux:** `make -f scripts/mrbind/generate.mk -B --trace`
 
-  This will look for MeshLib in `./build/Release/bin`. Pass `MESHLIB_SHLIB_DIR=path/to/bin` for a different directory.
+  This will look for MeshLib in `./build/Release/bin`. Pass `MESHSDK_SHLIB_DIR=path/to/bin` for a different directory.
 
 * **On MacOS:** Same as on Linux, but before running the command you must adjust the PATH. On Arm Macs: `export PATH="/opt/homebrew/opt/make/libexec/gnubin:$PATH"`, and on x86 Macs `/usr/local/...` instead of `/opt/homebrew/...`. This adds the version of Make installed in Homebrew to PATH, because the default one is outdated. Confirm the version with `make --version`, it must be 4.x or newer.
 

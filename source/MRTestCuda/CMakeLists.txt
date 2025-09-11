@@ -8,7 +8,7 @@ file(GLOB SOURCES "*.cpp")
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-IF(APPLE OR WIN32 OR MESHLIB_USE_VCPKG)
+IF(APPLE OR WIN32 OR MESHSDK_USE_VCPKG)
   find_package(GTest REQUIRED)
   target_link_libraries(${PROJECT_NAME} PRIVATE
     MRMesh
