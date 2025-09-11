@@ -57,14 +57,6 @@
 #pragma clang diagnostic pop
 #endif
 
-// Modifier for shortcuts
-// Some shortcuts still use GLFW_MOD_CONTROL on Mac to avoid conflict with system shortcuts
-#if !defined( __APPLE__ )
-#define CONTROL_OR_SUPER GLFW_MOD_CONTROL
-#else
-#define CONTROL_OR_SUPER GLFW_MOD_SUPER
-#endif
-
 namespace MR
 {
 
@@ -498,7 +490,7 @@ void RibbonMenu::drawHeaderQuickAccess_( float menuScaling )
     const auto availableWidth = getViewerInstance().framebufferSize.x;
     if ( width * 2 > availableWidth )
         return; // dont show header quick panel if window is too small
-    
+
     auto cursorPos = ImGui::GetCursorPos();
     ImGui::SetCursorPosX( cursorPos.x + itemSpacing.x );
     ImGui::SetCursorPosY( cursorPos.y + itemSpacing.y );
@@ -1757,19 +1749,18 @@ void RibbonMenu::drawRibbonViewportsLabels_()
     ImGui::PushFont( fontManager_.getFontByType( RibbonFontManager::FontType::SemiBold ) );
     for ( const auto& vp : viewer->viewport_list )
     {
-        constexpr std::array<const char*, 2> cProjModeString = { "Orthographic" , "Perspective" };
         std::string windowName = "##ProjectionMode" + std::to_string( vp.id.value() );
         std::string text;
         std::string label = vp.getParameters().label;
         if ( viewer->viewport_list.size() > 1 && label.empty() )
-            label = fmt::format( "Viewport Id : {}", vp.id.value() );
+            label = fmt::format( "Viewport {}", getViewerInstance().viewport_index( vp.id ) + 1 );
         if ( !label.empty() )
-            text = fmt::format( "{}, {}", label, cProjModeString[int( !vp.getParameters().orthographic )] );
-        else
-            text = fmt::format( "{}", cProjModeString[int( !vp.getParameters().orthographic )] );
+            text = fmt::format( "{}", label );
+        if ( text.empty() )
+            continue;
         auto textSize = ImGui::CalcTextSize( text.c_str() );
-        auto pos = viewer->viewportToScreen( Vector3f( width( vp.getViewportRect() ) - textSize.x - 25.0f * scaling,
-            height( vp.getViewportRect() ) - textSize.y - 25.0f * scaling, 0.0f ), vp.id );
+        auto pos = viewer->viewportToScreen( Vector3f( width( vp.getViewportRect() ) - textSize.x - 30.0f * scaling,
+            height( vp.getViewportRect() ) - textSize.y - 12.0f * scaling, 0.0f ), vp.id );
         ImGui::SetNextWindowPos( ImVec2( pos.x, pos.y ) );
         ImGui::Begin( windowName.c_str(), nullptr,
                       ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize |
@@ -2093,7 +2084,7 @@ void RibbonMenu::setupShortcuts_()
         for ( const auto& sel : selected )
             sel->toggleVisualizeProperty( MeshVisualizePropertyType::FlatShading, viewportid );
     } } );
-    shortcutManager_->setShortcut( { GLFW_KEY_F, CONTROL_OR_SUPER }, { ShortcutManager::Category::Info, "Search plugin by name or description",[this] ()
+    shortcutManager_->setShortcut( { GLFW_KEY_F, getGlfwModPrimaryCtrl() }, {ShortcutManager::Category::Info, "Search plugin by name or description",[this] ()
     {
         searcher_.activate();
     } } );
@@ -2144,7 +2135,7 @@ void RibbonMenu::setupShortcuts_()
         {
             sceneObjectsList_->changeSelection( false, true );
         } } );
-        shortcutManager_->setShortcut( { GLFW_KEY_A, CONTROL_OR_SUPER }, { ShortcutManager::Category::Objects, "Ribbon Scene Select all",[&] ()
+        shortcutManager_->setShortcut( { GLFW_KEY_A, getGlfwModPrimaryCtrl() }, { ShortcutManager::Category::Objects, "Ribbon Scene Select all",[&] ()
         {
             sceneObjectsList_->selectAllObjects();
         } } );
@@ -2158,23 +2149,23 @@ void RibbonMenu::setupShortcuts_()
         } } );
     }
 
-    addRibbonItemShortcut_( "Fit data", { GLFW_KEY_F, GLFW_MOD_CONTROL | GLFW_MOD_ALT }, ShortcutManager::Category::View );
+    addRibbonItemShortcut_( "Fit data", { GLFW_KEY_F, getGlfwModPrimaryCtrl() | GLFW_MOD_ALT }, ShortcutManager::Category::View );
     addRibbonItemShortcut_( "Top View", { GLFW_KEY_KP_7, 0 }, ShortcutManager::Category::View );
     addRibbonItemShortcut_( "Front View", { GLFW_KEY_KP_1, 0 }, ShortcutManager::Category::View );
     addRibbonItemShortcut_( "Right View", { GLFW_KEY_KP_3, 0 }, ShortcutManager::Category::View );
     addRibbonItemShortcut_( "Invert View", { GLFW_KEY_KP_9, 0 }, ShortcutManager::Category::View );
-    addRibbonItemShortcut_( "Bottom View", { GLFW_KEY_KP_7, CONTROL_OR_SUPER }, ShortcutManager::Category::View );
-    addRibbonItemShortcut_( "Back View", { GLFW_KEY_KP_1, CONTROL_OR_SUPER }, ShortcutManager::Category::View );
-    addRibbonItemShortcut_( "Left View", { GLFW_KEY_KP_3, CONTROL_OR_SUPER }, ShortcutManager::Category::View );
-    addRibbonItemShortcut_( "Show_Hide Global Basis", { GLFW_KEY_G, CONTROL_OR_SUPER }, ShortcutManager::Category::View );
-    addRibbonItemShortcut_( "Select objects", { GLFW_KEY_Q, GLFW_MOD_CONTROL }, ShortcutManager::Category::Objects );
-    addRibbonItemShortcut_( "Open files", { GLFW_KEY_O, CONTROL_OR_SUPER }, ShortcutManager::Category::Scene );
-    addRibbonItemShortcut_( "Save Scene", { GLFW_KEY_S, CONTROL_OR_SUPER }, ShortcutManager::Category::Scene );
-    addRibbonItemShortcut_( "Save Scene As", { GLFW_KEY_S, CONTROL_OR_SUPER | GLFW_MOD_SHIFT }, ShortcutManager::Category::Scene );
-    addRibbonItemShortcut_( "New", { GLFW_KEY_N, CONTROL_OR_SUPER }, ShortcutManager::Category::Scene );
+    addRibbonItemShortcut_( "Bottom View", { GLFW_KEY_KP_7, getGlfwModPrimaryCtrl() }, ShortcutManager::Category::View );
+    addRibbonItemShortcut_( "Back View", { GLFW_KEY_KP_1, getGlfwModPrimaryCtrl() }, ShortcutManager::Category::View );
+    addRibbonItemShortcut_( "Left View", { GLFW_KEY_KP_3, getGlfwModPrimaryCtrl() }, ShortcutManager::Category::View );
+    addRibbonItemShortcut_( "Show_Hide Global Basis", { GLFW_KEY_G, getGlfwModPrimaryCtrl() }, ShortcutManager::Category::View );
+    addRibbonItemShortcut_( "Select objects", { GLFW_KEY_Q, getGlfwModPrimaryCtrl() }, ShortcutManager::Category::Objects );
+    addRibbonItemShortcut_( "Open files", { GLFW_KEY_O, getGlfwModPrimaryCtrl() }, ShortcutManager::Category::Scene );
+    addRibbonItemShortcut_( "Save Scene", { GLFW_KEY_S, getGlfwModPrimaryCtrl() }, ShortcutManager::Category::Scene );
+    addRibbonItemShortcut_( "Save Scene As", { GLFW_KEY_S, getGlfwModPrimaryCtrl() | GLFW_MOD_SHIFT }, ShortcutManager::Category::Scene );
+    addRibbonItemShortcut_( "New", { GLFW_KEY_N, getGlfwModPrimaryCtrl() }, ShortcutManager::Category::Scene );
     addRibbonItemShortcut_( "Ribbon Scene Rename", { GLFW_KEY_F2, 0 }, ShortcutManager::Category::Objects );
     addRibbonItemShortcut_( "Ribbon Scene Remove selected objects", { GLFW_KEY_R, GLFW_MOD_SHIFT }, ShortcutManager::Category::Objects );
-    addRibbonItemShortcut_( "Viewer settings", { GLFW_KEY_COMMA, CONTROL_OR_SUPER }, ShortcutManager::Category::Info );
+    addRibbonItemShortcut_( "Viewer settings", { GLFW_KEY_COMMA, getGlfwModPrimaryCtrl() }, ShortcutManager::Category::Info );
 }
 
 void RibbonMenu::drawShortcutsWindow_()
