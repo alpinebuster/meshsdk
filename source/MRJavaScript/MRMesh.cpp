@@ -182,15 +182,11 @@ val createMaxillaGypsumBaseImpl( Mesh& mesh, EdgeId maxAreaHole, VertId minVert,
 
 		///
 		// these holes have exact matching by vertices
-		// MeshBuilder::uniteCloseVertices( mesh, 0.0f, true );
-		RebuildMeshSettings params;
-		params.voxelSize = suggestVoxelSize(mesh, 5e6);
-
-		auto newMesh = rebuildMesh(mesh, params);
+		MeshBuilder::uniteCloseVertices( mesh, 0.0f, true );
 		///
 	
 
-		val meshData = MRJS::exportMeshMemoryView( newMesh.value() );
+		val meshData = MRJS::exportMeshMemoryView( mesh );
 
 		obj.set( "success", true );
 		obj.set( "mesh", mesh );
@@ -214,15 +210,8 @@ val createMandibleGypsumBaseImpl( Mesh& mesh, EdgeId maxAreaHole, Vector3f dir, 
 {
 	EdgeId newEdgeId = buildBottom( mesh, maxAreaHole, dir, extension );
 	fillHole( mesh, newEdgeId );
-
-	///
-	RebuildMeshSettings params;
-	params.voxelSize = suggestVoxelSize(mesh, 5e6);
-
-	auto newMesh = rebuildMesh(mesh, params);
-	///
 	
-	val meshData = MRJS::exportMeshMemoryView( newMesh.value() );
+	val meshData = MRJS::exportMeshMemoryView( mesh );
 
 	val obj = val::object();
 	obj.set( "success", true );
