@@ -134,6 +134,7 @@
 	"editor.guides.bracketPairs": true,
 	"cSpell.words": [
 		"initializable",
-		"phmap"
+		"phmap",
+		"pypi"
 	]
 }

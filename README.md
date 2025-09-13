@@ -227,6 +227,33 @@ cd  ./scripts/wheel/meshsdk
 pip install .
 # Check the installed `meshsdk`
 pip list | grep meshsdk
+
+
+# Publish
+cd  ./scripts/wheel/meshsdk
+pip install --upgrade build twine
+python -m build
+
+# [distutils]
+# index-servers =
+#     pypi
+#     testpypi
+
+# [pypi]
+# username = __token__
+# password = <u-token>
+# [testpypi]
+# username = __token__
+# password = <u-token>
+vi ~/.pyirc
+
+# test
+twine upload --repository testpypi dist/*
+pip install -i https://test.pypi.org/simple meshsdk
+
+# official
+twine upload dist/*
+pip install meshsdk
 ```
 
 > Run the generator on different platforms
