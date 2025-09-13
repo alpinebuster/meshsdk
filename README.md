@@ -200,6 +200,49 @@ cd vcpkg
   - Open `meshsdk/CMakeLists.txt` in Visual Studio (File - Open - CMake).
   - Build the project and run the application.
 
+
+### Python
+
+Build mrbind from source code:
+
+```sh
+# At project's root dir
+sudo ./scripts/mrbind/install_deps_ubuntu.sh
+./scripts/mrbind/install_mrbind_ubuntu.sh 
+```
+
+Run the generator on different platforms:
+
+* **On Windows:** `scripts\mrbind\generate_win.bat -B --trace` from the VS developer command prompt (use the `x64 Native` one!).
+
+  When generating the Python bindings, the current directory matters, as this will look for MeshSDK in `./source/x64/Release`. Add `VS_MODE=Debug` at the end if you built MeshSDK in debug mode.
+
+  The `generate_win.bat` file merely calls `generate.mk` (see below) inside of MSYS2 shell. You can use that directly if you want.
+
+* **On Linux:** `make -f scripts/mrbind/generate.mk -B --trace`
+
+  This will look for MeshSDK in `./build/Release/bin`. Pass `MESHSDK_SHLIB_DIR=path/to/bin` for a different directory.
+
+* **On MacOS:** Same as on Linux, but before running the command you must adjust the PATH. On Arm Macs: `export PATH="/opt/homebrew/opt/make/libexec/gnubin:$PATH"`, and on x86 Macs `/usr/local/...` instead of `/opt/homebrew/...`. This adds the version of Make installed in Homebrew to PATH, because the default one is outdated. Confirm the version with `make --version`, it must be 4.x or newer.
+
+Create Wheel:
+
+```sh
+# This will generate the `meshsdk` wheel to `./scripts/wheel/meshsdk`
+python ./scripts/wheel/build_wheel.py --version 'v0.0.1'
+```
+
+Install the built `meshsdk`:
+
+```sh
+cd  ./scripts/wheel/meshsdk
+pip install .
+
+# Check the installed `meshsdk`
+pip list | grep meshsdk
+```
+
+
 ### Installation
 
 #### WASM
