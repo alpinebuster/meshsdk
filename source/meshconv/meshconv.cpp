@@ -143,7 +143,7 @@ static int mainInternal( int argc, char **argv )
     if ( vm.count("help") || !vm.count("input-file") )
     {
         std::cerr << 
-            "meshconv is mesh file conversion utility based on MeshInspector/MeshLib\n"
+            "meshconv is mesh file conversion utility based on alpinebuster/meshsdk\n"
             "Usage: meshconv input-file [output-file] [options]\n"
             << allCommands << "\n";
         return 0;

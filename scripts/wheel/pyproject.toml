@@ -30,7 +30,7 @@ dependencies = [
 dynamic = ["version"]
 
 [project.urls]
-Homepage = "https://meshsdk.io/"
-Documentation = "https://meshsdk.io/documentation/"
-Source = "https://github.com/MeshInspector/MeshLib"
-"Bug Reports" = "https://github.com/MeshInspector/MeshLib/issues"
+Homepage = "https://meshsdk.tech/"
+Documentation = "https://meshsdk.tech/documentation/"
+Source = "https://github.com/alpinebuster/meshsdk"
+"Bug Reports" = "https://github.com/alpinebuster/meshsdk/issues"

@@ -40,12 +40,12 @@ long_description = (here / "readme.md").read_text(encoding="utf-8")
 setuptools.setup(
     name="meshsdk",
     version=VERSION,
-    author="MeshLib Team",
-    author_email="support@meshinspector.com",
-    description="3d processing library",
+    author="alpinebuster",
+    author_email="imzqqq@hotmail.com",
+    description="3D processing library",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/MeshInspector/MeshLib",
+    url="https://github.com/alpinebuster/meshsdk",
     license_files=('LICENSE',),
     packages=['meshsdk'],
     package_data={
@@ -72,7 +72,7 @@ setuptools.setup(
         'numpy>=1.19.0',
     ],
     project_urls={  # Optional
-        "Bug Reports": "https://github.com/MeshInspector/MeshLib/issues",
-        "Source": "https://github.com/MeshInspector/MeshLib",
+        "Bug Reports": "https://github.com/alpinebuster/meshsdk/issues",
+        "Source": "https://github.com/alpinebuster/meshsdk",
     },
 )

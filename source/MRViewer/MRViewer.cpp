@@ -672,7 +672,7 @@ bool Viewer::checkOpenGL_( const LaunchParams& params )
             {
                 MessageBoxA( NULL, "Cannot activate OpenGL 3.3.\n"
                     "Please verify that you have decent graphics card and its drivers are installed.",
-                    "MeshInspector/MeshLib Error", MB_OK );
+                    "MeshSDK Error", MB_OK );
             }
 #endif
             return false;

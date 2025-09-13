@@ -51,7 +51,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <BuildStlModules>false</BuildStlModules>
-      <!-- /utf-8 to resolve https://github.com/MeshInspector/MeshLib/issues/2780 -->
+      <!-- /utf-8 to resolve https://github.com/alpinebuster/meshsdk/issues/2780 -->
       <AdditionalOptions>/bigobj /utf-8 %(AdditionalOptions)</AdditionalOptions>
       <!-- _DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR to avoid breaking changes in Visual Studio 2022 making binaries incompatible with older msvc.dlls -->
       <!-- Following is needed for our patched pybind: PYBIND11_NONLIMITEDAPI_LIB_SUFFIX_FOR_MODULE="meshsdk";Py_LIMITED_API=0x030800f0; -->

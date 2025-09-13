@@ -13,7 +13,7 @@ from pathlib import Path
 def test_issue_2899(tmp_path):
     """
     Test for issue 2899 in MeshLib
-    https://github.com/MeshInspector/MeshLib/issues/2899#issuecomment-2203088307
+    https://github.com/alpinebuster/meshsdk/issues/2899#issuecomment-2203088307
 
     This is a specific code that solved issue of customer: to perform slope and slide on mesh with holes and
     non-manifold vertices
