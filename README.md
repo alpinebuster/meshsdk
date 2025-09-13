@@ -209,9 +209,27 @@ Build mrbind from source code:
 # At project's root dir
 sudo ./scripts/mrbind/install_deps_ubuntu.sh
 ./scripts/mrbind/install_mrbind_ubuntu.sh 
+
+
+make -f scripts/mrbind/generate.mk -B --trace FOR_WHEEL=1
+# PYTHON_VERSIONS=$(cat scripts/mrbind-pybind11/python_versions.txt | xargs)
+make -f scripts/mrbind/generate.mk -B --trace PYTHON_VERSIONS=3.11
+make -f scripts/mrbind/generate.mk -B --trace FOR_WHEEL=1 PYTHON_VERSIONS=3.11
+make shims -f scripts/mrbind/generate.mk -B --trace FOR_WHEEL=1 PYTHON_VERSIONS=3.11
+
+
+# Create and fix wheel
+python -m pip install patchelf
+# This will generate the `meshsdk` wheel to `./scripts/wheel/meshsdk`
+python ./scripts/wheel/build_wheel.py --version 'v0.0.1'
+# Install the built `meshsdk`
+cd  ./scripts/wheel/meshsdk
+pip install .
+# Check the installed `meshsdk`
+pip list | grep meshsdk
 ```
 
-Run the generator on different platforms:
+> Run the generator on different platforms
 
 * **On Windows:** `scripts\mrbind\generate_win.bat -B --trace` from the VS developer command prompt (use the `x64 Native` one!).
 
@@ -225,22 +243,21 @@ Run the generator on different platforms:
 
 * **On MacOS:** Same as on Linux, but before running the command you must adjust the PATH. On Arm Macs: `export PATH="/opt/homebrew/opt/make/libexec/gnubin:$PATH"`, and on x86 Macs `/usr/local/...` instead of `/opt/homebrew/...`. This adds the version of Make installed in Homebrew to PATH, because the default one is outdated. Confirm the version with `make --version`, it must be 4.x or newer.
 
-Create Wheel:
+#### Some common flags:
 
-```sh
-# This will generate the `meshsdk` wheel to `./scripts/wheel/meshsdk`
-python ./scripts/wheel/build_wheel.py --version 'v0.0.1'
-```
+* **`--trace` — enable verbose logs.**
 
-Install the built `meshsdk`:
+* **`-B` — force a full rebuild of the bindings.** Incremental builds are not very useful, because they're not perfect and can miss changes. Use incremental builds e.g. when you're fixing linker errors.
 
-```sh
-cd  ./scripts/wheel/meshsdk
-pip install .
+The remaining flags are for Python bindings only:
 
-# Check the installed `meshsdk`
-pip list | grep meshsdk
-```
+* **`MODE=none` — disable optimization** for faster build times. The default is `MODE=release`. To enable debug symbols, use `MODE=debug`. To set completely custom compiler flags, set `EXTRA_CFLAGS` and `EXTRA_LDFLAGS`.
+
+* **`NUM_FRAGMENTS=?? -j??` — adjust RAM usage vs build speed tradeoff.** `NUM_FRAGMENTS=??` is how many translation units the bindings are split into. `-j??` is the number of parallel build threads/processes. `NUM_FRAGMENTS=64 -j8` is the default, good for 16 GB of RAM.
+
+  Guessing the fastest combination isn't trivial. Usually less fragments and more threads lead to faster builds but more RAM usage, but not always; turns out `NUM_FRAGMENTS=1` isn't optimal even if you have enough RAM for it.
+
+* **`PYTHON_PKGCONF_NAME=python-3.??-embed` — select Python version.** We try to guess this one. You can set this to `python3-embed` to use whatever the OS considers to be the default version.
 
 
 ### Installation

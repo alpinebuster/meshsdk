@@ -112,7 +112,7 @@ Create and fix Wheel:
 
 ```sh
 # This will generate the `meshsdk` wheel to `./scripts/wheel/meshsdk`
-python ./scripts/wheel/build_wheel.py --version 'v0.0.0.1'
+python ./scripts/wheel/build_wheel.py --version 'v0.0.1'
 ```
 
 Install the built `meshsdk`:

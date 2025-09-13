@@ -51,9 +51,9 @@ def setup_workspace(version, modules, plat_name):
 
     create_stubs.setup_workspace(modules, False)
 
-    print("Copying LICENSE and readme.md")
+    print("Copying LICENSE and README.md")
     shutil.copy(SOURCE_DIR / "LICENSE", WHEEL_ROOT_DIR)
-    shutil.copy(SOURCE_DIR / "readme.md", WHEEL_ROOT_DIR)
+    shutil.copy(SOURCE_DIR / "README.md", WHEEL_ROOT_DIR)
 
     print("Copying resource files...")
     shutil.copy(SOURCE_DIR / "source" / "MRViewer" / "MRDarkTheme.json", WHEEL_SRC_DIR)

@@ -22,9 +22,9 @@ def prepare_workspace():
         shutil.rmtree(WHEEL_ROOT_DIR)
 
     os.makedirs(WHEEL_SRC_DIR, exist_ok=True)
-    print("Copying LICENSE and readme.md")
+    print("Copying LICENSE and README.md")
     shutil.copy("LICENSE", WHEEL_ROOT_DIR)
-    shutil.copy("readme.md", WHEEL_ROOT_DIR)
+    shutil.copy("README.md", WHEEL_ROOT_DIR)
     # create empty file
     open(os.path.join(WHEEL_SRC_DIR, "__init__.py"), "w").close()
 
