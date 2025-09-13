@@ -19,10 +19,10 @@ namespace LinesLoad
 /// \ingroup IOGroup
 /// \{
 
-/// loads polyline from file in internal MeshLib format
+/// loads polyline from file in internal MeshSDK format
 MRMESH_API Expected<Polyline3> fromMrLines( const std::filesystem::path& file, const LinesLoadSettings& settings = {} );
 
-/// loads polyline from stream in internal MeshLib format;
+/// loads polyline from stream in internal MeshSDK format;
 /// important on Windows: in stream must be open in binary mode
 MRMESH_API Expected<Polyline3> fromMrLines( std::istream& in, const LinesLoadSettings& settings = {} );
 

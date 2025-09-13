@@ -75,7 +75,7 @@
       <PreprocessorDefinitions>OpenCTM_EXPORTS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalIncludeDirectories>$(MeshLibDir)thirdparty\OpenCTM-git\lib\;$(MeshLibDir)thirdparty\OpenCTM-git\lib\liblzma\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MeshSDKDir)thirdparty\OpenCTM-git\lib\;$(MeshSDKDir)thirdparty\OpenCTM-git\lib\liblzma\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
     </ClCompile>
     <Link>
@@ -100,7 +100,7 @@
       <TreatWarningAsError>true</TreatWarningAsError>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(MeshLibDir)thirdparty\OpenCTM-git\lib\;$(MeshLibDir)thirdparty\OpenCTM-git\lib\liblzma\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MeshSDKDir)thirdparty\OpenCTM-git\lib\;$(MeshSDKDir)thirdparty\OpenCTM-git\lib\liblzma\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
     </ClCompile>
     <Link>

@@ -46,8 +46,8 @@ enum class OrientNormals
 enum class OffsetMode : int
 {
     Smooth,     ///< create mesh using dual marching cubes from OpenVDB library
-    Standard,   ///< create mesh using standard marching cubes implemented in MeshLib
-    Sharpening  ///< create mesh using standard marching cubes with additional sharpening implemented in MeshLib
+    Standard,   ///< create mesh using standard marching cubes implemented in MeshSDK
+    Sharpening  ///< create mesh using standard marching cubes with additional sharpening implemented in MeshSDK
 };
 
 /// Type of object coloring,

@@ -32,7 +32,7 @@ More details on what the scripts do on different platforms:
 
     MRBind source code is at https://github.com/MeshInspector/mrbind/.
 
-    We build MRBind at `MeshLib/mrbind`, but you can build it [elsewhere](#less-common-flags) manually.
+    We build MRBind at `MeshSDK/mrbind`, but you can build it [elsewhere](#less-common-flags) manually.
 
     We build in [MSYS2 CLANG64](https://www.msys2.org/docs/environments/) environment, using MSYS2's Clang. Other compilers are not guaranteed to work.
 
@@ -51,7 +51,7 @@ More details on what the scripts do on different platforms:
 
     MRBind source code is at https://github.com/MeshInspector/mrbind/.
 
-    We build MRBind at `MeshLib/mrbind`, but you can build it [elsewhere](#less-common-flags) manually.
+    We build MRBind at `MeshSDK/mrbind`, but you can build it [elsewhere](#less-common-flags) manually.
 
     You might want to pass `-DClang_DIR=/usr/lib/cmake/clang-VERSION` (where `VERSION` is the one mentioned in `clang_version.txt`) if you have several versions of libclang installed, because otherwise CMake might pick an arbitrary one (apparently it picks the first one returned by globbing `clang-*`, which might not be the latest one).
 
@@ -80,7 +80,7 @@ More details on what the scripts do on different platforms:
 
     MRBind source code is at https://github.com/MeshInspector/mrbind/.
 
-    We build MRBind at `MeshLib/mrbind`, but you can build it [elsewhere](#less-common-flags) manually.
+    We build MRBind at `MeshSDK/mrbind`, but you can build it [elsewhere](#less-common-flags) manually.
 
     Make sure your PATH is correct, as explained in the previous step.
 
@@ -90,21 +90,21 @@ More details on what the scripts do on different platforms:
 
 ## Generating bindings
 
-**Python**: If you're generating Python bindings, you should build MeshLib first, then run the generator, which will take care of building the bindings.
+**Python**: If you're generating Python bindings, you should build MeshSDK first, then run the generator, which will take care of building the bindings.
 
-**C**: If you're generating C bindings, run the generator first, and *then* build MeshLib along with the freshly generated bindings. Building C bindings is only supported with CMake, not MSBuild. Pass `-DMESHSDK_BUILD_GENERATED_C_BINDINGS=ON` to CMake to build the bindings (in addition to the rest of MeshLib). The generated bindings are human-readable and are located in `source/MeshLibC2`.
+**C**: If you're generating C bindings, run the generator first, and *then* build MeshSDK along with the freshly generated bindings. Building C bindings is only supported with CMake, not MSBuild. Pass `-DMESHSDK_BUILD_GENERATED_C_BINDINGS=ON` to CMake to build the bindings (in addition to the rest of MeshSDK). The generated bindings are human-readable and are located in `source/MeshSDKC2`.
 
 How to run the generator on different platforms:
 
 * **On Windows:** `scripts\mrbind\generate_win.bat -B --trace` from the VS developer command prompt (use the `x64 Native` one!).
 
-  When generating the Python bindings, the current directory matters, as this will look for MeshLib in `./source/x64/Release`. Add `VS_MODE=Debug` at the end if you built MeshLib in debug mode.
+  When generating the Python bindings, the current directory matters, as this will look for MeshSDK in `./source/x64/Release`. Add `VS_MODE=Debug` at the end if you built MeshSDK in debug mode.
 
   The `generate_win.bat` file merely calls `generate.mk` (see below) inside of MSYS2 shell. You can use that directly if you want.
 
 * **On Linux:** `make -f scripts/mrbind/generate.mk -B --trace`
 
-  This will look for MeshLib in `./build/Release/bin`. Pass `MESHSDK_SHLIB_DIR=path/to/bin` for a different directory.
+  This will look for MeshSDK in `./build/Release/bin`. Pass `MESHSDK_SHLIB_DIR=path/to/bin` for a different directory.
 
 * **On MacOS:** Same as on Linux, but before running the command you must adjust the PATH. On Arm Macs: `export PATH="/opt/homebrew/opt/make/libexec/gnubin:$PATH"`, and on x86 Macs `/usr/local/...` instead of `/opt/homebrew/...`. This adds the version of Make installed in Homebrew to PATH, because the default one is outdated. Confirm the version with `make --version`, it must be 4.x or newer.
 
@@ -147,11 +147,11 @@ For simplicity, we compile the Python bindings with the same Clang that we use f
 
 `CXX_FOR_BINDINGS` has an additional use that matters for both Python and C. We use it to locate the "Clang resource directory", which the parser needs. The variable must be set to the same version of Clang that provides libclang that was used to build MRBind, otherwise you might get compatibility issues. But normally we should be able to guess the value of this variable, so normally you don't have to think abou tthis.
 
-**ABI compatibility (Python only):** Since MeshLib is compiled using a different compiler, we must ensure the two use the same ABI. `CXX_FOR_ABI` should be set to the compiler the ABI of which we're trying to match. (Defaults to `CXX` environment variable, or `g++` if not set.) At the moment, if `CXX_FOR_ABI` is GCC 13 or older or Clang 17 or older (note that Apple Clang uses a [different version numbering scheme](https://en.wikipedia.org/wiki/Xcode#Xcode_15.0_-_(since_visionOS_support)_2)), we pass `-fclang-abi-compat=17` to our Clang 18 or newer. This flag *disables* mangling `requires` constraints into function names. If we guess incorrectly, you'll get undefined references to functions with `requires` constraints on them.
+**ABI compatibility (Python only):** Since MeshSDK is compiled using a different compiler, we must ensure the two use the same ABI. `CXX_FOR_ABI` should be set to the compiler the ABI of which we're trying to match. (Defaults to `CXX` environment variable, or `g++` if not set.) At the moment, if `CXX_FOR_ABI` is GCC 13 or older or Clang 17 or older (note that Apple Clang uses a [different version numbering scheme](https://en.wikipedia.org/wiki/Xcode#Xcode_15.0_-_(since_visionOS_support)_2)), we pass `-fclang-abi-compat=17` to our Clang 18 or newer. This flag *disables* mangling `requires` constraints into function names. If we guess incorrectly, you'll get undefined references to functions with `requires` constraints on them.
 
 ### Less common flags:
 
-* **Selecting MRBind installation:** if you installed MRBind to a non-default location (`MeshLib/mrbind`), you must pass this location to `MRBIND_SOURCE=path/to/mrbind`.
+* **Selecting MRBind installation:** if you installed MRBind to a non-default location (`MeshSDK/mrbind`), you must pass this location to `MRBIND_SOURCE=path/to/mrbind`.
 
     Additionally, if the MRBind binary is not at `$MRBIND_SOURCE/build/mrbind`, you must pass `MRBIND_EXE=...` (path to the executable itself, not its directory).
 
@@ -161,7 +161,7 @@ You can find some undocumented flags/variables in `generate.mk`.
 
 * **`could not open 'MRMesh.lib': No such file or directory`**
 
-  * MeshLib wasn't built, or `VS_MODE` is set incorrectly.
+  * MeshSDK wasn't built, or `VS_MODE` is set incorrectly.
 
 * **`machine type x86 conflicts with x64`**
 

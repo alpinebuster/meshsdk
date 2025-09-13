@@ -89,8 +89,8 @@ def test_decimate(tmp_path, dec_params):
     """
 
     # Those tests fail (seemingly due to an unknown ABI incompatibility) on Arm Ubuntu 20.04 when the MRBind bindings
-    # are compiled with Clang 18 AND MeshLib is compiled with Clang 12 or older (14 is fine on Ubuntu 22.04, 13 wasn't tested).
-    # So instead we build the whole MeshLib with Clang 18 (only on ubuntu 20.04 arm) when building the wheels,
+    # are compiled with Clang 18 AND MeshSDK is compiled with Clang 12 or older (14 is fine on Ubuntu 22.04, 13 wasn't tested).
+    # So instead we build the whole MeshSDK with Clang 18 (only on ubuntu 20.04 arm) when building the wheels,
     # but when building ML we simply disable the offending tests (makes no sense to use Clang 18 for that,
     # since the library users will then face this ABI incompatibility).
     if os.getenv("MR_REGRESSION_TESTS_UBUNTUARM2004_MRBIND_ABI_ISSUES","0") == "1" and dec_params.get("hasAbiIssuesOnUbuntuArm2004Mrbind", False):

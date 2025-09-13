@@ -1885,13 +1885,13 @@ bool RibbonMenu::drawTransformContextMenu_( const std::shared_ptr<Object>& selec
     };
     auto serializeTransform = [] ( Json::Value& root, const Transform& tr )
     {
-        root["Name"] = "MeshLib Transform";
+        root["Name"] = "MeshSDK Transform";
         serializeToJson( tr.xf, root["XF"] );
         root["UniformScale"] = tr.uniformScale;
     };
     auto deserializeTransform = [] ( const Json::Value& root ) -> std::optional<Transform>
     {
-        if ( !root.isObject() || root["Name"].asString() != "MeshLib Transform" )
+        if ( !root.isObject() || root["Name"].asString() != "MeshSDK Transform" )
             return std::nullopt;
 
         AffineXf3f xf;

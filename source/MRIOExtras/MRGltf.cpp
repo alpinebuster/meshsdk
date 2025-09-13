@@ -562,7 +562,7 @@ Expected<std::shared_ptr<Object>> deserializeObjectTreeFromGltf( const std::file
 Expected<void> serializeObjectTreeToGltf( const Object& root, const std::filesystem::path& file, ProgressCallback callback )
 {
     tinygltf::Model model;
-    model.asset.generator = "MeshLib";
+    model.asset.generator = "MeshSDK";
     model.asset.version = "2.0";
 
     model.buffers.emplace_back();

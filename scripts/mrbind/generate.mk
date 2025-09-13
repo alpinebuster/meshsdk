@@ -113,12 +113,12 @@ $(info Build shims? $(if $(BUILD_SHIMS),YES,NO))
 
 endif # $(TARGET) == python
 
-# Set to 1 if MeshLib was built in debug mode. Ignore this on Windows. By default we're trying to guess this based on the CMake cache.
+# Set to 1 if MeshSDK was built in debug mode. Ignore this on Windows. By default we're trying to guess this based on the CMake cache.
 # Currently this isn't needed for anything, hence commented out.
 # MESHSDK_IS_DEBUG :=
 # ifeq ($(IS_WINDOWS),)
 # MESHSDK_IS_DEBUG := $(if $(filter Debug,$(shell cmake -L $(MESHSDK_SHLIB_DIR)/.. 2>/dev/null | grep -Po '(?<=CMAKE_BUILD_TYPE:STRING=).*')),1)
-# $(info MeshLib built in debug mode? $(if $(filter-out 0,$(MESHSDK_IS_DEBUG)),YES,NO))
+# $(info MeshSDK built in debug mode? $(if $(filter-out 0,$(MESHSDK_IS_DEBUG)),YES,NO))
 # endif
 # override MESHSDK_IS_DEBUG := $(filter-out 0,$(MESHSDK_IS_DEBUG))
 
@@ -127,7 +127,7 @@ endif # $(TARGET) == python
 
 ifeq ($(TARGET),python)
 
-# For Windows, set this to Debug or Release. This controls which MeshLib build we'll be using.
+# For Windows, set this to Debug or Release. This controls which MeshSDK build we'll be using.
 VS_MODE := Release
 override valid_vs_modes := Debug Release
 $(if $(filter-out $(valid_vs_modes),$(VS_MODE)),$(error Invalid `VS_MODE=$(VS_MODE)`, expected one of: $(valid_vs_modes)))
@@ -159,7 +159,7 @@ HOMEBREW_DIR := $(call safe_shell,brew --prefix)
 $(info Using homebrew at: $(HOMEBREW_DIR))
 endif
 
-# Min version. Not setting this seems to cause warnings when linking against MeshLib built with Apple Clang, which seems to have different defaults.
+# Min version. Not setting this seems to cause warnings when linking against MeshSDK built with Apple Clang, which seems to have different defaults.
 MACOS_MIN_VER :=
 # ] ----
 
@@ -185,7 +185,7 @@ MRBIND_EXE := $(MRBIND_SOURCE)/build/mrbind
 MRBIND_GEN_C_EXE = $(MRBIND_EXE)_gen_c
 
 
-# Look for MeshLib dependencies relative to this. On Linux should point to the project root, because that's where `./include` and `./lib` are.
+# Look for MeshSDK dependencies relative to this. On Linux should point to the project root, because that's where `./include` and `./lib` are.
 ifneq ($(IS_WINDOWS),)
 DEPS_BASE_DIR := $(VCPKG_DIR)/installed/x64-windows-meshsdk
 DEPS_LIB_DIR := $(DEPS_BASE_DIR)/$(if $(filter Debug,$(VS_MODE)),debug/)lib
@@ -198,14 +198,14 @@ DEPS_INCLUDE_DIR := $(DEPS_BASE_DIR)/include
 
 ifeq ($(TARGET),python)
 
-# Where to find MeshLib.
+# Where to find MeshSDK.
 ifneq ($(IS_WINDOWS),)
 MESHSDK_SHLIB_DIR := source/x64/$(VS_MODE)
 else
 MESHSDK_SHLIB_DIR := build/Release/bin
 endif
 ifeq ($(wildcard $(MESHSDK_SHLIB_DIR)),)
-$(warning MeshLib build directory `$(abspath $(MESHSDK_SHLIB_DIR))` doesn't exist! You either forgot to build MeshLib, or are running this script with the wrong current directory. Call this from your project's root)
+$(warning MeshSDK build directory `$(abspath $(MESHSDK_SHLIB_DIR))` doesn't exist! You either forgot to build MeshSDK, or are running this script with the wrong current directory. Call this from your project's root)
 endif
 
 # Which C++ compiler we should try to match for ABI.
@@ -291,7 +291,7 @@ endif
 
 ifeq ($(PYTHON_CFLAGS)$(PYTHON_LDFLAGS),) # If no custom flags are specified...
 ifneq ($(IS_WINDOWS),)
-# Intentionally using non-debug Python even in Debug builds, to mimic what MeshLib does. Unsure why we do this.
+# Intentionally using non-debug Python even in Debug builds, to mimic what MeshSDK does. Unsure why we do this.
 override get_python_cflags = $(call safe_shell,PKG_CONFIG_PATH=$(call quote,$(DEPS_BASE_DIR)/lib/pkgconfig) PKG_CONFIG_LIBDIR=- pkg-config --cflags python-$1-embed)
 override get_python_ldflags = $(call safe_shell,PKG_CONFIG_PATH=$(call quote,$(DEPS_BASE_DIR)/lib/pkgconfig) PKG_CONFIG_LIBDIR=- pkg-config --libs python-$1-embed) -L$(DEPS_BASE_DIR)/lib
 else # Linux or MacOS:
@@ -465,13 +465,13 @@ ifeq ($(TARGET),python)
 MODULE_OUTPUT_DIR := $(MESHSDK_SHLIB_DIR)/$(PACKAGE_NAME)
 endif
 ifeq ($(TARGET),c)
-C_CODE_OUTPUT_DIR := $(makefile_dir)../../source/MeshLibC2
+C_CODE_OUTPUT_DIR := $(makefile_dir)../../source/MeshSDKC2
 endif
 
 INPUT_FILES_BLACKLIST := $(call load_file,$(makefile_dir)input_file_blacklist.txt)
 INPUT_FILES_WHITELIST := %
 ifeq ($(TARGET),c)
-TEMP_OUTPUT_DIR := $(makefile_dir)../../source/MeshLibC2/temp
+TEMP_OUTPUT_DIR := $(makefile_dir)../../source/MeshSDKC2/temp
 else ifneq ($(IS_WINDOWS),)
 TEMP_OUTPUT_DIR := source/TempOutput/Bindings_$(TARGET)/x64/$(VS_MODE)
 else

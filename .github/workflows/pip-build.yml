@@ -205,7 +205,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: CBindings
-          path: ./source/MeshLibC2/include
+          path: ./source/MeshSDKC2/include
           retention-days: 1
 
       - name: Upload to Test Artifacts
@@ -223,7 +223,7 @@ jobs:
       - manylinux-pip-build
     uses: ./.github/workflows/update-docs.yml
     with:
-      output_folder: MeshLib
+      output_folder: MeshSDK
     secrets: inherit
 
   windows-pip-build:
@@ -266,7 +266,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@8e2d02296bcf12c081e192c60f3cb80d77f4f76a # v4
         with:
-          role-to-assume: arn:aws:iam::259351611210:role/GitHubMeshLibAwsCredsRole
+          role-to-assume: arn:aws:iam::259351611210:role/GitHubMeshSDKAwsCredsRole
           aws-region: us-east-1
 
       - name: Update vcpkg packages
@@ -308,7 +308,7 @@ jobs:
         uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce # v2
 
       - name: Build
-        run: msbuild -m  source\MeshLib.sln -p:Configuration=Release
+        run: msbuild -m  source\MeshSDK.sln -p:Configuration=Release
 
         # Install MSYS2 using their github action instead of ours `install_deps_windows_msys2.bat`. Locally users should use that bat file.
         # I'm expecting the official action to be better suited for CI needs (e.g. they promise some form of caching in the readme), but I didn't perform a proper comparison.
@@ -425,7 +425,7 @@ jobs:
       - name: Generate and build MRBind bindings
         env:
           PATH: ${{matrix.brewpath}}/opt/make/libexec/gnubin:${{matrix.brewpath}}/opt/grep/libexec/gnubin:${{env.PATH}}
-        # `MACOS_MIN_VER` picked arbitrarily to match what Apple Clang uses when building MeshLib.
+        # `MACOS_MIN_VER` picked arbitrarily to match what Apple Clang uses when building MeshSDK.
         # Not setting this or setting a different value cases a warning when linking the bindings, and you can get the correct (?) value from those warnings.
         run: |
           make --version

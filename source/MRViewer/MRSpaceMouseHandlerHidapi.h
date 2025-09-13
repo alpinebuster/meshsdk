@@ -77,7 +77,7 @@ private:
     std::atomic_bool active_{ false };
     bool activeMouseScrollZoom_ = false;
 
-    // if you change this value, do not forget to update MeshLib/scripts/70-space-mouse-meshsdk.rules
+    // if you change this value, do not forget to update MeshSDK/scripts/70-space-mouse-meshsdk.rules
     const std::unordered_map<VendorId, std::vector<ProductId>> vendor2device_ = {
             { VendorId(0x046d), {  // Logitech (3Dconnexion was a subsidiary)
                         0xc603,    // SpaceMouse plus XT

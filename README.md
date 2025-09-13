@@ -193,7 +193,7 @@ cd vcpkg
 ```
   - This script automates the installation of necessary third-party dependencies.
  4. **Build and Run Visual Studio Solution**
-  - Open `meshsdk/source/MeshLib.sln` in Visual Studio.
+  - Open `meshsdk/source/MeshSDK.sln` in Visual Studio.
   - Build the solution and run the application.
  5. **Build and Run CMake Project**
   - Make sure you have the "C++ CMake tools for Windows" component installed.

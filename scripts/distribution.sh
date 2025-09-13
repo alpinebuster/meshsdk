@@ -26,9 +26,9 @@ fi
 
 cmake --install ./build/Release --prefix "./distr/meshsdk-dev/usr/local"
 
-MR_INSTALL_LIB_DIR="/usr/local/lib/MeshLib"
-MR_INSTALL_INCLUDE_DIR="/usr/local/include/MeshLib"
-MR_INSTALL_RES_DIR="/usr/local/share/MeshLib"
+MR_INSTALL_LIB_DIR="/usr/local/lib/MeshSDK"
+MR_INSTALL_INCLUDE_DIR="/usr/local/include/MeshSDK"
+MR_INSTALL_RES_DIR="/usr/local/share/MeshSDK"
 
 # Install the generated bindings, if needed.
 if [ ! -f "distr/meshsdk-dev$MR_INSTALL_LIB_DIR/meshsdk/mrmeshpy.so" ] && [ -f "build/Release/bin/meshsdk/mrmeshpy.so" ]; then

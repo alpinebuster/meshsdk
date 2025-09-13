@@ -1,4 +1,4 @@
-# MeshLib Docker Build System: Understanding the Layer-Optimized Architecture
+# MeshSDK Docker Build System: Understanding the Layer-Optimized Architecture
 
 Think of Docker's layer system like constructing a building: you want to lay the most stable, rarely-changing foundation first, then build the more dynamic elements on top. This architectural principle guides every decision in this optimized setup.
 

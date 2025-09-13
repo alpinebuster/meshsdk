@@ -33,7 +33,7 @@ jobs:
       - name: Configure AWS Credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v5
         with:
-          role-to-assume: arn:aws:iam::259351611210:role/GitHubMeshLibAwsStartStopInstances
+          role-to-assume: arn:aws:iam::259351611210:role/GitHubMeshSDKAwsStartStopInstances
           aws-region: us-east-1
       - name: Start Instance
         run: |
@@ -65,7 +65,7 @@ jobs:
           Remove-Item -Path "C:\work\unity_proj\NugetTestProj\ProjectSettings\Packages\com.github-glitchenzo.nugetforunity" -Recurse -Force -ErrorAction SilentlyContinue
           Remove-Item -Path "C:\work\results.xml" -ErrorAction SilentlyContinue
           Remove-Item -Path "C:\work\batch_log.txt" -ErrorAction SilentlyContinue
-          Remove-Item -Path "C:\work\nuget_repo\MeshLib*.nupkg" -ErrorAction SilentlyContinue
+          Remove-Item -Path "C:\work\nuget_repo\MeshSDK*.nupkg" -ErrorAction SilentlyContinue
 
       - name: Download nuget package
         shell: powershell
@@ -77,19 +77,19 @@ jobs:
       - name: Move nuget package to repo folder
         shell: powershell
         run: |
-          $pkg = Get-ChildItem -Filter "MeshLib*.nupkg" | Select-Object -First 1
+          $pkg = Get-ChildItem -Filter "MeshSDK*.nupkg" | Select-Object -First 1
           if (!$pkg) {
-            Write-Error "No MeshLib*.nupkg file found"
+            Write-Error "No MeshSDK*.nupkg file found"
             exit 1
           }
           $matches = $null
           $foundVersion = $pkg.Name -match '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+'
           if (!$foundVersion) {
-            Write-Error "Cannot extract version MeshLib*.nupkg"
+            Write-Error "Cannot extract version MeshSDK*.nupkg"
             exit 1
           }
           $pkgVersion = $matches[0]
-          Move-Item $pkg.FullName "C:/work/nuget_repo/MeshLib.$pkgVersion.nupkg"
+          Move-Item $pkg.FullName "C:/work/nuget_repo/MeshSDK.$pkgVersion.nupkg"
           $xmlPath = "C:\work\unity_proj\NugetTestProj\Assets\packages.config"
           $xml = [xml](Get-Content -Path $xmlPath)
           $xml.packages.package.version = $pkgVersion
@@ -129,7 +129,7 @@ jobs:
         if: always()
         uses: aws-actions/configure-aws-credentials@v5
         with:
-          role-to-assume: arn:aws:iam::259351611210:role/GitHubMeshLibAwsStartStopInstances
+          role-to-assume: arn:aws:iam::259351611210:role/GitHubMeshSDKAwsStartStopInstances
           aws-region: us-east-1
       - name: Stop Instance
         if: always()

@@ -1,4 +1,4 @@
-name: Update MeshLib app containers
+name: Update MeshSDK app containers
 
 on:
   #release:

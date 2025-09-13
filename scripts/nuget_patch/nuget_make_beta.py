@@ -11,8 +11,8 @@ shutil.unpack_archive(INPUT_FILE_NAME,NUGET_TEMP_DIR,"zip")
 os.remove(INPUT_FILE_NAME)
 
 
-SPEC_FILE = NUGET_TEMP_DIR / "MeshLib.nuspec"
-OLD_SPEC_FILE = NUGET_TEMP_DIR / "MeshLib_old.nuspec"
+SPEC_FILE = NUGET_TEMP_DIR / "MeshSDK.nuspec"
+OLD_SPEC_FILE = NUGET_TEMP_DIR / "MeshSDK_old.nuspec"
 os.rename(SPEC_FILE,OLD_SPEC_FILE)
 with open(OLD_SPEC_FILE) as fin, open(SPEC_FILE, 'w') as fout:
     for line in fin:

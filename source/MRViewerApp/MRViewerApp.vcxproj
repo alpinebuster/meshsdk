@@ -71,10 +71,10 @@
   <Import Project="$(ProjectDir)\..\common.props" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <TargetName>$(MeshLibProjectName)</TargetName>
+    <TargetName>$(MeshSDKProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <TargetName>$(MeshLibProjectName)</TargetName>
+    <TargetName>$(MeshSDKProjectName)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>

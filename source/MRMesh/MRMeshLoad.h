@@ -15,10 +15,10 @@ namespace MR
 
 // new simpler names
 
-/// loads mesh from file in internal MeshLib format
+/// loads mesh from file in internal MeshSDK format
 MRMESH_API Expected<Mesh> loadMrmesh( const std::filesystem::path& file, const MeshLoadSettings& settings = {} );
 
-/// loads mesh from stream in internal MeshLib format;
+/// loads mesh from stream in internal MeshSDK format;
 /// important on Windows: in stream must be open in binary mode
 MRMESH_API Expected<Mesh> loadMrmesh( std::istream& in, const MeshLoadSettings& settings = {} );
 
@@ -83,10 +83,10 @@ namespace MeshLoad
 /// \ingroup IOGroup
 /// \{
 
-/// loads mesh from file in internal MeshLib format
+/// loads mesh from file in internal MeshSDK format
 MRMESH_API Expected<Mesh> fromMrmesh( const std::filesystem::path& file, const MeshLoadSettings& settings = {} );
 
-/// loads mesh from stream in internal MeshLib format;
+/// loads mesh from stream in internal MeshSDK format;
 /// important on Windows: in stream must be open in binary mode
 MRMESH_API Expected<Mesh> fromMrmesh( std::istream& in, const MeshLoadSettings& settings = {} );
 

@@ -262,7 +262,7 @@ namespace MR
 
 SpaceMouseHandler3dxMacDriver::SpaceMouseHandler3dxMacDriver()
 {
-    setClientName( "MeshLib" );
+    setClientName( "MeshSDK" );
 }
 
 SpaceMouseHandler3dxMacDriver::~SpaceMouseHandler3dxMacDriver()

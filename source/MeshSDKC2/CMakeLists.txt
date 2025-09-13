@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # They are bindings-only, and can't be added to the PCH itself.
 
 
-project(MeshLibC2 CXX)
+project(MeshSDKC2 CXX)
 
 IF(MSVC)
   # Disabling following warnings:
@@ -141,6 +141,6 @@ install(
 install(
   EXPORT ${PROJECT_NAME}
   FILE ${PROJECT_NAME}Targets.cmake
-  NAMESPACE MeshLib::
+  NAMESPACE MeshSDK::
   DESTINATION ${MR_CONFIG_DIR}
 )

@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 project(MRPch CXX)
 
-option(MR_PCH_USE_EXTRA_HEADERS "Add frequently used MeshLib headers to the precompiled header" OFF)
+option(MR_PCH_USE_EXTRA_HEADERS "Add frequently used MeshSDK headers to the precompiled header" OFF)
 
 file(GLOB HEADERS "*.h")
 

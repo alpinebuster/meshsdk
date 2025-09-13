@@ -62,9 +62,9 @@ typedef enum MRGeneralOffsetParametersMode
 {
     /// create mesh using dual marching cubes from OpenVDB library
     MRGeneralOffsetParametersModeSmooth = 0,
-    /// create mesh using standard marching cubes implemented in MeshLib
+    /// create mesh using standard marching cubes implemented in MeshSDK
     MRGeneralOffsetParametersModeStandard,
-    /// create mesh using standard marching cubes with additional sharpening implemented in MeshLib
+    /// create mesh using standard marching cubes with additional sharpening implemented in MeshSDK
     MRGeneralOffsetParametersModeSharpening
 } MRGeneralOffsetParametersMode;
 

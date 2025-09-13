@@ -643,7 +643,7 @@ private:
 #if !STEP_READSTREAM_SUPPORTED
 std::filesystem::path getStepTemporaryDirectory()
 {
-    const auto path = std::filesystem::temp_directory_path() / "MeshLib_MeshLoadStep";
+    const auto path = std::filesystem::temp_directory_path() / "MeshSDK_MeshLoadStep";
     std::error_code ec;
     if ( !std::filesystem::exists( path, ec ) )
         std::filesystem::create_directory( path, ec );

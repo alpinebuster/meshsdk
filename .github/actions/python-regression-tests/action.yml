@@ -74,7 +74,7 @@ runs:
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4
       with:
-        role-to-assume: arn:aws:iam::259351611210:role/GitHubMeshLibAwsCredsRole
+        role-to-assume: arn:aws:iam::259351611210:role/GitHubMeshSDKAwsCredsRole
         aws-region: us-east-1
 
     - name: Copy autotest data from S3 Tests

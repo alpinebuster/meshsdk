@@ -35,9 +35,9 @@ namespace MR
         {
             /// create mesh using dual marching cubes from OpenVDB library
             Smooth,
-            /// create mesh using standard marching cubes implemented in MeshLib
+            /// create mesh using standard marching cubes implemented in MeshSDK
             Standard,
-            /// create mesh using standard marching cubes with additional sharpening implemented in MeshLib
+            /// create mesh using standard marching cubes with additional sharpening implemented in MeshSDK
             Sharpening
         };
 

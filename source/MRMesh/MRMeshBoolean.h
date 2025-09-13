@@ -13,7 +13,7 @@ namespace MR
 /** \defgroup BooleanGroup Surface Boolean overview
   * \brief Chapter about Constructive Solid Geometry operations
   * 
-  * This chapter represents documentation of MeshLib CSG
+  * This chapter represents documentation of MeshSDK CSG
   */
 
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Builds the MRBind submodule at `MeshLib/thirdparty/mrbind/build`.
+# Builds the MRBind submodule at `MeshSDK/thirdparty/mrbind/build`.
 
 set -euxo pipefail
 

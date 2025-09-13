@@ -14,7 +14,7 @@ file(GLOB SOURCES "*.c")
 
 add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES})
 
-target_include_directories(${PROJECT_NAME} PRIVATE ../MeshLibC2/include)
+target_include_directories(${PROJECT_NAME} PRIVATE ../MeshSDKC2/include)
 
 IF(MR_EMSCRIPTEN)
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --emrun")
@@ -22,14 +22,14 @@ ENDIF()
 
 IF(NOT MR_EMSCRIPTEN)
   target_link_libraries(${PROJECT_NAME} PRIVATE
-    MeshLibC2
+    MeshSDKC2
   )
 ELSE()
   set(CMAKE_EXECUTABLE_SUFFIX ".html")
   target_link_libraries(${PROJECT_NAME} PRIVATE
     gtest
     -Wl,--whole-archive
-    MeshLibC2
+    MeshSDKC2
     -Wl,--no-whole-archive
   )
 ENDIF()

@@ -191,7 +191,7 @@ jobs:
        uses: actions/upload-artifact@v4
        with:
          name: DistributivesNuGet
-         path: MeshLib.nupkg
+         path: MeshSDK.nupkg
          retention-days: 1
 
   upload-distributions:
@@ -221,11 +221,11 @@ jobs:
       - name: Rename Distributives
         run: |
           shopt -s nullglob
-          for PKG_FILE in MeshLibDist*.zip ; do
+          for PKG_FILE in MeshSDKDist*.zip ; do
             mv "$PKG_FILE" "${PKG_FILE/Dist/Dist_${{ needs.config.outputs.app_version }}}"
           done
-          for PKG_FILE in MeshLib*.nupkg ; do
-            mv "$PKG_FILE" "${PKG_FILE/meshsdk/MeshLib_${{ needs.config.outputs.app_version }}}"
+          for PKG_FILE in MeshSDK*.nupkg ; do
+            mv "$PKG_FILE" "${PKG_FILE/meshsdk/MeshSDK_${{ needs.config.outputs.app_version }}}"
           done
           for PKG_FILE in meshsdk*-dev.deb meshsdk*-dev.rpm meshsdk*.pkg meshsdk_*.zip meshsdk_*.tar.xz; do
             mv "$PKG_FILE" "${PKG_FILE/meshsdk/meshsdk_${{ needs.config.outputs.app_version }}}"
@@ -234,7 +234,7 @@ jobs:
       - name: Upload Distributives
         run: |
           shopt -s nullglob
-          PKG_FILES="MeshLibDist*.zip MeshLib*.nupkg meshsdk*-dev.deb meshsdk*-dev.rpm meshsdk*.pkg meshsdk_*.zip meshsdk_*.tar.xz"
+          PKG_FILES="MeshSDKDist*.zip MeshSDK*.nupkg meshsdk*-dev.deb meshsdk*-dev.rpm meshsdk*.pkg meshsdk_*.zip meshsdk_*.tar.xz"
           if [ -n "$(echo $PKG_FILES)" ] ; then
             echo ${{ secrets.BUILD_MACHINE_TOKEN }} | gh auth login --with-token
             gh release upload ${{ needs.config.outputs.release_tag }} $PKG_FILES --clobber

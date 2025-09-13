@@ -44,9 +44,9 @@ def test_numpy_points_mesh():
     y = np.sin(u) * np.sin(v)
     z = np.cos(v)
 
-    # Prepare for MeshLib PointCloud
+    # Prepare for MeshSDK PointCloud
     verts = np.stack((x.flatten(), y.flatten(), z.flatten()), axis=-1).reshape(-1, 3)
-    # Create MeshLib PointCloud from np ndarray
+    # Create MeshSDK PointCloud from np ndarray
     pc = mrmeshnumpy.pointCloudFromPoints(verts)
     # Remove duplicate points
     if is_bindings_v3:
@@ -70,9 +70,9 @@ def test_numpy_grid_sampling():
     y = np.sin(u) * np.sin(v)
     z = np.cos(v)
 
-    # Prepare for MeshLib PointCloud
+    # Prepare for MeshSDK PointCloud
     verts = np.stack((x.flatten(), y.flatten(), z.flatten()), axis=-1).reshape(-1, 3)
-    # Create MeshLib PointCloud from np ndarray
+    # Create MeshSDK PointCloud from np ndarray
     pc = mrmeshnumpy.pointCloudFromPoints(verts)
     assert(pc.validPoints.count() == 10000)
     # Sample points

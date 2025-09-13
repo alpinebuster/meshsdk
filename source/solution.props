@@ -5,6 +5,6 @@
     <_PropertySheetDisplayName>Solution properties</_PropertySheetDisplayName>
   </PropertyGroup>
   <PropertyGroup Label="Globals">
-    <MeshLibProjectName>MeshViewer</MeshLibProjectName>
+    <MeshSDKProjectName>MeshViewer</MeshSDKProjectName>
   </PropertyGroup>
 </Project>

@@ -7,9 +7,9 @@ x = np.cos(u) * np.sin(v)
 y = np.sin(u) * np.sin(v)
 z = np.cos(v)
 
-# Prepare for MeshLib PointCloud
+# Prepare for MeshSDK PointCloud
 verts = np.stack((x.flatten(), y.flatten(), z.flatten()), axis=-1).reshape(-1, 3)
-# Create MeshLib PointCloud from np ndarray
+# Create MeshSDK PointCloud from np ndarray
 pc = mn.pointCloudFromPoints(verts)
 # Remove duplicate points
 pc.validPoints = mm.pointUniformSampling(pc, 1e-3)

@@ -12,7 +12,7 @@ from pathlib import Path
 @pytest.mark.bindingsV3
 def test_issue_2899(tmp_path):
     """
-    Test for issue 2899 in MeshLib
+    Test for issue 2899 in MeshSDK
     https://github.com/alpinebuster/meshsdk/issues/2899#issuecomment-2203088307
 
     This is a specific code that solved issue of customer: to perform slope and slide on mesh with holes and

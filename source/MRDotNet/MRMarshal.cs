@@ -7,7 +7,7 @@ namespace MR
     public partial class DotNet
     {
         /// use this function instead of Marshal.PtrToStringAnsi because:
-        /// 1) C/C++ versions of MeshLib store all strings in UTF8 encoding even on Windows,
+        /// 1) C/C++ versions of MeshSDK store all strings in UTF8 encoding even on Windows,
         /// 2) We cannot use Marshal.PtrToStringUTF8, which appears only in .Net Standard 2.1 not compatible with any .Net Framework
         /// https://stackoverflow.com/a/58358514/7325599
         public unsafe static string MarshalNativeUtf8ToManagedString(IntPtr pStringUtf8)

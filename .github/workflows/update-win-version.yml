@@ -51,7 +51,7 @@ jobs:
         run: |
           tar -xvzf MREDist_Release.zip
           tar -xvzf MREDist_Debug.zip
-          tar -xvzf MeshLibC2Headers.zip
+          tar -xvzf MeshSDKC2Headers.zip
 
       - name: Make Install Folder
         run: py -3.10 scripts\make_install_folder.py ${{ inputs.app_version }}
@@ -60,7 +60,7 @@ jobs:
         uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce # v2
 
       - name: Archive Distribution
-        run: py -3.10 scripts\zip_distribution.py install example_plugin MeshLibDist.zip
+        run: py -3.10 scripts\zip_distribution.py install example_plugin MeshSDKDist.zip
 
       - name: Test Example Plugin # call it after archive not to pack build results
         run: |
@@ -71,5 +71,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: DistributivesWin
-          path: MeshLibDist.zip
+          path: MeshSDKDist.zip
           retention-days: 1

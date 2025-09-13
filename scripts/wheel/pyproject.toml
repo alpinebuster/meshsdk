@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "meshsdk"
 description = "3d processing library"
 authors = [
-    { name = "MeshLib Team", email = "support@meshinspector.com" },
+    { name = "MeshSDK Team", email = "support@meshinspector.com" },
 ]
 readme = "readme.md"
 license = { file = "LICENSE" }

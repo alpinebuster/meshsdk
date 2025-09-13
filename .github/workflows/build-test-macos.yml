@@ -175,7 +175,7 @@ jobs:
         if: ${{ inputs.upload_artifacts && matrix.config == 'Release' }}
         run: |
           ./scripts/distribution_apple.sh
-          mv MeshLib_.pkg meshsdk_${{matrix.os}}.pkg
+          mv MeshSDK_.pkg meshsdk_${{matrix.os}}.pkg
 
       - name: Upload Macos Distribution
         if: ${{ inputs.upload_artifacts && matrix.config == 'Release' }}

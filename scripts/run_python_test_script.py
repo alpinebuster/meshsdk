@@ -92,7 +92,7 @@ try:
     directory = os.path.dirname(os.path.abspath(__file__))
 except NameError:  # embedded python exception
     print("trying to resolve path manually...")
-    directory = os.path.join(directory, "../../../MeshLib/")
+    directory = os.path.join(directory, "../../../MeshSDK/")
     directory = os.path.join(directory, "test_python")
     print(directory)
 
@@ -102,7 +102,7 @@ else:
     directory = os.path.join(directory, "..")
     directory = os.path.join(directory, "test_python")
 
-os.environ["MeshLibPyModulesPath"] = os.getcwd()
+os.environ["MeshSDKPyModulesPath"] = os.getcwd()
 os.chdir(directory)
 
 #command line to start test

@@ -233,16 +233,16 @@ jobs:
       - name: Install Pkg
         run: |
           sudo installer -pkg meshsdk_*x64.pkg  -target /
-          xargs brew install < /Library/Frameworks/MeshLib.framework/Versions/Current/requirements/macos.txt
+          xargs brew install < /Library/Frameworks/MeshSDK.framework/Versions/Current/requirements/macos.txt
 
       # [error] NSGL: Failed to find a suitable pixel format
       #- name: Run MeshViewer
         #if: always()
-        #run: /Library/Frameworks/MeshLib.framework/Versions/Current/bin/MeshViewer -tryHidden -noEventLoop -unloadPluginsAtEnd
+        #run: /Library/Frameworks/MeshSDK.framework/Versions/Current/bin/MeshViewer -tryHidden -noEventLoop -unloadPluginsAtEnd
 
       - name: Show meshconv help
         if: always()
-        run: /Library/Frameworks/MeshLib.framework/Versions/Current/bin/meshconv --help
+        run: /Library/Frameworks/MeshSDK.framework/Versions/Current/bin/meshconv --help
 
       - name: Build C++ examples
         if: always()

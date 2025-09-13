@@ -7,7 +7,7 @@ fi
 
 echo "Updating ldconfig"
 cat << EOF > /etc/ld.so.conf.d/meshsdk_libs.conf
-/usr/local/lib/MeshLib
-/usr/local/lib/MeshLib/lib
+/usr/local/lib/MeshSDK
+/usr/local/lib/MeshSDK/lib
 EOF
 ldconfig

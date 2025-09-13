@@ -70,7 +70,7 @@ std::filesystem::path defaultDirectory( SystemPath::Directory dir )
         return SystemPath::getExecutableDirectory().value_or( "/" );
 
     const auto libDir = SystemPath::getLibraryDirectory().value_or( "/" );
-    // assuming libMRMesh.so is located at ${CMAKE_INSTALL_PREFIX}/lib/MeshLib/
+    // assuming libMRMesh.so is located at ${CMAKE_INSTALL_PREFIX}/lib/MeshSDK/
     const auto installDir = libDir / ".." / "..";
     using Directory = SystemPath::Directory;
     switch ( dir )

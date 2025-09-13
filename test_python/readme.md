@@ -11,7 +11,7 @@ To run this yourself you can do:
 
 ## Setup Instructions
 
-To run these tests please build MeshLib first, then do following commands
+To run these tests please build MeshSDK first, then do following commands
 on linux or mac:
 ```sh
 python3 -m pip install pytest numpy

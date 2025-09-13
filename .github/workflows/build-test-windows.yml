@@ -95,7 +95,7 @@ jobs:
         if: ${{ inputs.internal_build }}
         uses: aws-actions/configure-aws-credentials@8e2d02296bcf12c081e192c60f3cb80d77f4f76a # v4
         with:
-          role-to-assume: arn:aws:iam::259351611210:role/GitHubMeshLibAwsCredsRole
+          role-to-assume: arn:aws:iam::259351611210:role/GitHubMeshSDKAwsCredsRole
           aws-region: us-east-1
 
       - name: Update vcpkg packages
@@ -211,13 +211,13 @@ jobs:
             move source\TempOutput\bin source\x64\${{matrix.config}}
             if errorlevel 1 exit 1
           ) else (
-            msbuild -m source\MeshLib.sln -p:Configuration=${{ matrix.config }}
+            msbuild -m source\MeshSDK.sln -p:Configuration=${{ matrix.config }}
             if errorlevel 1 exit 1
           )
 
       - name: Build .NET
         if:   ${{ env.BUILD_C_SHARP == 'true' }}
-        run: msbuild -m source\MeshLibDotNet.sln -p:Configuration=${{ matrix.config }} -t:restore -t:build
+        run: msbuild -m source\MeshSDKDotNet.sln -p:Configuration=${{ matrix.config }} -t:restore -t:build
 
       - name: Build .NET examples
         if:   ${{ env.BUILD_C_SHARP == 'true' }}
@@ -283,7 +283,7 @@ jobs:
 
       - name: Archive generated C headers
         if: ${{ inputs.upload_artifacts && matrix.os == 'windows-2019' && matrix.build_system == 'CMake' && matrix.config == 'Release' && inputs.mrbind_c }}
-        run: tar -a -c -f MeshLibC2Headers.zip ./source/MeshLibC2/include
+        run: tar -a -c -f MeshSDKC2Headers.zip ./source/MeshSDKC2/include
 
       - name: Upload Windows Binaries Archive
         if: ${{ inputs.upload_artifacts && matrix.os == 'windows-2019' && matrix.build_system == 'CMake' }}
@@ -293,12 +293,12 @@ jobs:
           path: MREDist_${{matrix.config}}.zip
           retention-days: 1
 
-      - name: Upload MeshLibC2 headers archive
+      - name: Upload MeshSDKC2 headers archive
         if: ${{ inputs.upload_artifacts && matrix.os == 'windows-2019' && matrix.build_system == 'CMake' && matrix.config == 'Release' && inputs.mrbind_c }}
         uses: actions/upload-artifact@v4
         with:
-          name: WindowsArchive_MeshLibC2Headers
-          path: MeshLibC2Headers.zip
+          name: WindowsArchive_MeshSDKC2Headers
+          path: MeshSDKC2Headers.zip
           retention-days: 1
 
       - name: Create and fix fake Wheel for NuGet

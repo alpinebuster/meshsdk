@@ -102,6 +102,6 @@ install(
 install(
   EXPORT ${PROJECT_NAME}
   FILE ${PROJECT_NAME}Targets.cmake
-  NAMESPACE MeshLib::
+  NAMESPACE MeshSDK::
   DESTINATION ${MR_CONFIG_DIR}
 )

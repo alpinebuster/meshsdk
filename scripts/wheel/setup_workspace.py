@@ -15,7 +15,7 @@ PYLIB_PATH = {"Windows": r'./source/x64/Release/*.pyd',
 
 def prepare_workspace():
     if not os.path.isdir(os.path.join(os.getcwd(), "scripts")):
-        print("Please run this script from MeshLib root")
+        print("Please run this script from MeshSDK root")
         sys.exit(1)
 
     if os.path.exists(WHEEL_ROOT_DIR):

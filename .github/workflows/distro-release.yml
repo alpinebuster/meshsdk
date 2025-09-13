@@ -88,14 +88,14 @@ jobs:
       - name: Rename Distributives
         run: |
           shopt -s nullglob
-          for PKG_FILE in MeshLibDist*.zip ; do
+          for PKG_FILE in MeshSDKDist*.zip ; do
             mv "$PKG_FILE" "${PKG_FILE/Dist/Dist_${{ needs.config.outputs.app_version }}}"
           done
 
       - name: Upload Distributives
         run: |
           shopt -s nullglob
-          PKG_FILES="MeshLibDist*.zip meshsdk_*.zip meshsdk_*.tar.xz"
+          PKG_FILES="MeshSDKDist*.zip meshsdk_*.zip meshsdk_*.tar.xz"
           if [ -n "$(echo $PKG_FILES)" ] ; then
             echo ${{ secrets.BUILD_MACHINE_TOKEN }} | gh auth login --with-token
             gh release upload ${{ needs.config.outputs.release_tag }} $PKG_FILES --clobber
