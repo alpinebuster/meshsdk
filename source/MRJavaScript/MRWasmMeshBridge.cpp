@@ -36,10 +36,10 @@ using namespace MeshBuilder;
 extern "C" {
 
     // To maintain compatibility with C code style, functions that return pointers as integers in the `uintptr_t` style are still provided
-    uintptr_t createVerticesRaw( size_t vertexCount )
+    uintptr_t createVerticesRaw( size_t verticesCount )
     {
-        if ( vertexCount == 0 ) return 0;
-        size_t bytes = vertexCount * 3 * sizeof( float );
+        if ( verticesCount == 0 ) return 0;
+        size_t bytes = verticesCount * 3 * sizeof( float );
         void* p = std::malloc( bytes );
         return reinterpret_cast< uintptr_t >( p );
     }
@@ -62,15 +62,15 @@ extern "C" {
     }
 
 
-    uintptr_t createIndicesRaw( size_t indexCount, int elementSize )
+    uintptr_t createIndicesRaw( size_t indicesCount, int BYTES_PER_ELEMENT )
     {
-        if ( indexCount == 0 ) return 0;
-        if ( elementSize != 2 && elementSize != 4 ) return 0;
-        size_t bytes = indexCount * elementSize;
+        if ( indicesCount == 0 ) return 0;
+        if ( BYTES_PER_ELEMENT != 2 && BYTES_PER_ELEMENT != 4 ) return 0;
+        size_t bytes = indicesCount * BYTES_PER_ELEMENT;
         void* p = std::malloc( bytes );
         return reinterpret_cast< uintptr_t >( p );
     }
-    uintptr_t reallocIndicesRaw( uintptr_t ptrVal, size_t newIndexCount, int elementSize )
+    uintptr_t reallocIndicesRaw( uintptr_t ptrVal, size_t newIndexCount, int BYTES_PER_ELEMENT )
     {
         void* ptr = reinterpret_cast< void* >( ptrVal );
         if ( newIndexCount == 0 )
@@ -78,8 +78,8 @@ extern "C" {
             std::free( ptr );
             return 0;
         }
-        if ( elementSize != 2 && elementSize != 4 ) return 0;
-        size_t bytes = newIndexCount * elementSize;
+        if ( BYTES_PER_ELEMENT != 2 && BYTES_PER_ELEMENT != 4 ) return 0;
+        size_t bytes = newIndexCount * BYTES_PER_ELEMENT;
         void* p = std::realloc( ptr, bytes );
         return reinterpret_cast< uintptr_t >( p );
     }
@@ -90,26 +90,26 @@ extern "C" {
     }
 
 
-    void fillDemoVerticesRaw( uintptr_t ptrVal, size_t vertexCount,
+    void fillDemoVerticesRaw( uintptr_t ptrVal, size_t verticesCount,
                             float xOffset, float yOffset, float zOffset )
     {
         if ( ptrVal == 0 ) return;
         float* f = reinterpret_cast< float* >( reinterpret_cast< void* >( ptrVal ) );
 
-        for ( size_t i = 0; i < vertexCount; ++i )
+        for ( size_t i = 0; i < verticesCount; ++i )
         {
             f[i * 3 + 0] = static_cast< float >( i ) + xOffset; // x
             f[i * 3 + 1] = 0.0f + yOffset;                  // y
             f[i * 3 + 2] = 0.0f + zOffset;                  // z
         }
     }
-    void modifyVerticesRaw( uintptr_t ptrVal, size_t vertexCount,
+    void modifyVerticesRaw( uintptr_t ptrVal, size_t verticesCount,
                        float xOffset, float yOffset, float zOffset )
     {
         if ( ptrVal == 0 ) return;
         float* f = reinterpret_cast< float* >( reinterpret_cast< void* >( ptrVal ) );
 
-        for ( size_t i = 0; i < vertexCount; ++i )
+        for ( size_t i = 0; i < verticesCount; ++i )
         {
             f[i * 3 + 0] += xOffset; // x
             f[i * 3 + 1] += yOffset; // y
@@ -117,36 +117,36 @@ extern "C" {
         }
     }
 
-    void fillDemoIndicesRaw( uintptr_t ptrVal, size_t indexCount, int elementSize, uint32_t offset )
+    void fillDemoIndicesRaw( uintptr_t ptrVal, size_t indicesCount, int BYTES_PER_ELEMENT, uint32_t offset )
     {
         if ( ptrVal == 0 ) return;
         void* base = reinterpret_cast< void* >( ptrVal );
 
-        if ( elementSize == 2 )
+        if ( BYTES_PER_ELEMENT == 2 )
         {
             uint16_t* idx = reinterpret_cast< uint16_t* >( base );
-            for ( size_t i = 0; i < indexCount; ++i ) idx[i] = static_cast< uint16_t >( i + offset );
+            for ( size_t i = 0; i < indicesCount; ++i ) idx[i] = static_cast< uint16_t >( i + offset );
         }
         else
         {
             uint32_t* idx = reinterpret_cast< uint32_t* >( base );
-            for ( size_t i = 0; i < indexCount; ++i ) idx[i] = static_cast< uint32_t >( i + offset );
+            for ( size_t i = 0; i < indicesCount; ++i ) idx[i] = static_cast< uint32_t >( i + offset );
         }
     }
-    void modifyIndicesRaw( uintptr_t ptrVal, size_t indexCount, int elementSize, uint32_t offset )
+    void modifyIndicesRaw( uintptr_t ptrVal, size_t indicesCount, int BYTES_PER_ELEMENT, uint32_t offset )
     {
         if ( ptrVal == 0 ) return;
         void* base = reinterpret_cast< void* >( ptrVal );
 
-        if ( elementSize == 2 )
+        if ( BYTES_PER_ELEMENT == 2 )
         {
             uint16_t* idx = reinterpret_cast< uint16_t* >( base );
-            for ( size_t i = 0; i < indexCount; ++i ) idx[i] += static_cast< uint16_t >( offset );
+            for ( size_t i = 0; i < indicesCount; ++i ) idx[i] += static_cast< uint16_t >( offset );
         }
         else
         {
             uint32_t* idx = reinterpret_cast< uint32_t* >( base );
-            for ( size_t i = 0; i < indexCount; ++i ) idx[i] += offset;
+            for ( size_t i = 0; i < indicesCount; ++i ) idx[i] += offset;
         }
     }
 
@@ -159,52 +159,52 @@ extern "C" {
 // These functions return a TypedArray that can be used directly on the JS side (zero-copy).
 // 
 // NOTE: In `typed_memory_view(length, ptr)`, the length refers to the number of elements (NOT the byte size).
-//   - For vertices: length = vertexCount * 3 (number of floats)
-//   - For indices: length = indexCount (number of `uint16`/`uint32`)
+//   - For vertices: length = verticesCount * 3 (number of floats)
+//   - For indices: length = indicesCount (number of `uint16`/`uint32`)
 // 
-val getVerticesMV( uintptr_t ptrVal, size_t vertexCount )
+val getVerticesMV( uintptr_t ptrVal, size_t verticesCount )
 {
     if ( ptrVal == 0 ) return val::null();
     float* p = reinterpret_cast< float* >( reinterpret_cast< void* >( ptrVal ) );
-    return val( typed_memory_view( vertexCount * 3, p ) );
+    return val( typed_memory_view( verticesCount * 3, p ) );
 }
-val getIndicesMV( uintptr_t ptrVal, size_t indexCount, int elementSize )
+val getIndicesMV( uintptr_t ptrVal, size_t indicesCount, int BYTES_PER_ELEMENT )
 {
     if ( ptrVal == 0 ) return val::null();
     void* p = reinterpret_cast< void* >( ptrVal );
-    if ( elementSize == 2 )
+    if ( BYTES_PER_ELEMENT == 2 )
     {
-        return val( typed_memory_view( indexCount, reinterpret_cast< uint16_t* >( p ) ) );
+        return val( typed_memory_view( indicesCount, reinterpret_cast< uint16_t* >( p ) ) );
     }
     else
     {
-        return val( typed_memory_view( indexCount, reinterpret_cast< uint32_t* >( p ) ) );
+        return val( typed_memory_view( indicesCount, reinterpret_cast< uint32_t* >( p ) ) );
     }
 }
-val createVerticesMV( size_t vertexCount )
+val createVerticesMV( size_t verticesCount )
 {
-    uintptr_t ptr = createVerticesRaw( vertexCount );
+    uintptr_t ptr = createVerticesRaw( verticesCount );
     if ( ptr == 0 ) return val::null();
-    return getVerticesMV( ptr, vertexCount );
+    return getVerticesMV( ptr, verticesCount );
 }
-val createIndicesMV( size_t indexCount, int elementSize )
+val createIndicesMV( size_t indicesCount, int BYTES_PER_ELEMENT )
 {
-    uintptr_t ptr = createIndicesRaw( indexCount, elementSize );
+    uintptr_t ptr = createIndicesRaw( indicesCount, BYTES_PER_ELEMENT );
     if ( ptr == 0 ) return val::null();
-    return getIndicesMV( ptr, indexCount, elementSize );
+    return getIndicesMV( ptr, indicesCount, BYTES_PER_ELEMENT );
 }
 ///
 
 
 ///
-Mesh* buildMesh( uintptr_t vPtr, uintptr_t iPtr, size_t indexCount )
+Mesh* buildMesh( uintptr_t vPtr, uintptr_t iPtr, size_t indicesCount )
 {
     if ( vPtr == 0 || iPtr == 0 ) return nullptr;
 
     const float* verticesPtr = reinterpret_cast< const float* >( vPtr );
     const uint32_t* indicesPtr = reinterpret_cast< const uint32_t* >( iPtr );
 
-    int numTris = indexCount / 3;
+    int numTris = indicesCount / 3;
     MeshBuilder::VertexIdentifier vi = MRJS::createVertexIdentifier( verticesPtr, indicesPtr, numTris );
     auto t = vi.takeTriangulation();
 
@@ -244,10 +244,10 @@ void writeMeshVertices( Mesh* mesh, uintptr_t vPtr )
     // Copy pointCount * 3 floats
     std::memcpy( dst, src, pointCount * 3 * sizeof( float ) );
 }
-void writeMeshIndices( Mesh* mesh, uintptr_t iPtr, int elementSize )
+void writeMeshIndices( Mesh* mesh, uintptr_t iPtr, int BYTES_PER_ELEMENT )
 {
     if ( !mesh || iPtr == 0 ) return;
-    if ( elementSize != 2 && elementSize != 4 ) return;
+    if ( BYTES_PER_ELEMENT != 2 && BYTES_PER_ELEMENT != 4 ) return;
 
     Triangulation tris = mesh->topology.getTriangulation();
     size_t triCount = tris.size();
@@ -261,7 +261,7 @@ void writeMeshIndices( Mesh* mesh, uintptr_t iPtr, int elementSize )
     constexpr bool vertid_trivial = std::is_trivially_copyable<VertId>::value;
     const size_t vertid_size = sizeof( VertId );
 
-    if ( elementSize == 4 )
+    if ( BYTES_PER_ELEMENT == 4 )
     {
         uint32_t* out = reinterpret_cast< uint32_t* >( reinterpret_cast< void* >( iPtr ) );
 
@@ -281,7 +281,7 @@ void writeMeshIndices( Mesh* mesh, uintptr_t iPtr, int elementSize )
             out[k++] = static_cast< uint32_t >( t[2] );
         }
     }
-    else // elementSize == 2
+    else // BYTES_PER_ELEMENT == 2
     {
         uint16_t* out = reinterpret_cast< uint16_t* >( reinterpret_cast< void* >( iPtr ) );
 
@@ -307,8 +307,8 @@ void writeMeshIndices( Mesh* mesh, uintptr_t iPtr, int elementSize )
 }
 
 emscripten::val exportMeshToBuffers( Mesh* mesh,
-                                     uintptr_t vPtr, size_t vertexCount,
-                                     uintptr_t iPtr, size_t indexCount,
+                                     uintptr_t vPtr, size_t verticesCount,
+                                     uintptr_t iPtr, size_t indicesCount,
                                      int requestedElementSize )
 {
     emscripten::val result = emscripten::val::object();
@@ -325,12 +325,12 @@ emscripten::val exportMeshToBuffers( Mesh* mesh,
     size_t needIndicesCount = getMeshIndexCount( mesh );  // number of indices (tri_count * 3)
 
     // choose index element size: if vertex count exceeds 65535 force 4 bytes
-    int elementSize = requestedElementSize;
-    if ( needVerticesCount > 65535 ) elementSize = 4;
+    int BYTES_PER_ELEMENT = requestedElementSize;
+    if ( needVerticesCount > 65535 ) BYTES_PER_ELEMENT = 4;
 
     // --- realloc vertices if needed ---
     uintptr_t newVPtr = vPtr;
-    if ( needVerticesCount > vertexCount )
+    if ( needVerticesCount > verticesCount )
     {
         newVPtr = reallocVerticesRaw( vPtr, needVerticesCount );
         if ( newVPtr == 0 && needVerticesCount != 0 )
@@ -343,9 +343,9 @@ emscripten::val exportMeshToBuffers( Mesh* mesh,
 
     // --- realloc indices if needed OR if requested element size changed ---
     uintptr_t newIPtr = iPtr;
-    if ( needIndicesCount > indexCount || elementSize != requestedElementSize )
+    if ( needIndicesCount > indicesCount || BYTES_PER_ELEMENT != requestedElementSize )
     {
-        newIPtr = reallocIndicesRaw( iPtr, needIndicesCount, elementSize );
+        newIPtr = reallocIndicesRaw( iPtr, needIndicesCount, BYTES_PER_ELEMENT );
         if ( newIPtr == 0 && needIndicesCount != 0 )
         {
             // rollback vertex realloc? (optional)
@@ -357,15 +357,15 @@ emscripten::val exportMeshToBuffers( Mesh* mesh,
 
     // --- write back mesh data into buffers ---
     writeMeshVertices( mesh, newVPtr );
-    writeMeshIndices( mesh, newIPtr, elementSize );
+    writeMeshIndices( mesh, newIPtr, BYTES_PER_ELEMENT );
 
     // return new pointers & counts
     result.set( "ok", true );
-    result.set( "vPtr", ( double )newVPtr ); // use double to represent uintptr_t in JS
-    result.set( "iPtr", ( double )newIPtr );
-    result.set( "vertexCount", ( double )needVerticesCount );
-    result.set( "indexCount", ( double )needIndicesCount );
-    result.set( "indexElementSize", ( int )elementSize );
+    result.set( "verticesPtr", ( double )newVPtr ); // use double to represent uintptr_t in JS
+    result.set( "indicesPtr", ( double )newIPtr );
+    result.set( "verticesCount", ( double )needVerticesCount );
+    result.set( "indicesCount", ( double )needIndicesCount );
+    result.set( "BYTES_PER_ELEMENT", ( int )BYTES_PER_ELEMENT );
 
     return result;
 }

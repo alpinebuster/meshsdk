@@ -249,8 +249,8 @@ function SidebarObject( editor ) {
 		if ( event.code == 'Enter' && editor.selected ) {
 			const currentUUID = editor.selected.uuid;
 			if ( currentUUID ) {
-				const { verticesPtr, jsVertices, indicesPtr, jsIndices } = createMemoryViewFromGeometry( editor, editor.selected.geometry );
-				const mesh = editor.MeshSDK.Mesh.fromTrianglesMemoryView( jsVertices, jsIndices, true );
+				const { verticesPtr, verticesArray, indicesPtr, indicesArray } = createMemoryViewFromGeometry( editor, editor.selected.geometry );
+				const mesh = editor.MeshSDK.Mesh.fromTrianglesMemoryViewImpl( verticesArray, indicesArray, true );
 
 				switch ( TOOL_MODE ) {
 					case 'wasmOpSelector':
@@ -393,10 +393,10 @@ function SidebarObject( editor ) {
 	const wasmOpFillholes = new UIButton( strings.getKey( 'sidebar/object/wasmFillholes') ).setMarginLeft( '7px' ).onClick(function () {
 		const currentUUID = editor.selected.uuid;
 		if ( currentUUID ) {
-			const { verticesPtr, jsVertices, indicesPtr, jsIndices } = createMemoryViewFromGeometry( editor, editor.selected.geometry );
-			const mesh = editor.MeshSDK.Mesh.fromTrianglesMemoryView( jsVertices, jsIndices, true );
+			const { verticesPtr, verticesArray, indicesPtr, indicesArray } = createMemoryViewFromGeometry( editor, editor.selected.geometry );
+			const mesh = editor.MeshSDK.Mesh.fromTrianglesMemoryViewImpl( verticesArray, indicesArray, true );
 	
-			const newMeshData = mesh.fillAllHolesImpl();
+			const newMeshData = editor.MeshSDK.fillAllHolesImpl( mesh );
 
 			const newVertices = newMeshData.meshMV.vertices;
 			const newIndices = newMeshData.meshMV.indices;
@@ -418,8 +418,8 @@ function SidebarObject( editor ) {
 
 		const currentUUID = editor.selected.uuid;
 		if ( currentUUID ) {
-			const { verticesPtr, jsVertices, indicesPtr, jsIndices } = createMemoryViewFromGeometry( editor, editor.selected.geometry );
-			const mesh = editor.MeshSDK.Mesh.fromTrianglesMemoryView( jsVertices, jsIndices, true );
+			const { verticesPtr, verticesArray, indicesPtr, indicesArray } = createMemoryViewFromGeometry( editor, editor.selected.geometry );
+			const mesh = editor.MeshSDK.Mesh.fromTrianglesMemoryViewImpl( verticesArray, indicesArray, true );
 	
 			const threeWorldDir = new THREE.Vector3();
 			editor.camera.getWorldDirection( threeWorldDir );
@@ -474,8 +474,8 @@ function SidebarObject( editor ) {
 
 		const currentUUID = editor.selected.uuid;
 		if ( currentUUID ) {
-			const { verticesPtr, jsVertices, indicesPtr, jsIndices } = createMemoryViewFromGeometry( editor, editor.selected.geometry );
-			const mesh = editor.MeshSDK.Mesh.fromTrianglesMemoryView( jsVertices, jsIndices, true );
+			const { verticesPtr, verticesArray, indicesPtr, indicesArray } = createMemoryViewFromGeometry( editor, editor.selected.geometry );
+			const mesh = editor.MeshSDK.Mesh.fromTrianglesMemoryViewImpl( verticesArray, indicesArray, true );
 	
 			const params = new editor.MeshSDK.GeneralOffsetParameters();
 			params.signDetectionMode = editor.MeshSDK.SignDetectionMode.Unsigned;
@@ -596,8 +596,8 @@ function SidebarObject( editor ) {
 			};
 
 
-			const { verticesPtr, jsVertices, indicesPtr, jsIndices } = createMemoryViewFromGeometry( editor, editor.selected.geometry );
-			const toothWasmMesh = editor.MeshSDK.Mesh.fromTrianglesMemoryView( jsVertices, jsIndices, true );
+			const { verticesPtr, verticesArray, indicesPtr, indicesArray } = createMemoryViewFromGeometry( editor, editor.selected.geometry );
+			const toothWasmMesh = editor.MeshSDK.Mesh.fromTrianglesMemoryViewImpl( verticesArray, indicesArray, true );
 			betweenWasmResults[0].delete();
 			betweenWasmResults[0] = null;
 			betweenWasmResults[0] = toothWasmMesh;
@@ -630,10 +630,10 @@ function SidebarObject( editor ) {
 
 		const currentUUID = editor.selected.uuid;
 		if (currentUUID) {
-			const { verticesPtr, jsVertices, indicesPtr, jsIndices } = createMemoryViewFromGeometry( editor, editor.selected.geometry );
+			const { verticesPtr, verticesArray, indicesPtr, indicesArray } = createMemoryViewFromGeometry( editor, editor.selected.geometry );
 			try {
-				// Now `jsVertices.buffer === editor.MeshSDK.HEAPF32.buffer`
-				const mesh = editor.MeshSDK.Mesh.fromTrianglesMemoryView( jsVertices, jsIndices, true );
+				// Now `verticesArray.buffer === editor.MeshSDK.HEAPF32.buffer`
+				const mesh = editor.MeshSDK.Mesh.fromTrianglesMemoryViewImpl( verticesArray, indicesArray, true );
 
 				// const result = editor.MeshSDK.Mesh.getGeometry( mesh ); // ✅
 
@@ -677,7 +677,7 @@ function SidebarObject( editor ) {
 			const indices = geometry.getIndex().array; // `Uint32Array`
 
 			try {
-				const mesh = editor.MeshSDK.Mesh.fromTrianglesMemoryView( vertices, indices, true );
+				const mesh = editor.MeshSDK.Mesh.fromTrianglesMemoryViewImpl( vertices, indices, true );
 
 				const mp = new editor.MeshSDK.MeshPart( mesh.mesh );
 				const numComponents = editor.MeshSDK.getNumComponents( mp, editor.MeshSDK.FaceIncidence.PerEdge, null );
@@ -709,10 +709,10 @@ function SidebarObject( editor ) {
 
 		const currentUUID = editor.selected.uuid;
 		if ( currentUUID ) {
-			const { verticesPtr, jsVertices, indicesPtr, jsIndices } = createMemoryViewFromGeometry( editor, editor.selected.geometry );
+			const { verticesPtr, verticesArray, indicesPtr, indicesArray } = createMemoryViewFromGeometry( editor, editor.selected.geometry );
 
 			try {
-				const mesh = editor.MeshSDK.Mesh.fromTrianglesMemoryView( jsVertices, jsIndices, true );
+				const mesh = editor.MeshSDK.Mesh.fromTrianglesMemoryViewImpl( verticesArray, indicesArray, true );
 
 				///
 				const threeWorldDir = new THREE.Vector3();
@@ -743,10 +743,10 @@ function SidebarObject( editor ) {
 
 		const currentUUID = editor.selected.uuid;
 		if ( currentUUID ) {
-			const { verticesPtr, jsVertices, indicesPtr, jsIndices } = createMemoryViewFromGeometry( editor, editor.selected.geometry );
+			const { verticesPtr, verticesArray, indicesPtr, indicesArray } = createMemoryViewFromGeometry( editor, editor.selected.geometry );
 
 			try {
-				const mesh = editor.MeshSDK.Mesh.fromTrianglesMemoryView( jsVertices, jsIndices, true );
+				const mesh = editor.MeshSDK.Mesh.fromTrianglesMemoryViewImpl( verticesArray, indicesArray, true );
 
 				///
 				const threeWorldDir = new THREE.Vector3();
@@ -797,10 +797,10 @@ function SidebarObject( editor ) {
 
 		const currentUUID = editor.selected.uuid;
 		if ( currentUUID ) {
-			const { verticesPtr, jsVertices, indicesPtr, jsIndices } = createMemoryViewFromGeometry( editor, editor.selected.geometry );
+			const { verticesPtr, verticesArray, indicesPtr, indicesArray } = createMemoryViewFromGeometry( editor, editor.selected.geometry );
 
 			try {
-				const mesh = editor.MeshSDK.Mesh.fromTrianglesMemoryView( jsVertices, jsIndices, true );
+				const mesh = editor.MeshSDK.Mesh.fromTrianglesMemoryViewImpl( verticesArray, indicesArray, true );
 
 				///
 				const threeWorldDir = new THREE.Vector3();
@@ -837,10 +837,10 @@ function SidebarObject( editor ) {
 
 		const currentUUID = editor.selected.uuid;
 		if ( currentUUID ) {
-			const { verticesPtr, jsVertices, indicesPtr, jsIndices } = createMemoryViewFromGeometry( editor, editor.selected.geometry );
+			const { verticesPtr, verticesArray, indicesPtr, indicesArray } = createMemoryViewFromGeometry( editor, editor.selected.geometry );
 
 			try {
-				const mesh = editor.MeshSDK.Mesh.fromTrianglesMemoryView( jsVertices, jsIndices, true );
+				const mesh = editor.MeshSDK.Mesh.fromTrianglesMemoryViewImpl( verticesArray, indicesArray, true );
 
 				///
 				const threeWorldDir = new THREE.Vector3();
@@ -877,10 +877,10 @@ function SidebarObject( editor ) {
 
 		const currentUUID = editor.selected.uuid;
 		if ( currentUUID ) {
-			const { verticesPtr, jsVertices, indicesPtr, jsIndices } = createMemoryViewFromGeometry( editor, editor.selected.geometry );
+			const { verticesPtr, verticesArray, indicesPtr, indicesArray } = createMemoryViewFromGeometry( editor, editor.selected.geometry );
 
 			try {
-				const mesh = editor.MeshSDK.Mesh.fromTrianglesMemoryView( jsVertices, jsIndices, true );
+				const mesh = editor.MeshSDK.Mesh.fromTrianglesMemoryViewImpl( verticesArray, indicesArray, true );
 
 				const meshDir = mesh.dirArea( null );
 				const dir = new THREE.Vector3(meshDir.x, meshDir.y, meshDir.z).normalize();
@@ -903,10 +903,10 @@ function SidebarObject( editor ) {
 
 		const currentUUID = editor.selected.uuid;
 		if ( currentUUID ) {
-			const { verticesPtr, jsVertices, indicesPtr, jsIndices } = createMemoryViewFromGeometry( editor, editor.selected.geometry );
+			const { verticesPtr, verticesArray, indicesPtr, indicesArray } = createMemoryViewFromGeometry( editor, editor.selected.geometry );
 
 			try {
-				const mesh = editor.MeshSDK.Mesh.fromTrianglesMemoryView( jsVertices, jsIndices, true );
+				const mesh = editor.MeshSDK.Mesh.fromTrianglesMemoryViewImpl( verticesArray, indicesArray, true );
 
 
 				const dispose = (vPtr, iPtr) => {
@@ -1000,6 +1000,58 @@ function SidebarObject( editor ) {
 			}
 		}
 	});
+	const wasmOpMeshExportToBuffers = new UIButton( strings.getKey( 'sidebar/object/wasmOpMeshExportToBuffers') ).setMarginLeft( '7px' ).onClick( function () {
+		if ( !editor.selected ) return;
+
+		const currentUUID = editor.selected.uuid;
+		if ( currentUUID ) {
+			const {  verticesPtr, verticesArray, verticesCount, indicesPtr, indicesArray, indicesCount  } = createMemoryViewFromGeometry( editor, editor.selected.geometry );
+
+			try {
+				const mesh = editor.MeshSDK.buildMesh( verticesPtr, indicesPtr, indicesCount );
+
+				// const holeEdges = mesh.topology.findHoleRepresentiveEdges( null );
+				// const fillHoleMetric = editor.MeshSDK.getCircumscribedMetric( mesh );
+				// const params = new editor.MeshSDK.FillHoleParams();
+				// params.metric = fillHoleMetric;
+				// for (let i = 0; i < holeEdges.size(); i++) {
+				// 	let e = holeEdges.get(i); // std::vector supports .get(i)
+				// 	editor.MeshSDK.fillHole(mesh, e, params);
+				// }
+
+
+				const newMeshData = editor.MeshSDK.fillAllHolesImpl( mesh );
+
+
+				// const newVertices = newMeshData.meshMV.vertices;
+				// const newIndices = newMeshData.meshMV.indices;
+				// showMesh( newMeshData.mesh, newVertices, newIndices );
+
+				// const result = editor.MeshSDK.exportMeshToBuffers( mesh, verticesPtr, verticesCount, indicesPtr, indicesCount, Float32Array.BYTES_PER_ELEMENT);	
+				// console.log( "result", result );
+
+
+				// // three.js geometry
+				// const geometry = new THREE.BufferGeometry();
+				// const posAttr = new THREE.BufferAttribute(verticesArray, 3);
+				// geometry.setAttribute('position', posAttr);
+				// const indexAttr = new THREE.BufferAttribute(indicesArray, 1);
+				// geometry.setIndex(indexAttr);
+
+				// geometry.computeBoundingSphere();
+
+				// const mat = new THREE.MeshBasicMaterial({ color: 0x88cc88, wireframe: true });
+				// const threeMesh = new THREE.Mesh(geometry, mat);
+
+				// editor.execute( new AddObjectCommand( editor, threeMesh, editor.selected ) );
+
+			} catch ( error ) {
+				console.error( 'Error creating from ThreeJS Mesh:', error.message );
+				editor.MeshSDK._free( verticesPtr );
+				editor.MeshSDK._free( indicesPtr );
+			}
+		}
+	});
 
 
 	wasmOpsRow.add( new UIText( strings.getKey( 'sidebar/object/wasm' ) ).setClass( 'Label' ) );
@@ -1036,6 +1088,7 @@ function SidebarObject( editor ) {
 	const wasmOpsRowMesh = new UIRow();
 	wasmOpsRowMesh.add( wasmOpMeshDir );
 	wasmOpsRowMesh.add( wasmOpMeshMV );
+	wasmOpsRowMesh.add( wasmOpMeshExportToBuffers );
 
 	container.add( wasmOpsRow );
 	container.add( wasmOpsRowLoad );

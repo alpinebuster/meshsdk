@@ -19,19 +19,19 @@ const createMemoryViewFromGeometry = ( editor, geometry ) => {
 	const bytes = verticesCount * Float32Array.BYTES_PER_ELEMENT; // BYTES_PER_ELEMENT === 4
 	const verticesPtr = editor.MeshSDK._malloc( bytes );
 	// 2) construct a JS Float32Array that _views_ the WASM heap:
-	const jsVertices = new Float32Array( editor.MeshSDK.HEAPF32.buffer, verticesPtr, verticesCount );
+	const verticesArray = new Float32Array( editor.MeshSDK.HEAPF32.buffer, verticesPtr, verticesCount );
 	// 3) copy into it (once), or let your own code fill it:
-	jsVertices.set( vertices );
+	verticesArray.set( vertices );
 	///
 
 	/// Indices
 	const indicesCount = indices.length;
 	const indicesPtr = editor.MeshSDK._malloc( indicesCount * 4 );
-	const jsIndices = new Uint32Array( editor.MeshSDK.HEAPU32.buffer, indicesPtr, indicesCount );
-	jsIndices.set( indices );
+	const indicesArray = new Uint32Array( editor.MeshSDK.HEAPU32.buffer, indicesPtr, indicesCount );
+	indicesArray.set( indices );
 	///
 
-	return { verticesPtr, jsVertices, indicesPtr, jsIndices };
+	return { verticesPtr, verticesArray, verticesCount, indicesPtr, indicesArray, indicesCount };
 } 
 
 function showMesh( wasmMesh, newVertices, newIndices ) {

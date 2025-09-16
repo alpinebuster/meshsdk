@@ -551,9 +551,9 @@ Editor.prototype = {
 				if ( ( subChild.isLine || subChild.isPoints ) && ( subChild.name.includes( "wasm-selector" ) ) ) return;
 			}
 
-			const { verticesPtr, jsVertices, indicesPtr, jsIndices } = createMemoryViewFromGeometry( ctx, curM.geometry );
+			const { verticesPtr, verticesArray, indicesPtr, indicesArray } = createMemoryViewFromGeometry( ctx, curM.geometry );
 			
-			const wasmMesh = this.MeshSDK.Mesh.fromTrianglesMemoryView( jsVertices, jsIndices, true );
+			const wasmMesh = this.MeshSDK.Mesh.fromTrianglesMemoryViewImpl( verticesArray, indicesArray, true );
 			try {
 				if ( wasmMesh ) this.addWasmObject( curM.uuid, wasmMesh );
 			}

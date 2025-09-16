@@ -199,7 +199,7 @@ EMSCRIPTEN_BINDINGS( MeshModule )
 		// 
 		// 
 		//  try {
-		//  	const mesh = Module.fromTrianglesMemoryView( jsVertices, jsIndices );
+		//  	const mesh = Module.fromTrianglesMemoryViewImpl( jsVertices, jsIndices );
 		// 
 		//      // ...
 		// 
@@ -210,7 +210,7 @@ EMSCRIPTEN_BINDINGS( MeshModule )
 		//  }
 		//  ```
 		// 
-		.class_function( "fromTrianglesMemoryView", 
+		.class_function( "fromTrianglesMemoryViewImpl", 
 			optional_override( [] ( const val& verticesArray, const val& indicesArray, bool duplicateNonManifoldVertices ) -> Mesh
 			{
 				try
