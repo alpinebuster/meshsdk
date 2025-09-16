@@ -10994,25 +10994,25 @@ interface EmbindModule {
   };
   Quaternionf: {
     new(): Quaternionf;
-    new(_0: number, _1: number, _2: number, _3: number): Quaternionf;
     new(_0: Matrix3f): Quaternionf;
-    new(_0: Vector3f, _1: number): Quaternionf;
+    new(_0: number, _1: number, _2: number, _3: number): Quaternionf;
     new(_0: number, _1: Vector3f): Quaternionf;
-    new(_0: Vector3f, _1: Vector3f): Quaternionf;
     lerp(_0: Quaternionf, _1: Quaternionf, _2: number): Quaternionf;
     slerp(_0: Quaternionf, _1: Quaternionf, _2: number): Quaternionf;
     slerpMatrix(_0: Matrix3f, _1: Matrix3f, _2: number): Matrix3f;
+    createFrom_Axis_Angle(_0: Vector3f, _1: number): Quaternionf;
+    createFrom_One_Another(_0: Vector3f, _1: Vector3f): Quaternionf;
   };
   Quaterniond: {
     new(): Quaterniond;
-    new(_0: number, _1: number, _2: number, _3: number): Quaterniond;
     new(_0: Matrix3d): Quaterniond;
-    new(_0: Vector3d, _1: number): Quaterniond;
+    new(_0: number, _1: number, _2: number, _3: number): Quaterniond;
     new(_0: number, _1: Vector3d): Quaterniond;
-    new(_0: Vector3d, _1: Vector3d): Quaterniond;
     lerp(_0: Quaterniond, _1: Quaterniond, _2: number): Quaterniond;
     slerp(_0: Quaterniond, _1: Quaterniond, _2: number): Quaterniond;
     slerpMatrix(_0: Matrix3d, _1: Matrix3d, _2: number): Matrix3d;
+    createFrom_Axis_Angle(_0: Vector3d, _1: number): Quaterniond;
+    createFrom_One_Another(_0: Vector3d, _1: Vector3d): Quaterniond;
   };
   dotQuaternion_f(_0: Quaternionf, _1: Quaternionf): number;
   getCanonicalQuaternions_f(): Quaternionf | null;

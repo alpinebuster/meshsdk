@@ -15,11 +15,19 @@ void bindTypedQuaternion( const char* name )
 {
     class_<Q>( name )
         .constructor<>()
-        .constructor<T, T, T, T>()
-        .constructor<const V3&, T>() // axis, angle constructor
-        .constructor<T, const V3&>() // real, imaginary constructor
         .constructor<const M3&>() // matrix constructor
-        .constructor<const V3&, const V3&>() // from-to vector constructor
+        .constructor<T, const V3&>() // real, imaginary constructor
+        // axis, angle constructor
+        .class_function( "createFrom_Axis_Angle", optional_override( [] ( const V3& axis, T angle )
+        {
+            return Q( axis, angle );
+        } ) )
+        // from-to vector constructor
+        .class_function( "createFrom_One_Another", optional_override( [] ( const V3& from, const V3& to )
+        {
+            return Q( from, to );
+        } ) )
+        .constructor<T, T, T, T>()
 
         .property( "a", &Q::a ) // real part
         .property( "b", &Q::b ) // i component

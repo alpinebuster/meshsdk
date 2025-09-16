@@ -872,6 +872,32 @@ function SidebarObject( editor ) {
 			}
 		}
 	});
+	const wasmOpMeshDir = new UIButton( strings.getKey( 'sidebar/object/wasmOpMeshDir') ).setMarginLeft( '7px' ).onClick( function () {
+		if ( !editor.selected ) return;
+
+		const currentUUID = editor.selected.uuid;
+		if ( currentUUID ) {
+			const { verticesPtr, jsVertices, indicesPtr, jsIndices } = createMemoryViewFromGeometry( editor, editor.selected.geometry );
+
+			try {
+				const mesh = editor.MeshSDK.Mesh.fromTrianglesMemoryView( jsVertices, jsIndices, true );
+
+				const meshDir = mesh.dirArea( null );
+				const dir = new THREE.Vector3(meshDir.x, meshDir.y, meshDir.z).normalize();
+
+				const origin = new THREE.Vector3( 0, 0, 0 );
+				const length = 30;
+				const hex = 0xff0000;
+				const arrowHelper = new THREE.ArrowHelper( dir, origin, length, hex );
+
+				editor.execute( new AddObjectCommand( editor, arrowHelper, editor.selected ) );
+			} catch ( error ) {
+				console.error( 'Error creating from ThreeJS Mesh:', error.message );
+				editor.MeshSDK._free( verticesPtr );
+				editor.MeshSDK._free( indicesPtr );
+			}
+		}
+	});
 
 	wasmOpsRow.add( new UIText( strings.getKey( 'sidebar/object/wasm' ) ).setClass( 'Label' ) );
 
@@ -904,6 +930,9 @@ function SidebarObject( editor ) {
 	const wasmOpsRowToothRoot = new UIRow();
 	wasmOpsRowToothRoot.add( wasmOpInflateToothRoot );
 
+	const wasmOpsRowMesh = new UIRow();
+	wasmOpsRowMesh.add( wasmOpMeshDir );
+
 	container.add( wasmOpsRow );
 	container.add( wasmOpsRowLoad );
 	container.add( wasmOpsRowHole );
@@ -912,6 +941,7 @@ function SidebarObject( editor ) {
 	container.add( wasmOpsRowThicken );
 	container.add( wasmOpsRowGypsum );
 	container.add( wasmOpsRowToothRoot );
+	container.add( wasmOpsRowMesh );
 
 	// fov
 
