@@ -216,19 +216,19 @@ void freeMesh( Mesh* meshPtr )
     if ( meshPtr ) delete meshPtr;
 }
 
-size_t getMeshVertexCount( Mesh* mesh )
+size_t getMeshVerticesCount( Mesh* mesh )
 {
     if ( !mesh ) return 0;
     return mesh->points.size();
 }
-size_t getMeshIndexCount( Mesh* mesh )
+size_t getMeshIndicesCount( Mesh* mesh )
 {
     if ( !mesh ) return 0;
 
     const Triangulation tris_ = mesh->topology.getTriangulation();
-    size_t triangleCount = tris_.size();
-    size_t triElementCount = triangleCount * 3;
-    return triElementCount; // tri_count * 3
+    size_t triCount = tris_.size();
+    size_t indicesCount = triCount * 3;
+    return indicesCount; // tri_count * 3
 }
 void writeMeshVertices( Mesh* mesh, uintptr_t vPtr )
 {
@@ -307,9 +307,9 @@ void writeMeshIndices( Mesh* mesh, uintptr_t iPtr, int BYTES_PER_ELEMENT )
 }
 
 emscripten::val exportMeshToBuffers( Mesh* mesh,
-                                     uintptr_t vPtr, size_t verticesCount,
-                                     uintptr_t iPtr, size_t indicesCount,
-                                     int requestedElementSize )
+                                     uintptr_t vPtr, size_t oldVerticesCount,
+                                     uintptr_t iPtr, size_t oldIndicesCount,
+                                     int BYTES_PER_ELEMENT )
 {
     emscripten::val result = emscripten::val::object();
 
@@ -321,16 +321,16 @@ emscripten::val exportMeshToBuffers( Mesh* mesh,
     }
 
     // compute required sizes
-    size_t needVerticesCount = getMeshVertexCount( mesh ); // number of vertices
-    size_t needIndicesCount = getMeshIndexCount( mesh );  // number of indices (tri_count * 3)
+    size_t needVerticesCount = getMeshVerticesCount( mesh ); // number of vertices
+    size_t needIndicesCount = getMeshIndicesCount( mesh );  // number of indices (tri_count * 3)
 
     // choose index element size: if vertex count exceeds 65535 force 4 bytes
-    int BYTES_PER_ELEMENT = requestedElementSize;
-    if ( needVerticesCount > 65535 ) BYTES_PER_ELEMENT = 4;
+    int elementSize = BYTES_PER_ELEMENT;
+    if ( needIndicesCount > 65535 ) elementSize = 4;
 
-    // --- realloc vertices if needed ---
+    // realloc vertices
     uintptr_t newVPtr = vPtr;
-    if ( needVerticesCount > verticesCount )
+    if ( needVerticesCount > oldVerticesCount )
     {
         newVPtr = reallocVerticesRaw( vPtr, needVerticesCount );
         if ( newVPtr == 0 && needVerticesCount != 0 )
@@ -341,9 +341,9 @@ emscripten::val exportMeshToBuffers( Mesh* mesh,
         }
     }
 
-    // --- realloc indices if needed OR if requested element size changed ---
+    // realloc indices
     uintptr_t newIPtr = iPtr;
-    if ( needIndicesCount > indicesCount || BYTES_PER_ELEMENT != requestedElementSize )
+    if ( needIndicesCount > oldIndicesCount || BYTES_PER_ELEMENT != elementSize )
     {
         newIPtr = reallocIndicesRaw( iPtr, needIndicesCount, BYTES_PER_ELEMENT );
         if ( newIPtr == 0 && needIndicesCount != 0 )
@@ -355,9 +355,11 @@ emscripten::val exportMeshToBuffers( Mesh* mesh,
         }
     }
 
+
     // --- write back mesh data into buffers ---
     writeMeshVertices( mesh, newVPtr );
-    writeMeshIndices( mesh, newIPtr, BYTES_PER_ELEMENT );
+    writeMeshIndices( mesh, newIPtr, elementSize );
+
 
     // return new pointers & counts
     result.set( "ok", true );
@@ -365,7 +367,12 @@ emscripten::val exportMeshToBuffers( Mesh* mesh,
     result.set( "indicesPtr", ( double )newIPtr );
     result.set( "verticesCount", ( double )needVerticesCount );
     result.set( "indicesCount", ( double )needIndicesCount );
-    result.set( "BYTES_PER_ELEMENT", ( int )BYTES_PER_ELEMENT );
+    result.set( "BYTES_PER_ELEMENT", ( int )elementSize );
+
+    result.set( "sizeof_Vector3f", sizeof(Vector3f) );
+    result.set( "sizeof_3float", 3 * sizeof(float) );
+    result.set( "sizeof_ThreeVertIds", sizeof(ThreeVertIds) );
+    result.set( "sizeof_3VertId", 3 * sizeof(VertId) );
 
     return result;
 }
@@ -402,8 +409,8 @@ EMSCRIPTEN_BINDINGS( WasmMeshBridgeModule )
 
     function( "buildMesh", &buildMesh, allow_raw_pointers());
     function( "freeMesh", &freeMesh, allow_raw_pointers() );
-    function( "getMeshVertexCount", &getMeshVertexCount, allow_raw_pointers() );
-    function( "getMeshIndexCount", &getMeshIndexCount, allow_raw_pointers() );
+    function( "getMeshVerticesCount", &getMeshVerticesCount, allow_raw_pointers() );
+    function( "getMeshIndicesCount", &getMeshIndicesCount, allow_raw_pointers() );
     function( "writeMeshVertices", &writeMeshVertices, allow_raw_pointers() );
     function( "writeMeshIndices", &writeMeshIndices, allow_raw_pointers() );
     function( "exportMeshToBuffers", &exportMeshToBuffers, allow_raw_pointers() );

@@ -12538,8 +12538,8 @@ interface EmbindModule {
   createIndicesMV(_0: number, _1: number): any;
   buildMesh(_0: number, _1: number, _2: number): Mesh | null;
   freeMesh(_0: Mesh | null): void;
-  getMeshVertexCount(_0: Mesh | null): number;
-  getMeshIndexCount(_0: Mesh | null): number;
+  getMeshVerticesCount(_0: Mesh | null): number;
+  getMeshIndicesCount(_0: Mesh | null): number;
   writeMeshVertices(_0: Mesh | null, _1: number): void;
   writeMeshIndices(_0: Mesh | null, _1: number, _2: number): void;
   exportMeshToBuffers(_0: Mesh | null, _1: number, _2: number, _3: number, _4: number, _5: number): any;

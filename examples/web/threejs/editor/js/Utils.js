@@ -2,6 +2,25 @@ import * as THREE from 'three';
 
 import { AddObjectCommand } from './commands/AddObjectCommand.js';
 
+
+const dispose = (vPtr, iPtr) => {
+	editor.MeshSDK.freeVerticesRaw(vPtr);
+	editor.MeshSDK.freeIndicesRaw(iPtr);
+}
+const logSample = (vertexCount, vertices, indexCount, indices, n = 10) => {
+	console.log('Vertices:');
+	for (let i = 0; i < Math.min(n, vertexCount); i++) {
+		console.log(
+			`vertex ${i}: x=${vertices[i * 3]}, y=${vertices[i * 3 + 1]}, z=${vertices[i * 3 + 2]}`
+		);
+	}
+
+	console.log('Indices:');
+	for (let i = 0; i < Math.min(n, indexCount); i++) {
+		console.log(`index ${i}: ${indices[i]}`);
+	}
+}
+
 const createMemoryViewFromGeometry = ( editor, geometry ) => {
 	const vertices = geometry.getAttribute('position').array; // `Float32Array`
 	const indices = geometry.getIndex().array; // `Uint32Array`
@@ -64,4 +83,4 @@ function showMesh( wasmMesh, newVertices, newIndices ) {
 }
 
 export default createMemoryViewFromGeometry;
-export { showMesh };
+export { showMesh, dispose, logSample };

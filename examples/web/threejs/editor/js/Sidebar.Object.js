@@ -14,7 +14,7 @@ import { SetColorCommand } from './commands/SetColorCommand.js';
 import { SetShadowValueCommand } from './commands/SetShadowValueCommand.js';
 
 import { SidebarObjectAnimation } from './Sidebar.Object.Animation.js';
-import createMemoryViewFromGeometry, { showMesh } from './Utils.js';
+import createMemoryViewFromGeometry, { showMesh, dispose, logSample } from './Utils.js';
 
 function SidebarObject( editor ) {
 	const strings = editor.strings;
@@ -909,24 +909,6 @@ function SidebarObject( editor ) {
 				const mesh = editor.MeshSDK.Mesh.fromTrianglesMemoryViewImpl( verticesArray, indicesArray, true );
 
 
-				const dispose = (vPtr, iPtr) => {
-					editor.MeshSDK.freeVerticesRaw(vPtr);
-					editor.MeshSDK.freeIndicesRaw(iPtr);
-				}
-				const logSample = (vertexCount, vertices, indexCount, indices, n = 10) => {
-					console.log('Vertices:');
-					for (let i = 0; i < Math.min(n, vertexCount); i++) {
-						console.log(
-							`vertex ${i}: x=${vertices[i * 3]}, y=${vertices[i * 3 + 1]}, z=${vertices[i * 3 + 2]}`
-						);
-					}
-				
-					console.log('Indices:');
-					for (let i = 0; i < Math.min(n, indexCount); i++) {
-						console.log(`index ${i}: ${indices[i]}`);
-					}
-				}
-
 				// 1. Create raw buffer
 				let vertexCount = 9;
 				let indexCount = 12;
@@ -1010,40 +992,49 @@ function SidebarObject( editor ) {
 			try {
 				const mesh = editor.MeshSDK.buildMesh( verticesPtr, indicesPtr, indicesCount );
 
-				// const holeEdges = mesh.topology.findHoleRepresentiveEdges( null );
-				// const fillHoleMetric = editor.MeshSDK.getCircumscribedMetric( mesh );
-				// const params = new editor.MeshSDK.FillHoleParams();
-				// params.metric = fillHoleMetric;
-				// for (let i = 0; i < holeEdges.size(); i++) {
-				// 	let e = holeEdges.get(i); // std::vector supports .get(i)
-				// 	editor.MeshSDK.fillHole(mesh, e, params);
-				// }
+				const holeEdges = mesh.topology.findHoleRepresentiveEdges( null );
+				const fillHoleMetric = editor.MeshSDK.getCircumscribedMetric( mesh );
+				const params = new editor.MeshSDK.FillHoleParams();
+				params.metric = fillHoleMetric;
+				for (let i = 0; i < holeEdges.size(); i++) {
+					let e = holeEdges.get(i); // std::vector supports .get(i)
+					editor.MeshSDK.fillHole(mesh, e, params);
+				}
 
 
-				const newMeshData = editor.MeshSDK.fillAllHolesImpl( mesh );
+				// const result = editor.MeshSDK.exportMeshMemoryView(mesh);
+				// const newVertices = result.vertices;
+				// const newIndices = result.indices;
+				// showMesh( mesh, newVertices, newIndices );
 
 
+				// const newMeshData = editor.MeshSDK.fillAllHolesImpl( mesh );
 				// const newVertices = newMeshData.meshMV.vertices;
 				// const newIndices = newMeshData.meshMV.indices;
 				// showMesh( newMeshData.mesh, newVertices, newIndices );
 
-				// const result = editor.MeshSDK.exportMeshToBuffers( mesh, verticesPtr, verticesCount, indicesPtr, indicesCount, Float32Array.BYTES_PER_ELEMENT);	
-				// console.log( "result", result );
+
+				const result = editor.MeshSDK.exportMeshToBuffers( mesh, verticesPtr, verticesCount, indicesPtr, indicesCount, Float32Array.BYTES_PER_ELEMENT);	
+				console.log( "result", result );
+
+				const newVerticesArray = new Float32Array( editor.MeshSDK.HEAPF32.buffer, result.verticesPtr, result.verticesCount * 3 );
+				const newIndicesArray = new Uint32Array( editor.MeshSDK.HEAPU32.buffer, result.indicesPtr, result.indicesCount );
+				logSample(result.verticesCount, newVerticesArray, result.indicesCount, newIndicesArray);
 
 
-				// // three.js geometry
-				// const geometry = new THREE.BufferGeometry();
-				// const posAttr = new THREE.BufferAttribute(verticesArray, 3);
-				// geometry.setAttribute('position', posAttr);
-				// const indexAttr = new THREE.BufferAttribute(indicesArray, 1);
-				// geometry.setIndex(indexAttr);
+				// three.js geometry
+				const geometry = new THREE.BufferGeometry();
+				const posAttr = new THREE.BufferAttribute(newVerticesArray, 3);
+				geometry.setAttribute('position', posAttr);
+				const indexAttr = new THREE.BufferAttribute(newIndicesArray, 1);
+				geometry.setIndex(indexAttr);
 
-				// geometry.computeBoundingSphere();
+				geometry.computeBoundingSphere();
 
-				// const mat = new THREE.MeshBasicMaterial({ color: 0x88cc88, wireframe: true });
-				// const threeMesh = new THREE.Mesh(geometry, mat);
+				const mat = new THREE.MeshBasicMaterial({ color: 0x88cc88, wireframe: true });
+				const threeMesh = new THREE.Mesh(geometry, mat);
 
-				// editor.execute( new AddObjectCommand( editor, threeMesh, editor.selected ) );
+				editor.execute( new AddObjectCommand( editor, threeMesh, editor.selected ) );
 
 			} catch ( error ) {
 				console.error( 'Error creating from ThreeJS Mesh:', error.message );
