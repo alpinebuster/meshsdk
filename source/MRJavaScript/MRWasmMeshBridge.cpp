@@ -1,13 +1,18 @@
+#include <cstdint>
+#include <cstdlib>
+
 #include <MRPch/MRWasm.h>
 
 #include <MRMesh/MRMesh.h>
 #include <MRMesh/MRMeshFwd.h>
+#include <MRMesh/MRMeshBuilder.h>
+#include <MRMesh/MRIdentifyVertices.h>
 
-#include <cstdint>
-#include <cstdlib>
+#include "MRUtils.h"
 
 using namespace emscripten;
 using namespace MR;
+using namespace MeshBuilder;
 
 
 // Prevent name mangling in C++, ensuring that the function can be called from C or other languages (JS/WASM).
@@ -148,7 +153,7 @@ extern "C" {
 } // extern "C"
 
 
-/// FIXME
+///
 // 
 // A more convenient API: directly create and return a TypedArray (internally using malloc).
 // These functions return a TypedArray that can be used directly on the JS side (zero-copy).
@@ -191,6 +196,182 @@ val createIndicesMV( size_t indexCount, int elementSize )
 ///
 
 
+///
+Mesh* buildMesh( uintptr_t vPtr, uintptr_t iPtr, size_t indexCount )
+{
+    if ( vPtr == 0 || iPtr == 0 ) return nullptr;
+
+    const float* verticesPtr = reinterpret_cast< const float* >( vPtr );
+    const uint32_t* indicesPtr = reinterpret_cast< const uint32_t* >( iPtr );
+
+    int numTris = indexCount / 3;
+    MeshBuilder::VertexIdentifier vi = MRJS::createVertexIdentifier( verticesPtr, indicesPtr, numTris );
+    auto t = vi.takeTriangulation();
+
+    Mesh* mesh = new Mesh( Mesh::fromTriangles( vi.takePoints(), t ) );
+    return mesh;
+}
+void freeMesh( Mesh* meshPtr )
+{
+    if ( meshPtr ) delete meshPtr;
+}
+
+size_t getMeshVertexCount( Mesh* mesh )
+{
+    if ( !mesh ) return 0;
+    return mesh->points.size();
+}
+size_t getMeshIndexCount( Mesh* mesh )
+{
+    if ( !mesh ) return 0;
+
+    const Triangulation tris_ = mesh->topology.getTriangulation();
+    size_t triangleCount = tris_.size();
+    size_t triElementCount = triangleCount * 3;
+    return triElementCount; // tri_count * 3
+}
+void writeMeshVertices( Mesh* mesh, uintptr_t vPtr )
+{
+    if ( !mesh || vPtr == 0 ) return;
+    const auto& points = mesh->points;
+    size_t pointCount = points.size();
+    if ( pointCount == 0 ) return;
+
+    // points.data() returns Vector3f*, three floats are consecutive
+    const float* src = reinterpret_cast< const float* >( points.data() );
+    float* dst = reinterpret_cast< float* >( reinterpret_cast< void* >( vPtr ) );
+
+    // Copy pointCount * 3 floats
+    std::memcpy( dst, src, pointCount * 3 * sizeof( float ) );
+}
+void writeMeshIndices( Mesh* mesh, uintptr_t iPtr, int elementSize )
+{
+    if ( !mesh || iPtr == 0 ) return;
+    if ( elementSize != 2 && elementSize != 4 ) return;
+
+    Triangulation tris = mesh->topology.getTriangulation();
+    size_t triCount = tris.size();
+    if ( triCount == 0 ) return;
+
+    size_t triElementCount = triCount * 3;
+    const void* srcBytes = static_cast< const void* >( tris.data() );
+
+    // runtime checks
+    constexpr bool three_trivial = std::is_trivially_copyable<ThreeVertIds>::value;
+    constexpr bool vertid_trivial = std::is_trivially_copyable<VertId>::value;
+    const size_t vertid_size = sizeof( VertId );
+
+    if ( elementSize == 4 )
+    {
+        uint32_t* out = reinterpret_cast< uint32_t* >( reinterpret_cast< void* >( iPtr ) );
+
+        // fast path: VertId is integer-sized 4 bytes and layouts match
+        if ( three_trivial && vertid_trivial && vertid_size == sizeof( uint32_t ) )
+        {
+            std::memcpy( out, srcBytes, triElementCount * sizeof( uint32_t ) );
+            return;
+        }
+
+        // fallback: convert element-by-element
+        size_t k = 0;
+        for ( const ThreeVertIds& t : tris )
+        {
+            out[k++] = static_cast< uint32_t >( t[0] );
+            out[k++] = static_cast< uint32_t >( t[1] );
+            out[k++] = static_cast< uint32_t >( t[2] );
+        }
+    }
+    else // elementSize == 2
+    {
+        uint16_t* out = reinterpret_cast< uint16_t* >( reinterpret_cast< void* >( iPtr ) );
+
+        // if VertId is 2 bytes, direct memcpy ok
+        if ( three_trivial && vertid_trivial && vertid_size == sizeof( uint16_t ) )
+        {
+            std::memcpy( out, srcBytes, triElementCount * sizeof( uint16_t ) );
+            return;
+        }
+
+        // fallback: per-element with clamp to 0xFFFF
+        size_t k = 0;
+        for ( const ThreeVertIds& t : tris )
+        {
+            uint32_t v0 = static_cast< uint32_t >( t[0] );
+            uint32_t v1 = static_cast< uint32_t >( t[1] );
+            uint32_t v2 = static_cast< uint32_t >( t[2] );
+            out[k++] = ( v0 > 0xFFFFu ) ? static_cast< uint16_t >( 0xFFFFu ) : static_cast< uint16_t >( v0 );
+            out[k++] = ( v1 > 0xFFFFu ) ? static_cast< uint16_t >( 0xFFFFu ) : static_cast< uint16_t >( v1 );
+            out[k++] = ( v2 > 0xFFFFu ) ? static_cast< uint16_t >( 0xFFFFu ) : static_cast< uint16_t >( v2 );
+        }
+    }
+}
+
+emscripten::val exportMeshToBuffers( Mesh* mesh,
+                                     uintptr_t vPtr, size_t vertexCount,
+                                     uintptr_t iPtr, size_t indexCount,
+                                     int requestedElementSize )
+{
+    emscripten::val result = emscripten::val::object();
+
+    if ( !mesh )
+    {
+        result.set( "ok", false );
+        result.set( "error", std::string( "mesh is null" ) );
+        return result;
+    }
+
+    // compute required sizes
+    size_t needVerticesCount = getMeshVertexCount( mesh ); // number of vertices
+    size_t needIndicesCount = getMeshIndexCount( mesh );  // number of indices (tri_count * 3)
+
+    // choose index element size: if vertex count exceeds 65535 force 4 bytes
+    int elementSize = requestedElementSize;
+    if ( needVerticesCount > 65535 ) elementSize = 4;
+
+    // --- realloc vertices if needed ---
+    uintptr_t newVPtr = vPtr;
+    if ( needVerticesCount > vertexCount )
+    {
+        newVPtr = reallocVerticesRaw( vPtr, needVerticesCount );
+        if ( newVPtr == 0 && needVerticesCount != 0 )
+        {
+            result.set( "ok", false );
+            result.set( "error", std::string( "reallocVerticesRaw failed" ) );
+            return result;
+        }
+    }
+
+    // --- realloc indices if needed OR if requested element size changed ---
+    uintptr_t newIPtr = iPtr;
+    if ( needIndicesCount > indexCount || elementSize != requestedElementSize )
+    {
+        newIPtr = reallocIndicesRaw( iPtr, needIndicesCount, elementSize );
+        if ( newIPtr == 0 && needIndicesCount != 0 )
+        {
+            // rollback vertex realloc? (optional)
+            result.set( "ok", false );
+            result.set( "error", std::string( "reallocIndicesRaw failed" ) );
+            return result;
+        }
+    }
+
+    // --- write back mesh data into buffers ---
+    writeMeshVertices( mesh, newVPtr );
+    writeMeshIndices( mesh, newIPtr, elementSize );
+
+    // return new pointers & counts
+    result.set( "ok", true );
+    result.set( "vPtr", ( double )newVPtr ); // use double to represent uintptr_t in JS
+    result.set( "iPtr", ( double )newIPtr );
+    result.set( "vertexCount", ( double )needVerticesCount );
+    result.set( "indexCount", ( double )needIndicesCount );
+    result.set( "indexElementSize", ( int )elementSize );
+
+    return result;
+}
+///
+
+
 EMSCRIPTEN_BINDINGS( WasmMeshBridgeModule )
 {
     // raw pointer (as number) APIs
@@ -217,4 +398,13 @@ EMSCRIPTEN_BINDINGS( WasmMeshBridgeModule )
     function( "createVerticesMV", &createVerticesMV );
     function( "createIndicesMV", &createIndicesMV );
     ///
+
+
+    function( "buildMesh", &buildMesh, allow_raw_pointers());
+    function( "freeMesh", &freeMesh, allow_raw_pointers() );
+    function( "getMeshVertexCount", &getMeshVertexCount, allow_raw_pointers() );
+    function( "getMeshIndexCount", &getMeshIndexCount, allow_raw_pointers() );
+    function( "writeMeshVertices", &writeMeshVertices, allow_raw_pointers() );
+    function( "writeMeshIndices", &writeMeshIndices, allow_raw_pointers() );
+    function( "exportMeshToBuffers", &exportMeshToBuffers, allow_raw_pointers() );
 }
