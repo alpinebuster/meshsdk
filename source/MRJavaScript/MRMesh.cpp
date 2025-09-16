@@ -31,6 +31,7 @@
 #include <MRMesh/MRFillContour.h>
 #include <MRMesh/MREdgePaths.h>
 #include <MRMesh/MREnums.h>
+#include <MRMesh/MRQuadraticForm.h>
 #include <MRMesh/MRSignDetectionMode.h>
 #include <MRMesh/MRMeshBuilder.h>
 #include <MRMesh/MRMeshBuilderTypes.h>
@@ -70,76 +71,6 @@ namespace MRJS
 {
 
 ///
-val createMaxillaGypsumBaseImplTest( Mesh& mesh, EdgeId maxAreaHole, VertId minVert, Vector3f dir, float extensionBottom, float extensionBottomToGypsumBase )
-{
-	assert( extensionBottom >= 0 && "extensionBottom must be a positive value or 0" );
-	assert( extensionBottomToGypsumBase > 0 && "extensionBottomToGypsumBase must be a positive value" );
-
-	if ( dir.length() != 1.0f ) dir = dir.normalized();
-	Vector3f transEBottom = mesh.points[minVert] - extensionBottom * dir;
-
-	val obj = val::object();
-	if ( extensionBottomToGypsumBase > 0 )
-	{
-		Vector3f transEBottomToGypsumBase = mesh.points[minVert] - ( extensionBottom + extensionBottomToGypsumBase ) * dir;
-
-		///
-		Mesh mMaxillaBase = findLookingSilhouetteConvexHull( mesh, dir );
-		Mesh mMaxillaBaseCopy = mMaxillaBase;
-
-		auto moveMaxillaBaseDistance = dot( dir, transEBottomToGypsumBase );
-		mMaxillaBase.transform( MR::AffineXf3f::translation( moveMaxillaBaseDistance * dir ) );
-		Mesh mMaxillaBaseTransformedCopy = mMaxillaBase;
-
-		auto eGypsumBase = mMaxillaBase.topology.findHoleRepresentiveEdges();
-		extendHole( mMaxillaBase, eGypsumBase[0], Plane3f::fromDirAndPt( -dir, transEBottom ) );
-		// Flip normals
-		mMaxillaBase.topology.flipOrientation();
-		Mesh mMaxillaBaseTransformedExtendedHoleCopy = mMaxillaBase;
-		///
-
-
-		///
-		// NOTE: `extenHole()` will change the `mesh`
-		extendHole( mesh, maxAreaHole, Plane3f::fromDirAndPt( dir, transEBottom ) );
-		///
-
-
-		///
-		// Connect two meshes
-		mesh.addMesh( mMaxillaBase );
-		buildCylinderBetweenTwoHoles( mesh );
-		// these holes have exact matching by vertices
-		MeshBuilder::uniteCloseVertices( mesh, 0.0f, true );
-		///
-	
-
-		val meshData = MRJS::exportMeshMemoryView( mesh );
-		val mMaxillaBaseCopyData = MRJS::exportMeshMemoryView( mMaxillaBaseCopy );
-		val mMaxillaBaseTransformedCopyData = MRJS::exportMeshMemoryView( mMaxillaBaseTransformedCopy );
-		val mMaxillaBaseTransformedExtendedHoleCopyData = MRJS::exportMeshMemoryView( mMaxillaBaseTransformedExtendedHoleCopy );
-
-
-		obj.set( "success", true );
-		obj.set( "mesh", mesh );
-		obj.set( "meshMV", meshData );
-		obj.set( "mMaxillaBaseCopyData", mMaxillaBaseCopyData );
-		obj.set( "mMaxillaBaseTransformedCopyData", mMaxillaBaseTransformedCopyData );
-		obj.set( "mMaxillaBaseTransformedExtendedHoleCopyData", mMaxillaBaseTransformedExtendedHoleCopyData );
-	}
-	else
-	{
-		EdgeId newE = extendHole( mesh, maxAreaHole, Plane3f::fromDirAndPt( dir, transEBottom ) );
-		fillHole( mesh, newE );
-		val meshData = MRJS::exportMeshMemoryView( mesh );
-
-		obj.set( "success", true );
-		obj.set( "mesh", mesh );
-		obj.set( "meshMV", meshData );
-	}
-
-	return obj;
-}
 val createMaxillaGypsumBaseImpl( Mesh& mesh, EdgeId maxAreaHole, VertId minVert, Vector3f dir, float extensionBottom, float extensionBottomToGypsumBase )
 {
 	assert( extensionBottom >= 0 && "extensionBottom must be a positive value or 0" );
@@ -647,7 +578,7 @@ EMSCRIPTEN_BINDINGS( MeshModule )
 			} )
 		)
 
-		.class_function( "getGeometry",
+		.class_function( "getMeshMV",
 			optional_override( []( Mesh& mesh ) -> val
 			{
 				val meshData = MRJS::exportMeshMemoryView( mesh );
@@ -695,8 +626,6 @@ EMSCRIPTEN_BINDINGS( MeshModule )
 		.function( "fromTrianglesDuplicatingNonManifoldVertices", &Mesh::fromTrianglesDuplicatingNonManifoldVertices, allow_raw_pointers() )
 		.function( "fromFaceSoup", &Mesh::fromFaceSoup )
 		.function( "fromPointTriples", &Mesh::fromPointTriples )
-		///
-
 		.function( "equals", optional_override( [] ( const Mesh& self, const Mesh& other )
 		{
 			return self == other;
@@ -741,30 +670,120 @@ EMSCRIPTEN_BINDINGS( MeshModule )
 		.function( "getClosestEdge", select_overload<UndirectedEdgeId( const PointOnFace& ) const>( &Mesh::getClosestEdge ) )
 		.function( "getClosestEdgeWithMeshTriPoint", select_overload<UndirectedEdgeId( const MeshTriPoint& ) const>( &Mesh::getClosestEdge ) )
 
+		.function( "edgeLengths", &Mesh::edgeLengths )
+		.function( "edgeLengthSq", &Mesh::edgeLengthSq )
+		.function( "leftDirDblArea", &Mesh::leftDirDblArea )
+
+		.function( "dirDblArea", select_overload<Vector3f (VertId) const>( &Mesh::dirDblArea ) )
+		.function( "dirDblAreaWithFaceId", select_overload<Vector3f (FaceId) const>( &Mesh::dirDblArea ) )
+
+		.function( "dblArea", select_overload<float (VertId) const>( &Mesh::dblArea ) )
+		.function( "dblAreaWithFaceId", select_overload<float (FaceId) const>( &Mesh::dblArea ) )
+
+		.function( "area", select_overload<double (const FaceBitSet *) const>( &Mesh::area ), allow_raw_pointers() )
+		.function( "areaWithFaceId", select_overload<float (FaceId) const>( &Mesh::area ) )
+		.function( "areaWithFaceBitSet", select_overload<double ( const FaceBitSet & ) const>( &Mesh::area ) )
+
+		.function( "dirArea", select_overload<Vector3d (const FaceBitSet *) const>( &Mesh::dirArea ), allow_raw_pointers() )
+		.function( "dirAreaWithFaceBitSet", select_overload<Vector3d ( const FaceBitSet & ) const>( &Mesh::dirArea ) )
+
+		.function( "projArea", select_overload<double ( const Vector3f &, const FaceBitSet * fs ) const>( &Mesh::projArea ), allow_raw_pointers() )
+		.function( "projAreaWithFaceBitSet", select_overload<double ( const Vector3f &, const FaceBitSet & ) const>( &Mesh::projArea ) )
+
 		.function( "volume", &Mesh::volume, allow_raw_pointers() )
+		.function( "holePerimiter", &Mesh::holePerimiter )
+		.function( "holeDirArea", &Mesh::holeDirArea )
+		.function( "leftTangent", &Mesh::leftTangent )
+		.function( "leftNormal", &Mesh::leftNormal )
+
+		.function( "normal", select_overload<Vector3f ( VertId ) const>( &Mesh::normal ))
+		.function( "normalWithMeshTriPoint", select_overload<Vector3f ( const MeshTriPoint & ) const>( &Mesh::normal ))
 		.function( "normalWithFaceId", select_overload<Vector3f ( const FaceId ) const>( &Mesh::normal ))
-		.function( "normalWithMeshTriPoint", select_overload<Vector3f ( VertId ) const>( &Mesh::normal ))
-		.function( "normal", select_overload<Vector3f ( const MeshTriPoint & ) const>( &Mesh::normal ))
+
+		.function( "pseudonormal", select_overload<Vector3f ( VertId, const FaceBitSet * ) const>( &Mesh::pseudonormal ), allow_raw_pointers())
+		.function( "pseudonormalWithMeshTriPoint", select_overload<Vector3f ( const MeshTriPoint &, const FaceBitSet * ) const>( &Mesh::pseudonormal ), allow_raw_pointers())
+		.function( "pseudonormalWithUndirectedEdgeId", select_overload<Vector3f ( UndirectedEdgeId, const FaceBitSet * ) const>( &Mesh::pseudonormal ), allow_raw_pointers())
+
+		.function( "getPlane3f", &Mesh::getPlane3f )
+		.function( "getPlane3d", &Mesh::getPlane3d )
+
+		.function( "signedDistance", select_overload<float( const Vector3f& ) const>( &Mesh::signedDistance ) )
+		.function( "signedDistanceWithProjection", select_overload<float( const Vector3f &, const MeshProjectionResult &, const FaceBitSet * ) const>( &Mesh::signedDistance ), allow_raw_pointers() )
+		.function( "signedDistanceWithFaceBitSet", select_overload<std::optional<float>( const Vector3f &, float, const FaceBitSet * ) const>( &Mesh::signedDistance ), allow_raw_pointers() )
+
+		.function( "calcFastWindingNumber", &Mesh::calcFastWindingNumber )
+		.function( "isOutside", &Mesh::isOutside )
+		.function( "isOutsideByProjNorm", &Mesh::isOutsideByProjNorm, allow_raw_pointers() )
+
+		.function("sumAngles", optional_override(
+            [] (Mesh& self, VertId v ) {
+				bool outBoundaryVert = false;
+				float sumAngles = self.sumAngles( v, &outBoundaryVert );
+
+				val result = val::object();
+				result.set( "sumAngles", sumAngles );
+				result.set( "outBoundaryVert", outBoundaryVert );
+				return result;
+            }
+        ))
+
+		.function( "findSpikeVertices", &Mesh::findSpikeVertices, allow_raw_pointers() )
+		.function( "dihedralAngleSin", &Mesh::dihedralAngleSin )
+		.function( "dihedralAngleCos", &Mesh::dihedralAngleCos )
+		.function( "dihedralAngle", &Mesh::dihedralAngle )
+
+		.function( "discreteMeanCurvature", select_overload<float( VertId ) const>( &Mesh::discreteMeanCurvature ) )
+		.function( "discreteMeanCurvatureWithUndirectedEdgeId", select_overload<float( UndirectedEdgeId ) const>( &Mesh::discreteMeanCurvature ) )
+
+		.function("discreteGaussianCurvature", optional_override(
+            [] (Mesh& self, VertId v ) {
+				bool outBoundaryVert = false;
+				float curvature = self.discreteGaussianCurvature( v, &outBoundaryVert );
+
+				val result = val::object();
+				result.set( "curvature", curvature );
+				result.set( "outBoundaryVert", outBoundaryVert );
+				return result;
+            }
+        ))
+
+		.function( "findCreaseEdges", &Mesh::findCreaseEdges )
+		.function( "leftCotan", &Mesh::leftCotan )
+		.function( "cotan", &Mesh::cotan )
+		.function( "quadraticForm", &Mesh::quadraticForm, allow_raw_pointers() )
 
 		.function( "getBoundingBox", &Mesh::getBoundingBox )
-		.function( "computeBoundingBoxWithFaceBitSet", select_overload<Box3f ( const AffineXf3f * ) const>( &Mesh::computeBoundingBox ), allow_raw_pointers() )
 		.function( "computeBoundingBox", select_overload<Box3f ( const FaceBitSet*, const AffineXf3f* ) const>( &Mesh::computeBoundingBox ), allow_raw_pointers() )
+		.function( "computeBoundingBoxWithFaceBitSet", select_overload<Box3f ( const AffineXf3f * ) const>( &Mesh::computeBoundingBox ), allow_raw_pointers() )
+
+		.function( "averageEdgeLength", &Mesh::averageEdgeLength )
+		.function( "findCenterFromPoints", &Mesh::findCenterFromPoints )
+		.function( "findCenterFromFaces", &Mesh::findCenterFromFaces )
+		.function( "findCenterFromBBox", &Mesh::findCenterFromBBox )
+		.function( "zeroUnusedPoints", &Mesh::zeroUnusedPoints )
+
 		.function( "transform", &Mesh::transform, allow_raw_pointers() )
 		.function( "addPoint", &Mesh::addPoint )
 		.function( "addSeparateEdgeLoop", &Mesh::addSeparateEdgeLoop )
 		.function( "addSeparateContours", &Mesh::addSeparateContours, allow_raw_pointers() )
 		.function( "attachEdgeLoopPart", &Mesh::attachEdgeLoopPart )
 	
-		.function( "addMeshWithPartMapping", select_overload<void( const Mesh&, PartMapping, bool )>( &Mesh::addMesh ) )
+		.function( "splitEdge", select_overload<EdgeId ( EdgeId, FaceBitSet *, FaceHashMap * )>( &Mesh::splitEdge ), allow_raw_pointers() )
+		.function( "splitEdgeWithNewVertPos", select_overload<EdgeId ( EdgeId, const Vector3f &, FaceBitSet *, FaceHashMap * )>( &Mesh::splitEdge ), allow_raw_pointers() )
+	
+		.function( "splitFace", select_overload<VertId ( FaceId, FaceBitSet *, FaceHashMap * )>( &Mesh::splitFace ), allow_raw_pointers() )
+		.function( "splitFaceWithNewVertPos", select_overload<VertId ( FaceId, const Vector3f &, FaceBitSet *, FaceHashMap * )>( &Mesh::splitFace ), allow_raw_pointers() )
+
 		.function( "addMesh", select_overload<void (const Mesh &, FaceMap *, VertMap *, WholeEdgeMap *, bool)>( &Mesh::addMesh ), allow_raw_pointers())
-		.function( "addMeshPartWithPartMapping", select_overload<void ( const MeshPart &, const PartMapping& )>( &Mesh::addMeshPart ))
+		.function( "addMeshWithPartMapping", select_overload<void( const Mesh&, PartMapping, bool )>( &Mesh::addMesh ) )
 		.function( "addMeshPart", select_overload<void ( const MeshPart &, bool,
         const std::vector<EdgePath> &, const std::vector<EdgePath> &, PartMapping )>( &Mesh::addMeshPart ))
+		.function( "addMeshPartWithPartMapping", select_overload<void ( const MeshPart &, const PartMapping& )>( &Mesh::addMeshPart ))
 		.function( "cloneRegion", &Mesh::cloneRegion )
 		
+		.function( "pack", select_overload<Expected<void>( const PackMapping&, ProgressCallback )>( &Mesh::pack ) )
 		.function( "packWithPartMapping", select_overload<void( const PartMapping&, bool )>( &Mesh::pack ) )
 		.function( "packWithMap", select_overload<void( FaceMap*, VertMap*, WholeEdgeMap*, bool )>( &Mesh::pack ), allow_raw_pointers() )
-		.function( "pack", select_overload<Expected<void>( const PackMapping&, ProgressCallback )>( &Mesh::pack ) )
 
 		///
 		// NOTE: `copy constructor of 'PackMapping' is implicitly deleted because field 'e' has a deleted copy constructor`
@@ -815,7 +834,6 @@ EMSCRIPTEN_BINDINGS( MeshModule )
 			),
 			allow_raw_pointers()
 		)
-
 		.function( "packOptimallyWithProgressCallback",
 			optional_override( []( Mesh& self, bool param, ProgressCallback callback ) -> std::unique_ptr<PackMapping> {
 				auto result = self.packOptimally( param, callback );
@@ -832,11 +850,11 @@ EMSCRIPTEN_BINDINGS( MeshModule )
 
 		.function( "deleteFaces", &Mesh::deleteFaces, allow_raw_pointers() )
 
+		.function( "projectPoint", select_overload<MeshProjectionResult ( const Vector3f&, float, const FaceBitSet *, const AffineXf3f * ) const>( &Mesh::projectPoint ), allow_raw_pointers() )
 		.function( "projectPointWithPointOnFace", select_overload<bool( const Vector3f&, PointOnFace&, float, const FaceBitSet*, const AffineXf3f* ) const>( &Mesh::projectPoint ), allow_raw_pointers() )
 		.function( "projectPointWithProjectionResult", select_overload<bool ( const Vector3f&, MeshProjectionResult&, float, const FaceBitSet*, const AffineXf3f * ) const>( &Mesh::projectPoint ), allow_raw_pointers() )
-		.function( "projectPoint", select_overload<MeshProjectionResult ( const Vector3f&, float, const FaceBitSet *, const AffineXf3f * ) const>( &Mesh::projectPoint ), allow_raw_pointers() )
-		.function( "findClosestPointWithProjectionResult", select_overload<bool ( const Vector3f&, MeshProjectionResult&, float, const FaceBitSet*, const AffineXf3f * ) const>( &Mesh::findClosestPoint ), allow_raw_pointers() )
 		.function( "findClosestPoint", select_overload<MeshProjectionResult ( const Vector3f&, float, const FaceBitSet *, const AffineXf3f * ) const>( &Mesh::findClosestPoint ), allow_raw_pointers() )
+		.function( "findClosestPointWithProjectionResult", select_overload<bool ( const Vector3f&, MeshProjectionResult&, float, const FaceBitSet*, const AffineXf3f * ) const>( &Mesh::findClosestPoint ), allow_raw_pointers() )
 
 		// HACK
 		// 
@@ -859,13 +877,12 @@ EMSCRIPTEN_BINDINGS( MeshModule )
 		.function( "updateCaches", &Mesh::updateCaches )
 		.function( "heapBytes", &Mesh::heapBytes )
 		.function( "shrinkToFit", &Mesh::shrinkToFit )
-		.function( "mirror", &Mesh::mirror )
-		.function( "signedDistance", select_overload<float( const Vector3f& ) const>( &Mesh::signedDistance ) );
+		.function( "mirror", &Mesh::mirror );
+	///
 
 
 	///
 	function( "createMaxillaGypsumBaseImpl", &MRJS::createMaxillaGypsumBaseImpl );
-	function( "createMaxillaGypsumBaseImplTest", &MRJS::createMaxillaGypsumBaseImplTest );
 	function( "createMandibleGypsumBaseImpl", &MRJS::createMandibleGypsumBaseImpl );
 	///
 }

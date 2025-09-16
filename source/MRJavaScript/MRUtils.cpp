@@ -24,6 +24,7 @@
 #include <MRMesh/MRBox.h>
 #include <MRMesh/MRRigidXf3.h>
 #include <MRMesh/MRICP.h>
+#include <MRMesh/MRQuadraticForm.h>
 #include <MRMesh/MRBuffer.h>
 #include <MRMesh/MRRingIterator.h>
 #include <MRMesh/MRMeshOrPoints.h>
@@ -812,6 +813,25 @@ EMSCRIPTEN_BINDINGS( PairTypedModule )
     value_array<std::pair<std::vector<GraphEdgeBitSet>, int>>( "VectorGraphEdgeBitSetIntPair" )
         .element( &std::pair<std::vector<GraphEdgeBitSet>, int>::first )
         .element( &std::pair<std::vector<GraphEdgeBitSet>, int>::second );
+	///
+
+
+	///
+    value_array<std::pair<QuadraticForm<Vector2f>, Vector2f>>( "QuadraticForm2f_Vector2f_Pair" )
+        .element( &std::pair<QuadraticForm<Vector2f>, Vector2f>::first )
+        .element( &std::pair<QuadraticForm<Vector2f>, Vector2f>::second );
+
+    value_array<std::pair<QuadraticForm<Vector2d>, Vector2d>>( "QuadraticForm2d_Vector2d_Pair" )
+        .element( &std::pair<QuadraticForm<Vector2d>, Vector2d>::first )
+        .element( &std::pair<QuadraticForm<Vector2d>, Vector2d>::second );
+
+    value_array<std::pair<QuadraticForm<Vector3f>, Vector3f>>( "QuadraticForm3f_Vector3f_Pair" )
+        .element( &std::pair<QuadraticForm<Vector3f>, Vector3f>::first )
+        .element( &std::pair<QuadraticForm<Vector3f>, Vector3f>::second );
+
+    value_array<std::pair<QuadraticForm<Vector3d>, Vector3d>>( "QuadraticForm3d_Vector3d_Pair" )
+        .element( &std::pair<QuadraticForm<Vector3d>, Vector3d>::first )
+        .element( &std::pair<QuadraticForm<Vector3d>, Vector3d>::second );
 	///
 }
 

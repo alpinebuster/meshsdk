@@ -2587,10 +2587,15 @@ export interface Mesh extends ClassHandle {
   points: VertCoords;
   topology: MeshTopology;
   equals(_0: Mesh): boolean;
+  area(_0: FaceBitSet | null): number;
+  areaWithFaceBitSet(_0: FaceBitSet): number;
   volume(_0: FaceBitSet | null): number;
+  findCreaseEdges(_0: number): UndirectedEdgeBitSet;
   getBoundingBox(): Box3f;
-  computeBoundingBoxWithFaceBitSet(_0: AffineXf3f | null): Box3f;
   computeBoundingBox(_0: FaceBitSet | null, _1: AffineXf3f | null): Box3f;
+  computeBoundingBoxWithFaceBitSet(_0: AffineXf3f | null): Box3f;
+  averageEdgeLength(): number;
+  zeroUnusedPoints(): void;
   transform(_0: AffineXf3f, _1: VertBitSet | null): void;
   packOptimally(_0: boolean): PackMapping;
   packOptimallyWithThreadLocalPtr(_0: boolean): PackMapping | null;
@@ -2605,14 +2610,31 @@ export interface Mesh extends ClassHandle {
   heapBytes(): number;
   shrinkToFit(): void;
   edgeSegment(_0: EdgeId): LineSegm3f;
+  holePerimiter(_0: EdgeId): number;
+  leftCotan(_0: EdgeId): number;
+  splitEdge(_0: EdgeId, _1: FaceBitSet | null, _2: FaceHashMap | null): EdgeId;
+  edgeLengthSq(_0: UndirectedEdgeId): number;
+  dihedralAngleSin(_0: UndirectedEdgeId): number;
+  dihedralAngleCos(_0: UndirectedEdgeId): number;
+  dihedralAngle(_0: UndirectedEdgeId): number;
+  discreteMeanCurvatureWithUndirectedEdgeId(_0: UndirectedEdgeId): number;
+  cotan(_0: UndirectedEdgeId): number;
   triangleAspectRatio(_0: FaceId): number;
   circumcircleDiameterSq(_0: FaceId): number;
   circumcircleDiameter(_0: FaceId): number;
+  dblAreaWithFaceId(_0: FaceId): number;
+  areaWithFaceId(_0: FaceId): number;
   toEdgePoint(_0: VertId): EdgePoint;
+  dblArea(_0: VertId): number;
+  sumAngles(_0: VertId): any;
+  discreteMeanCurvature(_0: VertId): number;
+  discreteGaussianCurvature(_0: VertId): any;
+  splitFace(_0: FaceId, _1: FaceBitSet | null, _2: FaceHashMap | null): VertId;
   getDipolesNotCreate(): Dipoles | null;
   addMesh(_0: Mesh, _1: FaceMap | null, _2: VertMap | null, _3: WholeEdgeMap | null, _4: boolean): void;
   packWithMap(_0: FaceMap | null, _1: VertMap | null, _2: WholeEdgeMap | null, _3: boolean): void;
   getPoints(): VertCoords | null;
+  edgeLengths(): UndirectedEdgeScalars;
   getTopology(): MeshTopology | null;
   toTriPoint(_0: VertId): MeshTriPoint;
   getClosestVertexWithMeshTriPoint(_0: MeshTriPoint): VertId;
@@ -2621,14 +2643,18 @@ export interface Mesh extends ClassHandle {
   addMeshPartWithPartMapping(_0: MeshPart, _1: PartMapping): void;
   cloneRegion(_0: FaceBitSet, _1: boolean, _2: PartMapping): Mesh;
   packWithPartMapping(_0: PartMapping, _1: boolean): void;
+  getPlane3f(_0: FaceId): Plane3f;
   mirror(_0: Plane3f): void;
+  getPlane3d(_0: FaceId): Plane3d;
   toTriPointWithPointOnFace(_0: PointOnFace): MeshTriPoint;
   getClosestVertex(_0: PointOnFace): VertId;
   getClosestEdge(_0: PointOnFace): UndirectedEdgeId;
+  quadraticForm(_0: VertId, _1: boolean, _2: FaceBitSet | null, _3: UndirectedEdgeBitSet | null): QuadraticForm3f;
   addMeshPart(_0: MeshPart, _1: boolean, _2: VectorEdgePath, _3: VectorEdgePath, _4: PartMapping): void;
   addSeparateEdgeLoop(_0: VectorVector3f): EdgeId;
   attachEdgeLoopPart(_0: EdgeId, _1: EdgeId, _2: VectorVector3f): void;
   addSeparateContours(_0: VectorVectorVector3f, _1: AffineXf3f | null): EdgeId;
+  findSpikeVertices(_0: number, _1: VertBitSet | null, _2: ProgressCallback): ExpectedVertBitSet;
   pack(_0: PackMapping, _1: ProgressCallback): ExpectedVoid;
   packOptimallyWithProgressCallback(_0: boolean, _1: ProgressCallback): PackMapping;
   orgPnt(_0: EdgeId): Vector3f;
@@ -2643,18 +2669,41 @@ export interface Mesh extends ClassHandle {
   triCenter(_0: FaceId): Vector3f;
   toTriPointWithFaceId(_0: FaceId, _1: Vector3f): MeshTriPoint;
   toEdgePointWithEdgeId(_0: EdgeId, _1: Vector3f): EdgePoint;
+  leftDirDblArea(_0: EdgeId): Vector3f;
+  dirDblArea(_0: VertId): Vector3f;
+  dirDblAreaWithFaceId(_0: FaceId): Vector3f;
+  projArea(_0: Vector3f, _1: FaceBitSet | null): number;
+  projAreaWithFaceBitSet(_0: Vector3f, _1: FaceBitSet): number;
+  leftTangent(_0: EdgeId): Vector3f;
+  leftNormal(_0: EdgeId): Vector3f;
+  normal(_0: VertId): Vector3f;
+  normalWithMeshTriPoint(_0: MeshTriPoint): Vector3f;
   normalWithFaceId(_0: FaceId): Vector3f;
-  normalWithMeshTriPoint(_0: VertId): Vector3f;
-  normal(_0: MeshTriPoint): Vector3f;
+  pseudonormal(_0: VertId, _1: FaceBitSet | null): Vector3f;
+  pseudonormalWithMeshTriPoint(_0: MeshTriPoint, _1: FaceBitSet | null): Vector3f;
+  pseudonormalWithUndirectedEdgeId(_0: UndirectedEdgeId, _1: FaceBitSet | null): Vector3f;
+  signedDistance(_0: Vector3f): number;
+  signedDistanceWithProjection(_0: Vector3f, _1: MeshProjectionResult, _2: FaceBitSet | null): number;
+  signedDistanceWithFaceBitSet(_0: Vector3f, _1: number, _2: FaceBitSet | null): number | undefined;
+  calcFastWindingNumber(_0: Vector3f, _1: number): number;
+  isOutside(_0: Vector3f, _1: number, _2: number): boolean;
+  isOutsideByProjNorm(_0: Vector3f, _1: MeshProjectionResult, _2: FaceBitSet | null): boolean;
+  findCenterFromPoints(): Vector3f;
+  findCenterFromFaces(): Vector3f;
+  findCenterFromBBox(): Vector3f;
   addPoint(_0: Vector3f): VertId;
+  splitEdgeWithNewVertPos(_0: EdgeId, _1: Vector3f, _2: FaceBitSet | null, _3: FaceHashMap | null): EdgeId;
+  splitFaceWithNewVertPos(_0: FaceId, _1: Vector3f, _2: FaceBitSet | null, _3: FaceHashMap | null): VertId;
+  projectPoint(_0: Vector3f, _1: number, _2: FaceBitSet | null, _3: AffineXf3f | null): MeshProjectionResult;
   projectPointWithPointOnFace(_0: Vector3f, _1: PointOnFace, _2: number, _3: FaceBitSet | null, _4: AffineXf3f | null): boolean;
   projectPointWithProjectionResult(_0: Vector3f, _1: MeshProjectionResult, _2: number, _3: FaceBitSet | null, _4: AffineXf3f | null): boolean;
-  projectPoint(_0: Vector3f, _1: number, _2: FaceBitSet | null, _3: AffineXf3f | null): MeshProjectionResult;
-  findClosestPointWithProjectionResult(_0: Vector3f, _1: MeshProjectionResult, _2: number, _3: FaceBitSet | null, _4: AffineXf3f | null): boolean;
   findClosestPoint(_0: Vector3f, _1: number, _2: FaceBitSet | null, _3: AffineXf3f | null): MeshProjectionResult;
-  signedDistance(_0: Vector3f): number;
+  findClosestPointWithProjectionResult(_0: Vector3f, _1: MeshProjectionResult, _2: number, _3: FaceBitSet | null, _4: AffineXf3f | null): boolean;
   getLeftTriPointsWithTriangle3f(_0: EdgeId): Array3Triangle3f;
   getTriPointsWithTriangle3f(_0: FaceId): Array3Triangle3f;
+  dirArea(_0: FaceBitSet | null): Vector3d;
+  dirAreaWithFaceBitSet(_0: FaceBitSet): Vector3d;
+  holeDirArea(_0: EdgeId): Vector3d;
 }
 
 export interface BooleanResult extends ClassHandle {
@@ -5110,6 +5159,84 @@ export interface CoordinateConverters extends ClassHandle {
   setToFloat(_0: any): void;
   callToInt(_0: Vector3f): Vector3i;
   callToFloat(_0: Vector3i): Vector3f;
+}
+
+export interface QuadraticForm2f extends ClassHandle {
+  c: number;
+  A: SymMatrix2f;
+  addDistToOrigin(_0: number): void;
+  eval(_0: Vector2f): number;
+  addDistToPlane(_0: Vector2f): void;
+  addDistToPlaneWeighted(_0: Vector2f, _1: number): void;
+  addDistToLine(_0: Vector2f): void;
+  addDistToLineWeighted(_0: Vector2f, _1: number): void;
+}
+
+export interface QuadraticForm2d extends ClassHandle {
+  c: number;
+  A: SymMatrix2d;
+  addDistToOrigin(_0: number): void;
+  eval(_0: Vector2d): number;
+  addDistToPlane(_0: Vector2d): void;
+  addDistToPlaneWeighted(_0: Vector2d, _1: number): void;
+  addDistToLine(_0: Vector2d): void;
+  addDistToLineWeighted(_0: Vector2d, _1: number): void;
+}
+
+export interface QuadraticForm3f extends ClassHandle {
+  c: number;
+  A: SymMatrix3f;
+  addDistToOrigin(_0: number): void;
+  eval(_0: Vector3f): number;
+  addDistToPlane(_0: Vector3f): void;
+  addDistToPlaneWeighted(_0: Vector3f, _1: number): void;
+  addDistToLine(_0: Vector3f): void;
+  addDistToLineWeighted(_0: Vector3f, _1: number): void;
+}
+
+export interface QuadraticForm3d extends ClassHandle {
+  c: number;
+  A: SymMatrix3d;
+  addDistToOrigin(_0: number): void;
+  eval(_0: Vector3d): number;
+  addDistToPlane(_0: Vector3d): void;
+  addDistToPlaneWeighted(_0: Vector3d, _1: number): void;
+  addDistToLine(_0: Vector3d): void;
+  addDistToLineWeighted(_0: Vector3d, _1: number): void;
+}
+
+export interface Quaternionf extends ClassHandle {
+  a: number;
+  b: number;
+  c: number;
+  d: number;
+  angle(): number;
+  normSq(): number;
+  norm(): number;
+  normalize(): void;
+  normalized(): Quaternionf;
+  conjugate(): Quaternionf;
+  inverse(): Quaternionf;
+  im(): Vector3f;
+  axis(): Vector3f;
+  call(_0: Vector3f): Vector3f;
+}
+
+export interface Quaterniond extends ClassHandle {
+  a: number;
+  b: number;
+  c: number;
+  d: number;
+  angle(): number;
+  normSq(): number;
+  norm(): number;
+  normalize(): void;
+  normalized(): Quaterniond;
+  conjugate(): Quaterniond;
+  inverse(): Quaterniond;
+  im(): Vector3d;
+  axis(): Vector3d;
+  call(_0: Vector3d): Vector3d;
 }
 
 export interface RebuildMeshSettings extends ClassHandle {
@@ -9099,6 +9226,8 @@ export interface Vector2f extends ClassHandle {
 
 export type Vector2fPair = [ Vector2f, Vector2f ];
 
+export type QuadraticForm2f_Vector2f_Pair = [ QuadraticForm2f, Vector2f ];
+
 export type Array2Vector2f = [ Vector2f, Vector2f ];
 
 export type Array3Vector2f = [ Vector2f, Vector2f, Vector2f ];
@@ -9149,6 +9278,8 @@ export interface Vector2d extends ClassHandle {
 }
 
 export type Vector2dPair = [ Vector2d, Vector2d ];
+
+export type QuadraticForm2d_Vector2d_Pair = [ QuadraticForm2d, Vector2d ];
 
 export type Array2Vector2d = [ Vector2d, Vector2d ];
 
@@ -9208,6 +9339,8 @@ export type ProjectionResult = {
 };
 
 export type Vector3fPair = [ Vector3f, Vector3f ];
+
+export type QuadraticForm3f_Vector3f_Pair = [ QuadraticForm3f, Vector3f ];
 
 export type Array2Triangle3f = [ Vector3f, Vector3f ];
 
@@ -9297,6 +9430,8 @@ export type CrossPointResult = {
 };
 
 export type Vector3dPair = [ Vector3d, Vector3d ];
+
+export type QuadraticForm3d_Vector3d_Pair = [ QuadraticForm3d, Vector3d ];
 
 export type Array2Triangle3d = [ Vector3d, Vector3d ];
 
@@ -10105,7 +10240,7 @@ interface EmbindModule {
     fromTrianglesArray(_0: any, _1: any, _2: boolean): Mesh;
     fromTrianglesArrayTest(_0: any, _1: any, _2: boolean): any;
     fromTrianglesArrayTestVertexIdentifier(_0: any, _1: any, _2: boolean): any;
-    getGeometry(_0: Mesh): any;
+    getMeshMV(_0: Mesh): any;
   };
   makeBasisAxes(_0: number, _1: number, _2: number, _3: number, _4: number): Mesh;
   findTwinEdges(_0: Mesh, _1: number): EdgeBitSet;
@@ -10845,6 +10980,66 @@ interface EmbindModule {
   };
   getVectorConverters_Part(_0: MeshPart): CoordinateConverters;
   getVectorConverters_Parts(_0: MeshPart, _1: MeshPart, _2: AffineXf3f | null): CoordinateConverters;
+  QuadraticForm2f: {
+    new(): QuadraticForm2f;
+  };
+  QuadraticForm2d: {
+    new(): QuadraticForm2d;
+  };
+  QuadraticForm3f: {
+    new(): QuadraticForm3f;
+  };
+  QuadraticForm3d: {
+    new(): QuadraticForm3d;
+  };
+  Quaternionf: {
+    new(): Quaternionf;
+    new(_0: number, _1: number, _2: number, _3: number): Quaternionf;
+    new(_0: Matrix3f): Quaternionf;
+    new(_0: Vector3f, _1: number): Quaternionf;
+    new(_0: number, _1: Vector3f): Quaternionf;
+    new(_0: Vector3f, _1: Vector3f): Quaternionf;
+    lerp(_0: Quaternionf, _1: Quaternionf, _2: number): Quaternionf;
+    slerp(_0: Quaternionf, _1: Quaternionf, _2: number): Quaternionf;
+    slerpMatrix(_0: Matrix3f, _1: Matrix3f, _2: number): Matrix3f;
+  };
+  Quaterniond: {
+    new(): Quaterniond;
+    new(_0: number, _1: number, _2: number, _3: number): Quaterniond;
+    new(_0: Matrix3d): Quaterniond;
+    new(_0: Vector3d, _1: number): Quaterniond;
+    new(_0: number, _1: Vector3d): Quaterniond;
+    new(_0: Vector3d, _1: Vector3d): Quaterniond;
+    lerp(_0: Quaterniond, _1: Quaterniond, _2: number): Quaterniond;
+    slerp(_0: Quaterniond, _1: Quaterniond, _2: number): Quaterniond;
+    slerpMatrix(_0: Matrix3d, _1: Matrix3d, _2: number): Matrix3d;
+  };
+  dotQuaternion_f(_0: Quaternionf, _1: Quaternionf): number;
+  getCanonicalQuaternions_f(): Quaternionf | null;
+  getClosestCanonicalQuaternion_f(_0: Quaternionf): Quaternionf;
+  getClosestCanonicalMatrix_f(_0: Matrix3f): Matrix3f;
+  slerpMatrix_f(_0: Matrix3f, _1: Matrix3f, _2: number): Matrix3f;
+  orthonormalizedMatrix_f(_0: Matrix3f): Matrix3f;
+  dotQuaternion_d(_0: Quaterniond, _1: Quaterniond): number;
+  getCanonicalQuaternions_d(): Quaterniond | null;
+  getClosestCanonicalQuaternion_d(_0: Quaterniond): Quaterniond;
+  getClosestCanonicalMatrix_d(_0: Matrix3d): Matrix3d;
+  slerpMatrix_d(_0: Matrix3d, _1: Matrix3d, _2: number): Matrix3d;
+  orthonormalizedMatrix_d(_0: Matrix3d): Matrix3d;
+  addQuaternionf(_0: Quaternionf, _1: Quaternionf): Quaternionf;
+  addQuaterniond(_0: Quaterniond, _1: Quaterniond): Quaterniond;
+  subQuaternionf(_0: Quaternionf, _1: Quaternionf): Quaternionf;
+  subQuaterniond(_0: Quaterniond, _1: Quaterniond): Quaterniond;
+  mulQuaternionf(_0: Quaternionf, _1: Quaternionf): Quaternionf;
+  mulQuaterniond(_0: Quaterniond, _1: Quaterniond): Quaterniond;
+  mulScalarQuaternionf(_0: number, _1: Quaternionf): Quaternionf;
+  mulScalarQuaterniond(_0: number, _1: Quaterniond): Quaterniond;
+  divQuaternionf(_0: Quaternionf, _1: number): Quaternionf;
+  divQuaterniond(_0: Quaterniond, _1: number): Quaterniond;
+  eqQuaternionf(_0: Quaternionf, _1: Quaternionf): boolean;
+  eqQuaterniond(_0: Quaterniond, _1: Quaterniond): boolean;
+  neqQuaternionf(_0: Quaternionf, _1: Quaternionf): boolean;
+  neqQuaterniond(_0: Quaterniond, _1: Quaterniond): boolean;
   RebuildMeshSettings: {
     new(): RebuildMeshSettings;
   };
@@ -12100,6 +12295,8 @@ interface EmbindModule {
     minusY(): Vector2f;
   };
   closestPointOnLineSegm2f(_0: Vector2f, _1: LineSegm2f): Vector2f;
+  sumAt_QuadraticForm2f(_0: QuadraticForm2f, _1: Vector2f, _2: QuadraticForm2f, _3: Vector2f, _4: Vector2f): QuadraticForm2f;
+  sum_QuadraticForm2f(_0: QuadraticForm2f, _1: Vector2f, _2: QuadraticForm2f, _3: Vector2f, _4: boolean): QuadraticForm2f_Vector2f_Pair;
   Vector2i64: {
     new(): Vector2i64;
     new(_0: bigint, _1: bigint): Vector2i64;
@@ -12131,6 +12328,8 @@ interface EmbindModule {
     minusY(): Vector2d;
   };
   closestPointOnLineSegm2d(_0: Vector2d, _1: LineSegm2d): Vector2d;
+  sumAt_QuadraticForm2d(_0: QuadraticForm2d, _1: Vector2d, _2: QuadraticForm2d, _3: Vector2d, _4: Vector2d): QuadraticForm2d;
+  sum_QuadraticForm2d(_0: QuadraticForm2d, _1: Vector2d, _2: QuadraticForm2d, _3: Vector2d, _4: boolean): QuadraticForm2d_Vector2d_Pair;
   Vector3f: {
     new(): Vector3f;
     new(_0: number, _1: number, _2: number): Vector3f;
@@ -12154,7 +12353,6 @@ interface EmbindModule {
   getAligningXf(_0: PointToPlaneAligningTransform, _1: ICPMode, _2: number, _3: number, _4: Vector3f): AffineXf3f;
   closestPointOnLineSegm3f(_0: Vector3f, _1: LineSegm3f): Vector3f;
   createMaxillaGypsumBaseImpl(_0: Mesh, _1: EdgeId, _2: VertId, _3: Vector3f, _4: number, _5: number): any;
-  createMaxillaGypsumBaseImplTest(_0: Mesh, _1: EdgeId, _2: VertId, _3: Vector3f, _4: number, _5: number): any;
   createMandibleGypsumBaseImpl(_0: Mesh, _1: EdgeId, _2: Vector3f, _3: number): any;
   buildBottom(_0: Mesh, _1: EdgeId, _2: Vector3f, _3: number, _4: FaceBitSet | null): EdgeId;
   createVerticalStitchMetric(_0: Mesh, _1: Vector3f): FillHoleMetricWrapper;
@@ -12162,11 +12360,15 @@ interface EmbindModule {
   projectOnAllWithProgress(_0: Vector3f, _1: AABBTreeObjects, _2: number, _3: any, _4: ObjId): void;
   vertexPosEqualNeiAreas(_0: Mesh, _1: VertId, _2: boolean): Vector3f;
   vertexPosEqualNeiAreasWithTopology(_0: MeshTopology, _1: VertCoords, _2: VertId, _3: boolean): Vector3f;
+  sumAt_QuadraticForm3f(_0: QuadraticForm3f, _1: Vector3f, _2: QuadraticForm3f, _3: Vector3f, _4: Vector3f): QuadraticForm3f;
+  slerp_f(_0: AffineXf3f, _1: AffineXf3f, _2: number, _3: Vector3f): AffineXf3f;
+  orthonormalized_f(_0: AffineXf3f, _1: Vector3f): AffineXf3f;
   surroundingContourEdges(_0: Mesh, _1: VectorEdgeId, _2: EdgeMetric, _3: Vector3f): ExpectedEdgePath;
   surroundingContourVertices(_0: Mesh, _1: VectorVertId, _2: EdgeMetric, _3: Vector3f): ExpectedEdgePath;
   findLookingFaces(_0: Mesh, _1: AffineXf3f, _2: Vector3f, _3: boolean): FaceBitSet;
   findLookingSilhouetteConvexHull(_0: Mesh, _1: Vector3f): Mesh;
   findBottomPosition(_0: Mesh, _1: Vector3f): any;
+  sum_QuadraticForm3f(_0: QuadraticForm3f, _1: Vector3f, _2: QuadraticForm3f, _3: Vector3f, _4: boolean): QuadraticForm3f_Vector3f_Pair;
   unitVector3f(_0: number, _1: number): Vector3f;
   distanceSq3f(_0: Vector3f, _1: Vector3f): number;
   distance3f(_0: Vector3f, _1: Vector3f): number;
@@ -12251,6 +12453,10 @@ interface EmbindModule {
   to3dimVecd(_0: Vector2d): Vector3d;
   to2dimVecd(_0: Vector3d): Vector2d;
   closestPointOnLineSegm3d(_0: Vector3d, _1: LineSegm3d): Vector3d;
+  sumAt_QuadraticForm3d(_0: QuadraticForm3d, _1: Vector3d, _2: QuadraticForm3d, _3: Vector3d, _4: Vector3d): QuadraticForm3d;
+  slerp_d(_0: AffineXf3d, _1: AffineXf3d, _2: number, _3: Vector3d): AffineXf3d;
+  orthonormalized_d(_0: AffineXf3d, _1: Vector3d): AffineXf3d;
+  sum_QuadraticForm3d(_0: QuadraticForm3d, _1: Vector3d, _2: QuadraticForm3d, _3: Vector3d, _4: boolean): QuadraticForm3d_Vector3d_Pair;
   unitVector3d(_0: number, _1: number): Vector3d;
   distanceSq3d(_0: Vector3d, _1: Vector3d): number;
   distance3d(_0: Vector3d, _1: Vector3d): number;
