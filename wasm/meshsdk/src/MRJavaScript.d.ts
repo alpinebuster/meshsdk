@@ -12522,6 +12522,20 @@ interface EmbindModule {
   VisualObject: {
     new(): VisualObject;
   };
+  createVerticesRaw(_0: number): number;
+  reallocVerticesRaw(_0: number, _1: number): number;
+  freeVerticesRaw(_0: number): void;
+  createIndicesRaw(_0: number, _1: number): number;
+  reallocIndicesRaw(_0: number, _1: number, _2: number): number;
+  freeIndicesRaw(_0: number): void;
+  fillDemoVerticesRaw(_0: number, _1: number, _2: number, _3: number, _4: number): void;
+  modifyVerticesRaw(_0: number, _1: number, _2: number, _3: number, _4: number): void;
+  fillDemoIndicesRaw(_0: number, _1: number, _2: number, _3: number): void;
+  modifyIndicesRaw(_0: number, _1: number, _2: number, _3: number): void;
+  getVerticesMV(_0: number, _1: number): any;
+  getIndicesMV(_0: number, _1: number, _2: number): any;
+  createVerticesMV(_0: number): any;
+  createIndicesMV(_0: number, _1: number): any;
 }
 
 export type MainModule = WasmModule & typeof RuntimeExports & EmbindModule;

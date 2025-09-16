@@ -898,6 +898,82 @@ function SidebarObject( editor ) {
 			}
 		}
 	});
+	const wasmOpMeshMV = new UIButton( strings.getKey( 'sidebar/object/wasmOpMeshMV') ).setMarginLeft( '7px' ).onClick( function () {
+		if ( !editor.selected ) return;
+
+		const currentUUID = editor.selected.uuid;
+		if ( currentUUID ) {
+			const { verticesPtr, jsVertices, indicesPtr, jsIndices } = createMemoryViewFromGeometry( editor, editor.selected.geometry );
+
+			try {
+				const mesh = editor.MeshSDK.Mesh.fromTrianglesMemoryView( jsVertices, jsIndices, true );
+
+
+				const dispose = (vPtr, iPtr) => {
+					editor.MeshSDK.freeVerticesRaw(vPtr);
+					editor.MeshSDK.freeIndicesRaw(iPtr);
+				}
+				const logSample = (vertexCount, vertices, indexCount, indices, n = 10) => {
+					console.log('Vertices:');
+					for (let i = 0; i < Math.min(n, vertexCount); i++) {
+						console.log(
+							`vertex ${i}: x=${vertices[i * 3]}, y=${vertices[i * 3 + 1]}, z=${vertices[i * 3 + 2]}`
+						);
+					}
+				
+					console.log('Indices:');
+					for (let i = 0; i < Math.min(n, indexCount); i++) {
+						console.log(`index ${i}: ${indices[i]}`);
+					}
+				}
+
+				// 1. Create raw buffer
+				const vertexCount = 9;
+				const indexCount = 12;
+				const vPtr = editor.MeshSDK.createVerticesRaw(vertexCount);
+				const iPtr = editor.MeshSDK.createIndicesRaw(indexCount, 4);
+
+				// 2. Fill demo data
+				editor.MeshSDK.fillDemoVerticesRaw(vPtr, vertexCount, 10.0, 0.5, 0.2);
+				editor.MeshSDK.fillDemoIndicesRaw(iPtr, indexCount, 4, 5);
+
+				// 3. Check data (raw + HEAP）
+				const vertexArray = new Float32Array(editor.MeshSDK.HEAPF32.buffer, vPtr, vertexCount * 3);
+				const indexArray = new Uint32Array(editor.MeshSDK.HEAPU32.buffer, iPtr, indexCount);
+				logSample(vertexCount, vertexArray, indexCount, indexArray);
+
+				// 4. Check data (get `typed_memory_view`) 
+				const vertexArrayMV = editor.MeshSDK.getVerticesMV(vPtr, vertexCount);
+				const indexArrayMV = editor.MeshSDK.getIndicesMV(iPtr, indexCount, 4);
+				console.log('\nMV');
+				logSample(vertexCount, vertexArrayMV, indexCount, indexArrayMV);
+
+
+				///
+				console.log('\n\n==============================');
+				editor.MeshSDK.modifyVerticesRaw(vPtr, vertexCount, 1, 1, 1);
+				editor.MeshSDK.modifyIndicesRaw(iPtr, indexCount, 4, 1);
+
+				const vertexArray2 = new Float32Array(editor.MeshSDK.HEAPF32.buffer, vPtr, vertexCount * 3);
+				const indexArray2 = new Uint32Array(editor.MeshSDK.HEAPU32.buffer, iPtr, indexCount);
+				logSample(vertexCount, vertexArray2, indexCount, indexArray2);
+
+				const vertexArrayMV2 = editor.MeshSDK.getVerticesMV(vPtr, vertexCount);
+				const indexArrayMV2 = editor.MeshSDK.getIndicesMV(iPtr, indexCount, 4);
+				console.log('\nMV');
+				logSample(vertexCount, vertexArrayMV2, indexCount, indexArrayMV2);
+				///
+
+				dispose(vPtr, iPtr);
+
+			} catch ( error ) {
+				console.error( 'Error creating from ThreeJS Mesh:', error.message );
+				editor.MeshSDK._free( verticesPtr );
+				editor.MeshSDK._free( indicesPtr );
+			}
+		}
+	});
+
 
 	wasmOpsRow.add( new UIText( strings.getKey( 'sidebar/object/wasm' ) ).setClass( 'Label' ) );
 
@@ -932,6 +1008,7 @@ function SidebarObject( editor ) {
 
 	const wasmOpsRowMesh = new UIRow();
 	wasmOpsRowMesh.add( wasmOpMeshDir );
+	wasmOpsRowMesh.add( wasmOpMeshMV );
 
 	container.add( wasmOpsRow );
 	container.add( wasmOpsRowLoad );
