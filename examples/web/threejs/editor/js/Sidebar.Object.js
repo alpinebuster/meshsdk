@@ -928,10 +928,10 @@ function SidebarObject( editor ) {
 				}
 
 				// 1. Create raw buffer
-				const vertexCount = 9;
-				const indexCount = 12;
-				const vPtr = editor.MeshSDK.createVerticesRaw(vertexCount);
-				const iPtr = editor.MeshSDK.createIndicesRaw(indexCount, 4);
+				let vertexCount = 9;
+				let indexCount = 12;
+				let vPtr = editor.MeshSDK.createVerticesRaw(vertexCount);
+				let iPtr = editor.MeshSDK.createIndicesRaw(indexCount, 4);
 
 				// 2. Fill demo data
 				editor.MeshSDK.fillDemoVerticesRaw(vPtr, vertexCount, 10.0, 0.5, 0.2);
@@ -964,7 +964,34 @@ function SidebarObject( editor ) {
 				logSample(vertexCount, vertexArrayMV2, indexCount, indexArrayMV2);
 				///
 
+				///
+				console.log('\n\n==============================');
+				vertexCount = 3;
+				indexCount = 5;
+				vPtr = editor.MeshSDK.reallocVerticesRaw(vPtr, vertexCount);
+				iPtr = editor.MeshSDK.reallocIndicesRaw(iPtr, indexCount, 4);
+
+				editor.MeshSDK.fillDemoVerticesRaw(vPtr, vertexCount, 10.0, 0.5, 0.2);
+				editor.MeshSDK.fillDemoIndicesRaw(iPtr, indexCount, 4, 5);
+
+				const vertexArray3 = new Float32Array(editor.MeshSDK.HEAPF32.buffer, vPtr, vertexCount * 3);
+				const indexArray3 = new Uint32Array(editor.MeshSDK.HEAPU32.buffer, iPtr, indexCount);
+				logSample(vertexCount, vertexArray3, indexCount, indexArray3);
+
+				const vertexArrayMV3 = editor.MeshSDK.getVerticesMV(vPtr, vertexCount);
+				const indexArrayMV3 = editor.MeshSDK.getIndicesMV(iPtr, indexCount, 4);
+				console.log('\nMV');
+				logSample(vertexCount, vertexArrayMV3, indexCount, indexArrayMV3);
+				///
+
 				dispose(vPtr, iPtr);
+
+				console.log(vertexArray[0]);
+				console.log(indexArray[0]);
+				console.log(vertexArray2[0]);
+				console.log(indexArray2[0]);
+				console.log(vertexArray3[0]);
+				console.log(indexArray3[0]);
 
 			} catch ( error ) {
 				console.error( 'Error creating from ThreeJS Mesh:', error.message );
