@@ -217,7 +217,4 @@ EMSCRIPTEN_BINDINGS( MeshTopologyModule )
 
         // Validation
         .function( "checkValidity", &MeshTopology::checkValidity );
-
-
-    function( "loadMeshDll", &loadMeshDll );
 }

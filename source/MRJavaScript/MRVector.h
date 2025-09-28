@@ -148,9 +148,13 @@ auto bindTypedVector2( const std::string& className )
 
         .class_function( "diagonal", &Vec2Type::diagonal )
         .class_function( "plusX", &Vec2Type::plusX )
-        .class_function( "plusY", &Vec2Type::plusY )
-        .class_function( "minusX", &Vec2Type::minusX )
-        .class_function( "minusY", &Vec2Type::minusY );
+        .class_function( "plusY", &Vec2Type::plusY );
+
+    if constexpr ( !std::is_unsigned_v<typename Vec2Type::ValueType> )
+    {
+        cls.class_function( "minusX", &Vec2Type::minusX )
+           .class_function( "minusY", &Vec2Type::minusY );
+    }
 
 	// `perpendicular()` and `furthestBasisVector()` are not defined for `bool`
 	if constexpr ( !std::is_same_v<typename Vec2Type::ValueType, bool> )
@@ -198,10 +202,14 @@ auto bindTypedVector3( const std::string& name, const std::string& suffix )
         .class_function( "diagonal", &Vec3Type::diagonal )
         .class_function( "plusX", &Vec3Type::plusX )
         .class_function( "plusY", &Vec3Type::plusY )
-        .class_function( "plusZ", &Vec3Type::plusZ )
-        .class_function( "minusX", &Vec3Type::minusX )
-        .class_function( "minusY", &Vec3Type::minusY )
-        .class_function( "minusZ", &Vec3Type::minusZ );
+        .class_function( "plusZ", &Vec3Type::plusZ );
+
+    if constexpr ( !std::is_unsigned_v<T> )
+    {
+        cls.class_function( "minusX", &Vec3Type::minusX )
+           .class_function( "minusY", &Vec3Type::minusY )
+           .class_function( "minusZ", &Vec3Type::minusZ );
+    }
 
     // `float`, `double`, and `long double` are all considered floating-point types.
     // Therefore, for these three types, `std::is_floating_point_v<T>` will be `true`, while `int` and `bool` will be `false`.
