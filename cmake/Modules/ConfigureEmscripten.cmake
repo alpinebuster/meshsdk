@@ -66,6 +66,7 @@ IF(MR_EMSCRIPTEN_BUILD_DEBUG)
   string(JOIN " " CMAKE_EXE_LINKER_FLAGS
     "${CMAKE_EXE_LINKER_FLAGS}"
 
+    "-v" # Display more detailed compilation process information (verbose output)
 
     # REF: `https://www.willusher.io/blog/build-ship-debug-wasm/`
     "-g3" # DWARF
@@ -87,6 +88,22 @@ IF(MR_EMSCRIPTEN_BUILD_DEBUG)
     "-fdebug-compilation-dir=../../../source"
 
 
+    # 
+    # NOTE:
+    # After updating `emcc` to v4.0.11, an error will occur:
+    # 
+    #   Uncaught RuntimeError: null function or function signature mismatch
+    # 
+    # More at REF: 
+    # 
+    # `https://github.com/emscripten-core/emscripten/issues/23952#issuecomment-3000283706` &
+    # `https://github.com/emscripten-core/emscripten/issues/19953#issuecomment-1662439751`
+    # 
+    # "-fsanitize=address"                        # ⚠️
+    # "-sEMULATE_FUNCTION_POINTER_CASTS"          # ⚠️
+    # 
+    # "-Wbad-function-cast -Wcast-function-type"
+    
     # REF: `https://emscripten.org/docs/porting/exceptions.html#webassembly-exception-handling-based-support`
     # "-s DISABLE_EXCEPTION_CATCHING=1"
 

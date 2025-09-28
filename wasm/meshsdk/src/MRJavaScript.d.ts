@@ -10819,7 +10819,6 @@ interface EmbindModule {
   findRepeatedVertsOnHoleBd(_0: MeshTopology): VertBitSet;
   removeSpikesWithTopology(_0: MeshTopology, _1: VertCoords, _2: number, _3: number, _4: VertBitSet | null): void;
   hardSmoothTetrahedrons_topology(_0: MeshTopology, _1: VertCoords, _2: VertBitSet | null): void;
-  loadMeshDll(): void;
   MeshTriPoint: {
     new(): MeshTriPoint;
     new(_0: EdgeId, _1: TriPointf): MeshTriPoint;
@@ -12314,8 +12313,6 @@ interface EmbindModule {
     diagonal(_0: boolean): Vector2b;
     plusX(): Vector2b;
     plusY(): Vector2b;
-    minusX(): Vector2b;
-    minusY(): Vector2b;
   };
   Vector2d: {
     new(): Vector2d;
@@ -12387,9 +12384,6 @@ interface EmbindModule {
     plusX(): Vector3b;
     plusY(): Vector3b;
     plusZ(): Vector3b;
-    minusX(): Vector3b;
-    minusY(): Vector3b;
-    minusZ(): Vector3b;
   };
   unitVector3b(_0: boolean, _1: boolean): Vector3f;
   Vector3i: {

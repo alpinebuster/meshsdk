@@ -29,29 +29,6 @@ IF(MR_EMSCRIPTEN)
   # Set target env: `-s ENVIRONMENT=web,worker,node` (see `../../cmake/Modules/CompilerOptions.cmake`)
   #
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lembind -s EXPORT_ES6=1 -s MODULARIZE=1 -s EXPORT_NAME=createMeshSDK -s SINGLE_FILE=0 -s 'EXPORTED_FUNCTIONS=[\"_main\", \"_malloc\", \"_free\"]' -s 'EXPORTED_RUNTIME_METHODS=[\"ccall\", \"HEAPU8\", \"HEAP32\", \"HEAPF32\", \"HEAPU32\", \"FS\"]'")
-
-  
-  string(JOIN " " CMAKE_EXE_LINKER_FLAGS
-    "${CMAKE_EXE_LINKER_FLAGS}"
-    "-v" # Display more detailed compilation process information (verbose output)
-
-    # 
-    # NOTE:
-    # After updating `emcc` to v4.0.11, an error will occur:
-    # 
-    #   Uncaught RuntimeError: null function or function signature mismatch
-    # 
-    # More at REF: 
-    # 
-    # `https://github.com/emscripten-core/emscripten/issues/23952#issuecomment-3000283706` &
-    # `https://github.com/emscripten-core/emscripten/issues/19953#issuecomment-1662439751`
-    # 
-    # "-fsanitize=address"                        # ⚠️
-    # "-sEMULATE_FUNCTION_POINTER_CASTS"          # ⚠️
-    # 
-    "-Wbad-function-cast -Wcast-function-type"
-    "-s DISABLE_EXCEPTION_CATCHING=1"
-  )
  
 
   # FIXME:
