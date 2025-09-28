@@ -1,11 +1,9 @@
 #pragma once
 #include "MRMesh/MRMeshFwd.h"
 #if defined( __EMSCRIPTEN__ ) || !defined( MRMESH_NO_CPR )
-#include "MRViewerFwd.h"
+#include "MRWebResponseCallback.h"
 #include "MRMesh/MRExpected.h"
-#include <json/forwards.h>
 #include <unordered_map>
-#include <thread>
 #include <string>
 #include <functional>
 
@@ -77,7 +75,7 @@ public:
     // set log name
     MRVIEWER_API void setLogName( std::string logName );
 
-    using ResponseCallback = std::function<void( const Json::Value& response )>;
+    using ResponseCallback = MR::WebResponseCallback;
 
     /// send request, calling callback on answer,
     /// if async then callback is called in next frame after getting response
@@ -102,12 +100,6 @@ private:
     std::string outputPath_;
     ProgressCallback uploadCallback_;
     ProgressCallback downloadCallback_;
-
-    using AsyncThreads = std::unordered_map<std::thread::id, std::thread>;
-    static AsyncThreads& getWaitingMap_();
-#ifndef __EMSCRIPTEN__
-    void putIntoWaitingMap_( std::thread&& thread );
-#endif
 };
 
 }

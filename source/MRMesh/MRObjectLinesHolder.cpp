@@ -76,6 +76,14 @@ void ObjectLinesHolder::setDirtyFlags( uint32_t mask, bool invalidateCaches )
     }
 }
 
+void ObjectLinesHolder::setDashPattern( const DashPattern& pattern, ViewportId id /*= {} */ )
+{
+    if ( dashPattern_.get( id ) == pattern )
+        return;
+    dashPattern_.set( pattern, id );
+    needRedraw_ = true;
+}
+
 void ObjectLinesHolder::setLineWidth( float width )
 {
     if ( width == lineWidth_ )
@@ -188,6 +196,8 @@ const ViewportMask& ObjectLinesHolder::getVisualizePropertyMask( AnyVisualizeMas
             return showPoints_;
         case LinesVisualizePropertyType::Smooth:
             return smoothConnections_;
+        case LinesVisualizePropertyType::Dashed:
+            return dashed_;
         case LinesVisualizePropertyType::_count: break; // MSVC warns if this is missing, despite `[[maybe_unused]]` on the `_count`.
         }
         assert( false && "Invalid enum." );

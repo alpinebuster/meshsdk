@@ -9,7 +9,12 @@ find_package(TBB REQUIRED)
 find_package(Threads)
 
 set(EXAMPLES
+  Collision
+  CollisionPrecise
+  CollisionSelf
+  ContourTriangulation
   FreeFormDeformation
+  Fusion
   GlobalRegistration
   LaplacianDeformation
   MeshBoolean
@@ -17,18 +22,21 @@ set(EXAMPLES
   MeshExport
   MeshExtrude
   MeshFillHole
+  MeshFixDegeneracies
   MeshFromText
   MeshICP
   MeshLoadSave
   MeshModification
   MeshOffset
-  MeshFixDegeneracies
+  MeshOffsetWeighted
   MeshStitchHole
   NoiseDenoise
-  Triangulation
   PointsToMesh
-  ContourTriangulation
+  SignedDistance
+  SignedDistancePointToMesh
+  SignedDistances
   TerrainTriangulation
+  Triangulation
 )
 
 foreach(TARGET ${EXAMPLES})
@@ -40,7 +48,9 @@ endforeach()
 # MeshFromText additionally depends on MRSymbolMesh
 target_link_libraries(MeshFromText PRIVATE MeshSDK::MRSymbolMesh)
 # MeshOffset and Triangulation additionally depend on MRVoxels
+target_link_libraries(Fusion PRIVATE MeshSDK::MRVoxels)
 target_link_libraries(MeshOffset PRIVATE MeshSDK::MRVoxels)
+target_link_libraries(MeshOffsetWeighted PRIVATE MeshSDK::MRVoxels)
 target_link_libraries(Triangulation PRIVATE MeshSDK::MRVoxels)
 # MeshLoadSave additionally depends on MRIOExtras
 target_link_libraries(MeshLoadSave PRIVATE MeshSDK::MRIOExtras)

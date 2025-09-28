@@ -524,7 +524,7 @@ public:
     // When dragging is active, dragSignal and dragEndSignal are emitted instead of mouseMove and mouseUp
     // mouseDown handler have priority over dragStart
     MouseUpDownSignal mouseClickSignal; // signal is called when mouse button is pressed and immediately released
-    MouseUpDownSignal dragStartSignal; // signal is called when mouse button is pressed (deterred if click behavior is on)
+    MouseUpDownSignal dragStartSignal; // signal is called when mouse button is pressed (deferred if click behavior is on)
     MouseUpDownSignal dragEndSignal; // signal is called when mouse button used to start drag is released
     MouseMoveSignal dragSignal; // signal is called when mouse is being dragged with button down
     // Cursor enters/leaves
@@ -620,6 +620,8 @@ public:
     /// \param deviceSignal every device-related event will be sent here: find, connect, disconnect
     MRVIEWER_API void initSpaceMouseHandler( std::function<void(const std::string&)> deviceSignal = {} );
 
+    /// draw 2d (UI) part of objects in scene
+    MRVIEWER_API void drawUiRenderObjects();
 private:
     Viewer();
     ~Viewer();
@@ -648,8 +650,6 @@ private:
 #endif
     // returns true if was swapped
     bool draw_( bool force );
-
-    void drawUiRenderObjects_();
 
     // the minimum number of frames to be rendered even if the scene is unchanged
     int forceRedrawFrames_{ 0 };
@@ -746,8 +746,5 @@ private:
 
 // starts default viewer with given params and setup
 MRVIEWER_API int launchDefaultViewer( const Viewer::LaunchParams& params, const ViewerSetup& setup );
-
-// call this function to load MRViewer.dll
-MRVIEWER_API void loadMRViewerDll();
 
 } // end namespace

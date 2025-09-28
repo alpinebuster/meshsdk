@@ -53,7 +53,6 @@
 #include "MRMesh/MRIOFormatsRegistry.h"
 #include "MRMesh/MRStringConvert.h"
 #include "MRMesh/MRSystem.h"
-#include "MRMesh/MRGTest.h"
 #include "MRSymbolMesh/MRObjectLabel.h"
 #include "MRMesh/MRObjectLoad.h"
 #include "MRMesh/MRSerializer.h"
@@ -389,10 +388,6 @@ int launchDefaultViewer( const Viewer::LaunchParams& params, const ViewerSetup& 
     return res;
 }
 
-void loadMRViewerDll()
-{
-}
-
 void filterReservedCmdArgs( std::vector<std::string>& args )
 {
     if ( args.empty() )
@@ -608,12 +603,16 @@ int Viewer::launch( const LaunchParams& params )
     if ( res != EXIT_SUCCESS )
         return res;
 
-    CommandLoop::setState( CommandLoop::StartPosition::AfterSplashHide );
+    CommandLoop::setState( CommandLoop::StartPosition::BeforeWindowAppear );
     CommandLoop::processCommands(); // execute pre init commands before first draw
     focusRedrawReady_ = true;
 
     if ( params.windowMode == LaunchParams::HideInit && window )
         glfwShowWindow( window );
+
+    // splash window must be hidden after main window appear, otherwise another application (e.g. Windows Explorer) is activated
+    if ( params.windowMode != LaunchParams::NoWindow && params.windowMode != LaunchParams::Hide && params.splashWindow )
+        params.splashWindow->stop();
 
     CommandLoop::setState( CommandLoop::StartPosition::AfterWindowAppear );
     CommandLoop::processCommands(); // execute remaining commands in the queue, important for params.startEventLoop==false
@@ -860,17 +859,14 @@ int Viewer::launchInit_( const LaunchParams& params )
     CommandLoop::setState( CommandLoop::StartPosition::AfterWindowInit );
     CommandLoop::processCommands();
 
-    std::future<void> splashMinTimer;
+    // current time plus minimum delay splash screen to stay present
+    decltype( std::chrono::steady_clock::now() + std::chrono::duration<float>( 0 ) ) continueTime;
     if ( windowMode && params.windowMode != LaunchParams::Hide && params.splashWindow )
     {
         params.splashWindow->start();
-        // minimum time splash screen to stay present
-        splashMinTimer = std::async( std::launch::async, [seconds = params.splashWindow->minimumTimeSec()] ()
-        {
-            std::this_thread::sleep_for( std::chrono::duration<float>( seconds ) );
-        } );
+        continueTime = std::chrono::steady_clock::now() + std::chrono::duration<float>( params.splashWindow->minimumTimeSec() );
     }
-
+ 
     CommandLoop::setState( CommandLoop::StartPosition::AfterSplashAppear );
     CommandLoop::processCommands();
 
@@ -895,8 +891,9 @@ int Viewer::launchInit_( const LaunchParams& params )
 
     if ( windowMode && params.windowMode != LaunchParams::Hide && params.splashWindow )
     {
-        splashMinTimer.get();
-        params.splashWindow->stop();
+        spdlog::info( "Waiting for minimal splash screen time..." );
+        std::this_thread::sleep_until( continueTime );
+        spdlog::info( "Minimal splash screen time reached" );
     }
 
     // important to be after splash
@@ -1777,7 +1774,7 @@ bool Viewer::draw_( bool force )
     return ( window && swapped );
 }
 
-void Viewer::drawUiRenderObjects_()
+void Viewer::drawUiRenderObjects()
 {
     // Currently, a part of the contract of `IRenderObject::renderUi()` is that at most rendering task is in flight at any given time.
     // That's why each viewport is being drawn separately.
@@ -1788,7 +1785,6 @@ void Viewer::drawUiRenderObjects_()
     for ( Viewport& viewport : getViewerInstance().viewport_list )
     {
         UiRenderParams renderParams{ viewport.getBaseRenderParams() };
-        renderParams.scale = menuPlugin_->menu_scaling();
 
         uiRenderManager.preRenderViewport( viewport.id );
         MR_FINALLY{ uiRenderManager.postRenderViewport( viewport.id ); };
@@ -1818,7 +1814,7 @@ void Viewer::drawUiRenderObjects_()
             --it;
             ( *it )->earlyBackwardPass( backwardPassParams );
         }
-        uiRenderManager.finishBackwardPass( backwardPassParams );
+        uiRenderManager.finishBackwardPass( viewport.id, backwardPassParams );
 
         for ( const auto& task : tasks )
             task->renderPass();
@@ -1861,7 +1857,7 @@ void Viewer::drawFull( bool dirtyScene )
     }
     if ( menuPlugin_ )
     {
-        drawUiRenderObjects_();
+        drawUiRenderObjects();
         menuPlugin_->finishFrame();
     }
 }
@@ -2808,13 +2804,5 @@ void Viewer::GLPrimitivesCounter::reset()
     for ( size_t i = 0; i < size_t( GLPrimitivesType::Count ); ++i )
         counter[i] = 0;
 }
-
-// simple test to make sure this dll was linked and loaded to test project
-TEST( MRViewer, LoadTest )
-{
-    bool load = true;
-    ASSERT_EQ( load, true );
-}
-
 
 }

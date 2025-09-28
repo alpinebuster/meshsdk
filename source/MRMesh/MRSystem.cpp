@@ -235,29 +235,39 @@ std::filesystem::path GetHomeDirectory()
     return {};
 }
 
-std::string GetMRVersionString()
+const char * GetMRVersionString()
 {
+    static const std::string res = []
+    {
 #ifndef __EMSCRIPTEN__
     MR_SUPPRESS_WARNING_PUSH
     MR_SUPPRESS_WARNING( "-Wdeprecated-declarations", 4996 )
     auto directory = GetResourcesDirectory();
     MR_SUPPRESS_WARNING_POP
     auto versionFilePath = directory / "mr.version";
+    std::string version = __DATE__;
     std::error_code ec;
-    std::string configPrefix = "";
-#ifndef NDEBUG
-    configPrefix = "Debug: ";
-#endif
-    if ( !std::filesystem::exists( versionFilePath, ec ) )
-        return configPrefix + "Version undefined";
-    std::ifstream versFile( versionFilePath );
-    if ( !versFile )
-        return configPrefix + "Version reading error";
-    std::string version;
-    versFile >> version;
-    if ( !versFile )
-        return configPrefix + "Version reading error";
-    return configPrefix + version;
+    if ( std::filesystem::exists( versionFilePath, ec ) )
+    {
+        std::ifstream versFile( versionFilePath );
+        if ( versFile )
+        {
+            versFile >> version;
+            if ( versFile )
+                spdlog::info( "Version file {} contains: {}", utf8string( versionFilePath ), version );
+            else
+                spdlog::error( "Error reading from version file {}", utf8string( versionFilePath ) );
+        }
+        else
+            spdlog::error( "Version file {} cannot be open for reading", utf8string( versionFilePath ) );
+    }
+    else
+        spdlog::info( "Version file {} does not exist", utf8string( versionFilePath ) );
+  #ifndef NDEBUG
+    return "Debug: " + version;
+  #else
+    return version;
+  #endif
 #else
     auto *jsStr = (char *)EM_ASM_PTR({
         var version = "undefined";
@@ -272,6 +282,8 @@ std::string GetMRVersionString()
     free( jsStr );
     return version;
 #endif
+    }();
+    return res.c_str();
 }
 
 void OpenLink( const std::string& url )

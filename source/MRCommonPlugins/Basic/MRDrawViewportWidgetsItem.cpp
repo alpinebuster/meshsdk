@@ -9,6 +9,7 @@
 #include "MRViewer/MRImGuiVectorOperators.h"
 #include "MRViewer/MRImGuiVectorOperators.h"
 #include "MRViewer/MRRibbonMenu.h"
+#include "MRViewer/MRUIStyle.h"
 #include "MRViewer/MRViewer.h"
 #include "MRViewer/MRViewport.h"
 
@@ -52,6 +53,7 @@ void DrawViewportWidgetsItem::handleViewport( Viewport& viewport )
         std::string name;
         bool active = false;
         std::string icon;
+        std::string tooltip;
         std::function<void()> onClick;
 
         auto tieForSorting() const { return std::tie( order, name ); }
@@ -64,13 +66,14 @@ void DrawViewportWidgetsItem::handleViewport( Viewport& viewport )
 
         [[nodiscard]] ViewportId viewportId() const override { return id; }
 
-        void addButton( float order, std::string name, bool active, std::string icon, std::function<void()> onClick ) override
+        void addButton( float order, std::string name, bool active, std::string icon, std::string tooltip, std::function<void()> onClick ) override
         {
             Entry& e = entries.emplace_back();;
             e.order = order;
             e.name = std::move( name );
             e.active = active;
             e.icon = std::move( icon );
+            e.tooltip = std::move( tooltip );
             e.onClick = std::move( onClick );
         }
     };
@@ -90,14 +93,13 @@ void DrawViewportWidgetsItem::handleViewport( Viewport& viewport )
     rect.max.y = ImGui::GetIO().DisplaySize.y - rect.max.y;
     std::swap( rect.min.y, rect.max.y );
 
-    const float menuScaling = getViewerInstance().getMenuPlugin()->menu_scaling();
-    const ImVec2 spacingToCorner = round( ImVec2( 22, 22 ) * menuScaling );
-    const float spacingBetweenButtons = std::round( 16 * menuScaling );
+    const ImVec2 spacingToCorner = round( ImVec2( 22, 22 ) * UI::scale() );
+    const float spacingBetweenButtons = std::round( 16 * UI::scale() );
 
-    const ImVec2 buttonSize = round( ImVec2( 34, 34 ) * menuScaling ); // `buttonShrink` gets subtracted from this on both sides.
-    const ImVec2 imageSize = round( ImVec2( 24, 24 ) * menuScaling );
+    const ImVec2 buttonSize = round( ImVec2( 34, 34 ) * UI::scale() ); // `buttonShrink` gets subtracted from this on both sides.
+    const ImVec2 imageSize = round( ImVec2( 24, 24 ) * UI::scale() );
 
-    const float buttonShrink = std::round( 1 * menuScaling ); // Need this to avoid button borders being clipped.
+    const float buttonShrink = std::round( 1 * UI::scale() ); // Need this to avoid button borders being clipped.
 
     ImVec2 curPos = rect.max - spacingToCorner - buttonSize;
 
@@ -122,7 +124,7 @@ void DrawViewportWidgetsItem::handleViewport( Viewport& viewport )
 
         ImGui::PushStyleVar( ImGuiStyleVar_FrameBorderSize, 0 );
         MR_FINALLY{ ImGui::PopStyleVar(); };
-        ImGui::PushStyleVar( ImGuiStyleVar_FrameRounding, 7 * menuScaling );
+        ImGui::PushStyleVar( ImGuiStyleVar_FrameRounding, 7 * UI::scale() );
         MR_FINALLY{ ImGui::PopStyleVar(); };
         ImGui::PushStyleColor( ImGuiCol_Button, e.active ? ImGui::GetStyleColorVec4( ImGuiCol_SliderGrab ) : ImVec4( 0, 0, 0, 0 ) );
         MR_FINALLY{ ImGui::PopStyleColor(); };
@@ -146,6 +148,10 @@ void DrawViewportWidgetsItem::handleViewport( Viewport& viewport )
         // The button.
         if ( ImGui::Button( fmt::format( "##cornerButtonWindow.{}.{}", viewport.id.value(), e.name ).c_str(), buttonSize - buttonShrink * 2 ) )
             e.onClick();
+
+        // The tooltip, if any.
+        if ( !e.tooltip.empty() )
+            UI::setTooltipIfHovered( e.tooltip );
 
         // The icon.
         auto icon = RibbonIcons::findByName( e.icon, std::max( imageSize.x, imageSize.y ), RibbonIcons::ColorType::White, RibbonIcons::IconType::IndependentIcons );

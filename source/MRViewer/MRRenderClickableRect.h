@@ -3,7 +3,7 @@
 #include "MRMesh/MRIRenderObject.h"
 #include "MRViewer/exports.h"
 
-#include <imgui.h>
+#include "MRViewer/MRImGui.h"
 
 namespace MR
 {
@@ -15,9 +15,9 @@ class MRVIEWER_CLASS BasicClickableRectUiRenderTask : public BasicUiRenderTask
 public:
     BasicClickableRectUiRenderTask() = default;
 
-    // No-op the assignments, because we want to preserve the state across frames.
-    BasicClickableRectUiRenderTask( const BasicClickableRectUiRenderTask& ) {}
-    BasicClickableRectUiRenderTask& operator=( const BasicClickableRectUiRenderTask& ) { return *this; }
+    // Don't assign the memebers (except the base), because we want to preserve the state across frames.
+    BasicClickableRectUiRenderTask( const BasicClickableRectUiRenderTask& other ) : BasicUiRenderTask( other ) {}
+    BasicClickableRectUiRenderTask& operator=( const BasicClickableRectUiRenderTask& other ) { BasicUiRenderTask::operator=( other ); return *this; }
 
     virtual ~BasicClickableRectUiRenderTask() = default;
 
@@ -27,9 +27,13 @@ public:
     // This is what ultimately calls `onClick()` if the certain conditions hold.
     MRVIEWER_API void earlyBackwardPass( const BackwardPassParams& backParams ) override;
 
-    // Set those to set the clickable area. Zero both to disable the clicks.
-    ImVec2 clickableCornerA_;
-    ImVec2 clickableCornerB_;
+    // Set those to set the clickable area. Zero both to hovers and clicks.
+    ImVec2 clickableCornerA;
+    ImVec2 clickableCornerB;
+
+    // Set to false to disable hovers and clicks (`isHovered` will always be false),
+    //   but still consume the mouse hover to prevent other buttons below this one from being clicked.
+    bool enabled = true;
 
     // Read these to decide how to render.
     bool isHovered = false;

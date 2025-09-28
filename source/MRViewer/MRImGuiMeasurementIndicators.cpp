@@ -4,6 +4,7 @@
 #include "MRMesh/MRString.h"
 #include "MRViewer/MRColorTheme.h"
 #include "MRViewer/MRRibbonFontManager.h"
+#include "MRViewer/MRUIStyle.h"
 
 namespace MR::ImGuiMeasurementIndicators
 {
@@ -71,7 +72,7 @@ Params::Params()
     };
 }
 
-void point( Element elem, float menuScaling, const Params& params, ImVec2 point )
+void point( Element elem, const Params& params, ImVec2 point )
 {
     forEachElement( elem, [&]( Element thisElem )
     {
@@ -80,7 +81,7 @@ void point( Element elem, float menuScaling, const Params& params, ImVec2 point 
         if ( thisElem == Element::outline )
             radius += params.outlineWidth;
 
-        radius *= menuScaling;
+        radius *= UI::scale();
 
         params.list->AddCircleFilled( point, radius, ( thisElem == Element::main ? params.colorMain : params.colorOutline ).getUInt32() );
     } );
@@ -234,7 +235,7 @@ void Text::update( bool force ) const
     }
 }
 
-Text::DrawResult Text::draw( ImDrawList& list, float menuScaling, ImVec2 pos, const TextColor& defaultTextColor ) const
+Text::DrawResult Text::draw( ImDrawList& list, ImVec2 pos, const TextColor& defaultTextColor ) const
 {
     DrawResult ret;
 
@@ -278,11 +279,11 @@ Text::DrawResult Text::draw( ImDrawList& list, float menuScaling, ImVec2 pos, co
                     switch ( icon )
                     {
                     case TextIcon::diameter:
-                        list.AddCircle( elemPos + elem.computedSize / 2, elem.computedSize.x / 2 - 2 * menuScaling, curColor, 0, 1.1f * menuScaling );
+                        list.AddCircle( elemPos + elem.computedSize / 2, elem.computedSize.x / 2 - 2 * UI::scale(), curColor, 0, 1.1f * UI::scale() );
                         list.AddLine(
                             elemPos + ImVec2( elem.computedSize.x - 1.5f, 0.5f ) - ImVec2( 0.5f, 0.5f ),
                             elemPos + ImVec2( 1.5f, elem.computedSize.y - 0.5f ) - ImVec2( 0.5f, 0.5f ),
-                            curColor, 1.1f * menuScaling
+                            curColor, 1.1f * UI::scale()
                         );
                         break;
                     }
@@ -302,7 +303,7 @@ Text::DrawResult Text::draw( ImDrawList& list, float menuScaling, ImVec2 pos, co
     return ret;
 }
 
-std::optional<TextResult> text( Element elem, float menuScaling, const Params& params, ImVec2 pos, const Text& text, const TextParams& textParams, ImVec2 push, ImVec2 pivot )
+std::optional<TextResult> text( Element elem, const Params& params, ImVec2 pos, const Text& text, const TextParams& textParams, ImVec2 push, ImVec2 pivot )
 {
     if ( ( elem & Element::both ) == Element{} )
         return {}; // Nothing to draw.
@@ -312,11 +313,11 @@ std::optional<TextResult> text( Element elem, float menuScaling, const Params& p
 
     TextResult ret;
 
-    float textOutlineWidth = params.textOutlineWidth * menuScaling;
-    float textOutlineRounding = params.textOutlineRounding * menuScaling;
-    float textToLineSpacingRadius = params.textToLineSpacingRadius * menuScaling;
-    ImVec2 textToLineSpacingA = params.textToLineSpacingA * menuScaling;
-    ImVec2 textToLineSpacingB = params.textToLineSpacingB * menuScaling;
+    float textOutlineWidth = params.textOutlineWidth * UI::scale();
+    float textOutlineRounding = params.textOutlineRounding * UI::scale();
+    float textToLineSpacingRadius = params.textToLineSpacingRadius * UI::scale();
+    ImVec2 textToLineSpacingA = params.textToLineSpacingA * UI::scale();
+    ImVec2 textToLineSpacingB = params.textToLineSpacingB * UI::scale();
 
     text.update();
     ret.textCornerA = pos - ( text.computedSize * pivot );
@@ -333,23 +334,57 @@ std::optional<TextResult> text( Element elem, float menuScaling, const Params& p
     ret.bgCornerA = ret.textCornerA - textToLineSpacingA - textOutlineWidth;
     ret.bgCornerB = ret.textCornerB + textToLineSpacingB + textOutlineWidth;
 
+    auto drawLine = [&]( Element lineElem )
+    {
+        if ( !textParams.line )
+            return; // No line specified.
+
+        if ( CompareAll( textParams.line->point ) >= ret.bgCornerA && CompareAll( textParams.line->point ) <= ret.bgCornerB )
+            return; // The line end point is already inside the rect.
+
+        ImVec2 point = ( ret.bgCornerA + ret.bgCornerB ) / 2;
+        ImVec2 delta = textParams.line->point - point;
+
+        // For now we don't correctly handle the little rounded corner cutouts. This should be barely noticeable.
+
+        float t = std::min(
+            delta.x == 0 ? FLT_MAX : ( ( delta.x > 0 ? ret.bgCornerB.x : ret.bgCornerA.x ) - point.x ) / delta.x,
+            delta.y == 0 ? FLT_MAX : ( ( delta.y > 0 ? ret.bgCornerB.y : ret.bgCornerA.y ) - point.y ) / delta.y
+        );
+        assert( t > 0 && t <= 1 );
+
+        auto lineBody = textParams.line->body;
+        if ( !lineBody.colorOverride && textParams.borderColor.a > 0 )
+            lineBody.colorOverride = textParams.borderColor;
+
+        line( lineElem, params, point + delta * t, textParams.line->point, {
+            .body = lineBody,
+            .capA = { .decoration = LineCapDecoration::none }, // Could also use `noOutline`, but I think that looks worse.
+            .capB = { .decoration = textParams.line->capDecoration },
+        } );
+    };
+
     if ( bool( elem & Element::outline ) )
     {
+        drawLine( Element::outline );
+
         const auto& color = textParams.isActive ? params.colorTextOutlineActive : textParams.isHovered ? params.colorTextOutlineHovered : params.colorTextOutline;
         params.list->AddRectFilled( ret.bgCornerA, ret.bgCornerB, color.getUInt32(), textOutlineRounding );
     }
     if ( bool( elem & Element::main ) )
     {
-        text.draw( *params.list, menuScaling, ret.textCornerA, params.colorText.getUInt32() );
+        drawLine( Element::main );
+
+        text.draw( *params.list, ret.textCornerA, params.colorText.getUInt32() );
 
         // I think the colored frame should be in `Element::main`.
         if ( textParams.borderColor.a > 0 )
         {
-            float lineWidthUnselected = params.clickableLabelLineWidth * menuScaling;
-            float lineWidthSelected = params.clickableLabelLineWidthSelected * menuScaling;
+            float lineWidthUnselected = params.clickableLabelLineWidth * UI::scale();
+            float lineWidthSelected = params.clickableLabelLineWidthSelected * UI::scale();
 
             float lineWidth = textParams.isSelected ? lineWidthSelected : lineWidthUnselected;
-            float outlineWidth = params.clickableLabelOutlineWidth * menuScaling * 2 + lineWidth;
+            float outlineWidth = params.clickableLabelOutlineWidth * UI::scale() * 2 + lineWidth;
 
             float rectShrink = lineWidthUnselected / 2;
             if ( textParams.isSelected )
@@ -369,14 +404,14 @@ std::optional<TextResult> text( Element elem, float menuScaling, const Params& p
     return ret;
 }
 
-void arrowTriangle( Element elem, float menuScaling, const Params& params, ImVec2 point, ImVec2 dir )
+void arrowTriangle( Element elem, const Params& params, ImVec2 point, ImVec2 dir )
 {
     if ( ( elem & Element::both ) == Element{} )
         return; // Nothing to draw.
 
-    float outlineWidth = params.outlineWidth * menuScaling;
-    float arrowLen = params.arrowLen * menuScaling;
-    float arrowHalfWidth = params.arrowHalfWidth * menuScaling;
+    float outlineWidth = params.outlineWidth * UI::scale();
+    float arrowLen = params.arrowLen * UI::scale();
+    float arrowHalfWidth = params.arrowHalfWidth * UI::scale();
 
     dir = normalize( dir );
     ImVec2 n = rot90( dir );
@@ -399,12 +434,12 @@ void arrowTriangle( Element elem, float menuScaling, const Params& params, ImVec
         params.list->AddTriangleFilled( a, b, c, params.colorMain.getUInt32() );
 }
 
-std::optional<LineResult> line( Element elem, float menuScaling, const Params& params, ImVec2 a, ImVec2 b, const LineParams& lineParams )
+std::optional<LineResult> line( Element elem, const Params& params, ImVec2 a, ImVec2 b, const LineParams& lineParams )
 {
     if ( ( elem & Element::both ) == Element{} )
         return {}; // Nothing to draw.
 
-    float arrowLen = params.arrowLen * menuScaling;
+    float arrowLen = params.arrowLen * UI::scale();
 
     auto midpointsFixed = lineParams.midPoints;
 
@@ -416,12 +451,13 @@ std::optional<LineResult> line( Element elem, float menuScaling, const Params& p
             float capLength = 0;
             switch ( ( front ? lineParams.capB : lineParams.capA ).decoration )
             {
-            case LineCap::Decoration::none:
-            case LineCap::Decoration::extend:
-            case LineCap::Decoration::point:
+            case LineCapDecoration::none:
+            case LineCapDecoration::noOutline:
+            case LineCapDecoration::extend:
+            case LineCapDecoration::point:
                 // Nothing.
                 break;
-            case LineCap::Decoration::arrow:
+            case LineCapDecoration::arrow:
                 capLength = arrowLen;
                 break;
             }
@@ -456,20 +492,25 @@ std::optional<LineResult> line( Element elem, float menuScaling, const Params& p
 
     LineResult ret;
 
-    float lineWidth = ( bool( lineParams.flags & LineFlags::narrow ) ? params.smallWidth : params.width ) * menuScaling;
-    float outlineWidth = params.outlineWidth * menuScaling;
-    float leaderLineLen = params.leaderLineLen * menuScaling;
-    float invertedOverhang = params.invertedOverhang * menuScaling;
-    float arrowTipBackwardOffset = params.arrowTipBackwardOffset * menuScaling;
+    float lineWidth = ( bool( lineParams.body.flags & LineFlags::narrow ) ? params.smallWidth : params.width ) * UI::scale();
+    float outlineWidth = params.outlineWidth * UI::scale();
+    float leaderLineLen = params.leaderLineLen * UI::scale();
+    float invertedOverhang = params.invertedOverhang * UI::scale();
+    float arrowTipBackwardOffset = params.arrowTipBackwardOffset * UI::scale();
 
     forEachElement( elem, [&]( Element thisElem )
     {
+        if ( bool( lineParams.body.flags & LineFlags::onlyOutline ) && thisElem == Element::outline )
+            return; // Sic. In that mode we use `Element::main` to draw an outline-colored line.
+
         ImVec2 points[2] = {a, b};
 
         // Those are added on the ends of the line, if specified.
         std::optional<ImVec2> extraPoints[2];
 
         auto midpointsFixed2 = midpointsFixed;
+
+        bool extendOutlineOnCap[2] = { true, true };
 
         for ( bool front : { false, true } )
         {
@@ -484,21 +525,24 @@ std::optional<LineResult> line( Element elem, float menuScaling, const Params& p
             // Draw the cap decoration.
             switch ( thisCap.decoration )
             {
-            case LineCap::Decoration::none:
+            case LineCapDecoration::none:
                 // Nothing.
                 break;
-            case LineCap::Decoration::extend:
+            case LineCapDecoration::noOutline:
+                extendOutlineOnCap[front] = false;
+                break;
+            case LineCapDecoration::extend:
                 point += d * params.notchHalfLen;
                 break;
-            case LineCap::Decoration::arrow:
+            case LineCapDecoration::arrow:
                 {
-                    if ( !bool( lineParams.flags & LineFlags::noBackwardArrowTipOffset ) && thisCap.text.isEmpty() )
+                    if ( !bool( lineParams.body.flags & LineFlags::noBackwardArrowTipOffset ) && thisCap.text.isEmpty() )
                         point -= d * arrowTipBackwardOffset;
                     ImVec2 arrowTip = point;
-                    arrowTriangle( thisElem, menuScaling, params, arrowTip, d );
+                    arrowTriangle( thisElem, params, arrowTip, d );
                     if ( thisCap.text.isEmpty() )
                     {
-                        point += d * ( -arrowLen + 1 ); // +1 is to avoid a hairline gap here, we intentionally don't multiply it by `menuScaling`.
+                        point += d * ( -arrowLen + 1 ); // +1 is to avoid a hairline gap here, we intentionally don't multiply it by `UI::scale()`.
 
                         // Now trim some extra points to avoid artifacts (which tend to appear when both the stipple and antialiasing are enabled,
                         //   but can probably appear without the stipple too).
@@ -522,8 +566,8 @@ std::optional<LineResult> line( Element elem, float menuScaling, const Params& p
                     }
                 }
                 break;
-            case LineCap::Decoration::point:
-                ImGuiMeasurementIndicators::point( thisElem, menuScaling, params, point );
+            case LineCapDecoration::point:
+                ImGuiMeasurementIndicators::point( thisElem, params, point );
                 break;
             }
 
@@ -531,7 +575,7 @@ std::optional<LineResult> line( Element elem, float menuScaling, const Params& p
             {
                 ImVec2 leaderDir( ( d.x > 0 ? 1.f : -1.f ), 0 );
                 extraPoint = points[front] + leaderDir * leaderLineLen;
-                ( front ? ret.capB : ret.capA ) = text( thisElem, menuScaling, params, *extraPoint, thisCap.text, thisCap.textParams, leaderDir );
+                ( front ? ret.capB : ret.capA ) = text( thisElem, params, *extraPoint, thisCap.text, thisCap.textParams, leaderDir );
             }
         }
 
@@ -540,13 +584,16 @@ std::optional<LineResult> line( Element elem, float menuScaling, const Params& p
             return;
 
         // Those used to extend the outline forward and backward.
-        bool isFirstPathPoint = true;
+        bool isFirstPathPoint = true; // The first point after a flush.
         std::optional<ImVec2> queuedPathPoint;
         std::optional<ImVec2> prevPathPoint;
 
+        // Setting this to false is used for `noOutline` mode on the first cap.
+        bool extendOutlineOnFirstPoint = extendOutlineOnCap[0] && ( !lineParams.body.stipple || lineParams.body.stipple->segments.front().a <= 0 );
+
         auto pathPoint = [&]( ImVec2 p )
         {
-            if ( elem == Element::main )
+            if ( thisElem == Element::main )
             {
                 params.list->PathLineTo( p );
                 return;
@@ -561,20 +608,27 @@ std::optional<LineResult> line( Element elem, float menuScaling, const Params& p
 
                 if ( isFirstPathPoint && p != *queuedPathPoint )
                 {
-                    // Extend the first point backwards.
+                    // Extend the first point backwards. (Unless this is the very first point and the cap style is `noOutline`.)
+
+                    if ( extendOutlineOnCap[0] || extendOutlineOnFirstPoint )
+                        *queuedPathPoint -= normalize( p - *queuedPathPoint ) * outlineWidth;
+
                     isFirstPathPoint = false;
-                    *queuedPathPoint -= normalize( p - *queuedPathPoint ) * outlineWidth;
+                    extendOutlineOnFirstPoint = true; // Reset after the first point.
                 }
 
                 params.list->PathLineTo( *queuedPathPoint );
             }
             queuedPathPoint = p;
         };
-        auto pathStroke = [&]
+
+        // `lastSegment == true` is passed once for the last segment.
+        // If the line ends on a stipple gap, then `false` is never passed, which is intentional.
+        auto pathStroke = [&]( bool lastSegment )
         {
-            if ( elem == Element::outline )
+            if ( thisElem == Element::outline )
             {
-                if ( queuedPathPoint && prevPathPoint )
+                if ( queuedPathPoint && prevPathPoint && ( extendOutlineOnCap[1] || !lastSegment ) )
                 {
                     // Extend the last point forward.
                     *queuedPathPoint += normalize( *queuedPathPoint - *prevPathPoint ) * outlineWidth;
@@ -587,7 +641,19 @@ std::optional<LineResult> line( Element elem, float menuScaling, const Params& p
                 prevPathPoint.reset();
             }
 
-            params.list->PathStroke( ( thisElem == Element::main ? params.colorMain : params.colorOutline ).getUInt32(), 0, lineWidth + ( outlineWidth * 2 ) * ( thisElem == Element::outline ) );
+            params.list->PathStroke(
+                (
+                    thisElem == Element::main
+                    ? (
+                        bool( lineParams.body.flags & LineFlags::onlyOutline ) ? params.colorTextOutline :
+                        lineParams.body.colorOverride ? *lineParams.body.colorOverride :
+                        params.colorMain
+                    )
+                    : params.colorOutline
+                ).getUInt32(),
+                0,
+                lineWidth + ( outlineWidth * 2 ) * ( thisElem == Element::outline )
+            );
         };
 
         auto forEachPoint = [&]( auto&& func )
@@ -602,14 +668,14 @@ std::optional<LineResult> line( Element elem, float menuScaling, const Params& p
                 func( *extraPoints[1] );
         };
 
-        if ( !lineParams.stipple )
+        if ( !lineParams.body.stipple )
         {
             forEachPoint( pathPoint );
-            pathStroke();
+            pathStroke( true );
         }
         else
         {
-            const float patternLen = lineParams.stipple->patternLength * menuScaling;
+            const float patternLen = lineParams.body.stipple->patternLength * UI::scale();
 
             float t = 0; // The current phase, between 0 and 1.
             bool nowActive = false; // Are we in the middle of a segment right now?
@@ -633,7 +699,7 @@ std::optional<LineResult> line( Element elem, float menuScaling, const Params& p
 
                     while ( true )
                     {
-                        const Stipple::Segment& thisSegm = lineParams.stipple->segments[segmIndex];
+                        const Stipple::Segment& thisSegm = lineParams.body.stipple->segments[segmIndex];
 
                         // How many more periods do we want to skip until the end of the output segment.
                         float remPatternPeriodsLen = thisSegm.get( nowActive ) - t;
@@ -656,10 +722,12 @@ std::optional<LineResult> line( Element elem, float menuScaling, const Params& p
                             // Render the output segment if we're finishing it. Update the index into the pattern.
                             if ( nowActive )
                             {
-                                pathStroke();
+                                // This intentionally uses `lastSegment == false` unconditionally, even if this happens to be the last segment.
+                                // That's because `true` only makes sense if we're ending in the middle of the last segment.
+                                pathStroke( false );
 
                                 segmIndex++;
-                                if ( segmIndex == lineParams.stipple->segments.size() )
+                                if ( segmIndex == lineParams.body.stipple->segments.size() )
                                     segmIndex = 0;
                             }
                             // Start/stop the output segment.
@@ -691,24 +759,24 @@ std::optional<LineResult> line( Element elem, float menuScaling, const Params& p
             // Here we don't need `pathPoint( *prevPoint );`, because unfinished segments already write the last point,
             //   which is normally used to make them more smooth.
             if ( nowActive )
-                pathStroke();
+                pathStroke( true );
         }
     } );
 
     return ret;
 }
 
-std::optional<DistanceResult> distance( Element elem, float menuScaling, const Params& params, ImVec2 a, ImVec2 b, const Text& text, const DistanceParams& distanceParams )
+std::optional<DistanceResult> distance( Element elem, const Params& params, ImVec2 a, ImVec2 b, const Text& text, const DistanceParams& distanceParams )
 {
     if ( ( elem & Element::both ) == Element{} )
         return {}; // Nothing to draw.
 
-    float textToLineSpacingRadius = params.textToLineSpacingRadius * menuScaling;
-    ImVec2 textToLineSpacingA = params.textToLineSpacingA * menuScaling;
-    ImVec2 textToLineSpacingB = params.textToLineSpacingB * menuScaling;
-    float arrowLen = params.arrowLen * menuScaling;
-    float totalLenThreshold = params.totalLenThreshold * menuScaling;
-    float invertedOverhang = params.invertedOverhang * menuScaling;
+    float textToLineSpacingRadius = params.textToLineSpacingRadius * UI::scale();
+    ImVec2 textToLineSpacingA = params.textToLineSpacingA * UI::scale();
+    ImVec2 textToLineSpacingB = params.textToLineSpacingB * UI::scale();
+    float arrowLen = params.arrowLen * UI::scale();
+    float totalLenThreshold = params.totalLenThreshold * UI::scale();
+    float invertedOverhang = params.invertedOverhang * UI::scale();
 
     bool useInvertedStyle = lengthSq( b - a ) < totalLenThreshold * totalLenThreshold;
     bool drawTextOutOfLine = useInvertedStyle;
@@ -784,34 +852,34 @@ std::optional<DistanceResult> distance( Element elem, float menuScaling, const P
         if ( !useInvertedStyle && ( text.isEmpty() || drawTextOutOfLine || distanceParams.moveTextToLineEndIndex ) )
         {
             LineParams lineParams{
-                .capA = LineCap{ .decoration = LineCap::Decoration::arrow },
-                .capB = LineCap{ .decoration = LineCap::Decoration::arrow },
+                .capA = LineCap{ .decoration = LineCapDecoration::arrow },
+                .capB = LineCap{ .decoration = LineCapDecoration::arrow },
             };
             if ( distanceParams.moveTextToLineEndIndex )
                 ( *distanceParams.moveTextToLineEndIndex ? lineParams.capB : lineParams.capA ).text = text;
-            ret.line = line( thisElem, menuScaling, params, a, b, lineParams );
+            ret.line = line( thisElem, params, a, b, lineParams );
         }
         else
         {
             auto drawLineEnd = [&]( bool front )
             {
-                LineParams lineParams{ .capB = LineCap{ .decoration = LineCap::Decoration::arrow } };
+                LineParams lineParams{ .capB = LineCap{ .decoration = LineCapDecoration::arrow } };
                 if ( useInvertedStyle && distanceParams.moveTextToLineEndIndex && *distanceParams.moveTextToLineEndIndex == front )
                     lineParams.capA.text = text;
                 if ( useInvertedStyle )
-                    lineParams.flags |= LineFlags::noBackwardArrowTipOffset;
-                line( thisElem, menuScaling, params, front ? gapB : gapA, front ? b : a, lineParams );
+                    lineParams.body.flags |= LineFlags::noBackwardArrowTipOffset;
+                line( thisElem, params, front ? gapB : gapA, front ? b : a, lineParams );
             };
 
             drawLineEnd( false );
             drawLineEnd( true );
 
             if ( useInvertedStyle )
-                ret.line = line( thisElem, menuScaling, params, a - dir * ( arrowLen / 2 ), b + dir * ( arrowLen / 2 ), { .flags = LineFlags::narrow } );
+                ret.line = line( thisElem, params, a - dir * ( arrowLen / 2 ), b + dir * ( arrowLen / 2 ), { .body = { .flags = LineFlags::narrow } } );
         }
 
         if ( !distanceParams.moveTextToLineEndIndex )
-            ret.text = ImGuiMeasurementIndicators::text( thisElem, menuScaling, params, center, text, distanceParams.textParams, drawTextOutOfLine ? n : ImVec2{} );
+            ret.text = ImGuiMeasurementIndicators::text( thisElem, params, center, text, distanceParams.textParams, drawTextOutOfLine ? n : ImVec2{} );
     } );
 
     return ret;

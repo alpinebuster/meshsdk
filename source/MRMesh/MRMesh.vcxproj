@@ -350,6 +350,7 @@
     <ClInclude Include="MRUniquePtr.h" />
     <ClInclude Include="MRUniteManyMeshes.h" />
     <ClInclude Include="MRUnorientedTriangle.h" />
+    <ClInclude Include="MRUnsigned.h" />
     <ClInclude Include="MRUVSphere.h" />
     <ClInclude Include="MRVector2.h" />
     <ClInclude Include="MRVertCoordsDiff.h" />
@@ -432,6 +433,7 @@
     <ClInclude Include="MRSolidOfRevolution.h" />
     <ClInclude Include="MRObjectTagEventDispatcher.h" />
     <ClInclude Include="MRObjectComparableWithReference.h" />
+    <ClInclude Include="MRPointMeasurementObject.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MRAlignContoursToMesh.cpp" />
@@ -721,6 +723,7 @@
     <ClCompile Include="MRCylinderApproximator.cpp" />
     <ClCompile Include="MRSolidOfRevolution.cpp" />
     <ClCompile Include="MRObjectTagEventDispatcher.cpp" />
+    <ClCompile Include="MRPointMeasurementObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MRPch\MRPch.vcxproj">

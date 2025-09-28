@@ -5,7 +5,12 @@ project(cmake-c-examples C)
 find_package(MeshSDK CONFIG REQUIRED)
 
 set(EXAMPLES
+  Collision
+  CollisionPrecise
+  CollisionSelf
+  ContourTriangulation
   FreeFormDeformation
+  Fusion
   GlobalRegistration
   LaplacianDeformation
   MeshBoolean
@@ -13,13 +18,20 @@ set(EXAMPLES
   MeshExport
   MeshExtrude
   MeshFillHole
+  MeshFixDegeneracies
+  MeshFromText
   MeshICP
   MeshLoadSave
   MeshModification
   MeshOffset
-  MeshFixDegeneracies
+  MeshOffsetWeighted
   MeshStitchHole
   NoiseDenoise
+  PointsToMesh
+  SignedDistance
+  SignedDistancePointToMesh
+  SignedDistances
+  TerrainTriangulation
   Triangulation
 )
 

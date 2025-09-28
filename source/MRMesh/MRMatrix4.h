@@ -27,7 +27,10 @@ struct Matrix4
     Vector4<T> z{ 0, 0, 1, 0 };
     Vector4<T> w{ 0, 0, 0, 1 };
 
-    constexpr Matrix4() noexcept = default;
+    constexpr Matrix4() noexcept 
+    {
+        static_assert( sizeof( Matrix4<ValueType> ) == 4 * sizeof( VectorType ), "Struct size invalid" );
+    }
     /// initializes matrix from 4 row-vectors
     constexpr Matrix4( const Vector4<T>& x, const Vector4<T>& y, const Vector4<T>& z, const Vector4<T>& w ) : x( x ), y( y ), z( z ), w( w ) { }
 
@@ -57,8 +60,8 @@ struct Matrix4
     constexpr       T& operator ()( int row, int col )       noexcept { return operator[]( row )[col]; }
 
     /// row access
-    constexpr const Vector4<T> & operator []( int row ) const noexcept { return *( &x + row ); }
-    constexpr       Vector4<T> & operator []( int row )       noexcept { return *( &x + row ); }
+    constexpr const Vector4<T> & operator []( int row ) const noexcept { return *( ( VectorType* )this + row ); }
+    constexpr       Vector4<T> & operator []( int row )       noexcept { return *( ( VectorType* )this + row ); }
 
     /// column access
     constexpr Vector4<T> col( int i ) const noexcept { return { x[i], y[i], z[i], w[i] }; }
@@ -181,20 +184,22 @@ template <typename T>
 Matrix3<T> Matrix4<T>::submatrix3( int i, int j ) const noexcept
 {
     Matrix3<T> res;
-    auto* resM = (T*) &res.x;
-    int cur = 0;
+    int nrow = 0;
     for ( int m = 0; m < 4; m++ )
     {
         if ( m == i )
             continue;
+        auto & row = res[nrow++];
+        int ncol = 0;
         for ( int n = 0; n < 4; n++ )
         {
             if ( n == j )
                 continue;
-            resM[cur++] = (*this)[m][n];
+            row[ncol++] = ( *this )[m][n];
         }
+        assert( ncol == 3 );
     }
-    assert( cur == 9 );
+    assert( nrow == 3 );
     return res;
 }
 

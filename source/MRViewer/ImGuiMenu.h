@@ -266,10 +266,10 @@ public:
   void make_color_selector( std::vector<std::shared_ptr<ObjectT>> selectedVisualObjs, const char* label,
                             std::function<Vector4f( const ObjectT* )> getter,
                             std::function<void( ObjectT*, const Vector4f& )> setter );
-  template<typename ObjType>
+  template<typename ObjType,typename ValueT>
   void make_width( std::vector<std::shared_ptr<VisualObject>> selectedVisualObjs, const char* label,
-                   std::function<float( const ObjType* )> getter,
-                   std::function<void( ObjType*, const float& )> setter );
+                   std::function<ValueT( const ObjType* )> getter,
+                   std::function<void( ObjType*, const ValueT& )> setter );
 
   void make_light_strength( std::vector<std::shared_ptr<VisualObject>> selectedVisualObjs, const char* label,
     std::function<float( const VisualObject* )> getter,
@@ -329,7 +329,7 @@ public:
   // This version uses the currently held keyboard modifiers instead of a custom `mode`.
   MRVIEWER_API bool simulateNameTagClickWithKeyboardModifiers( Object& object );
 
-  using DrawSceneUiSignal = boost::signals2::signal<void( float menuScaling, ViewportId viewportId, UiRenderParams::UiTaskList& tasks )>;
+  using DrawSceneUiSignal = boost::signals2::signal<void( ViewportId viewportId, UiRenderParams::UiTaskList& tasks )>;
   // This is called every frame for every viewport. Use this to draw UI bits on top of the scene.
   DrawSceneUiSignal drawSceneUiSignal;
 
@@ -433,7 +433,7 @@ protected:
         MRVIEWER_API void preRenderViewport( ViewportId viewport ) override;
         MRVIEWER_API void postRenderViewport( ViewportId viewport ) override;
         MRVIEWER_API BasicUiRenderTask::BackwardPassParams beginBackwardPass( ViewportId viewport, UiRenderParams::UiTaskList& tasks ) override;
-        MRVIEWER_API void finishBackwardPass( const BasicUiRenderTask::BackwardPassParams& params ) override;
+        MRVIEWER_API void finishBackwardPass( ViewportId viewport, const BasicUiRenderTask::BackwardPassParams& params ) override;
 
         // Which things are blocked by our `renderUi()` calls.
         BasicUiRenderTask::InteractionMask consumedInteractions{};
