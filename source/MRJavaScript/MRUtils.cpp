@@ -86,7 +86,6 @@ Vector3f arrayToVector3f( const val& arr )
 {
 	return Vector3f( arr[0].as<float>(), arr[1].as<float>(), arr[2].as<float>() );
 }
-
 val vector3fToArray( const Vector3f& v )
 {
 	val arr = val::array();
@@ -96,42 +95,6 @@ val vector3fToArray( const Vector3f& v )
 	return arr;
 }
 
-val box3fToObject( const Box<Vector3<float>>& box )
-{
-	val obj = val::object();
-	obj.set( "min", MRJS::vector3fToArray( box.min ) );
-	obj.set( "max", MRJS::vector3fToArray( box.max ) );
-	return obj;
-}
-
-template<typename T>
-val expectedToJs( const Expected<T>& expected )
-{
-	if ( expected.has_value() )
-	{
-		val obj = val::object();
-		obj.set( "success", true );
-		obj.set( "value", expected.value() );
-		return obj;
-	}
-	else
-	{
-		val obj = val::object();
-		obj.set( "success", false );
-		obj.set( "error", expected.error() );
-		return obj;
-	}
-}
-
-val verticesToFloat32ArrayMemoryView( const VertCoords& vec )
-{
-	return val( typed_memory_view( vec.size() * 3, reinterpret_cast<const float*>( vec.data() ) ) );
-}
-
-val indicesToUint32ArrayMemoryView( const Triangulation& vec )
-{
-	return val( typed_memory_view( vec.size() * 3, reinterpret_cast<const uint32_t*>( vec.data() ) ) );
-}
 
 VertCoords parseJSVertices( const std::vector<float>& coordinates )
 {
@@ -152,7 +115,6 @@ VertCoords parseJSVertices( const std::vector<float>& coordinates )
 
     return verts;
 }
-
 Triangulation parseJSIndices( const std::vector<int>& indices )
 {
     Triangulation indis_;
@@ -365,11 +327,6 @@ Mesh findLookingSilhouetteConvexHull( const Mesh& meshRes, Vector3f lookDirectio
 }
 
 
-std::shared_ptr<GeometryBuffer> exportGeometryBuffer( const Mesh& meshToExport )
-{
-    return GeometryBuffer::fromMesh(meshToExport);
-}
-
 val exportMeshMemoryView( const Mesh& meshToExport )
 {
 	///
@@ -417,13 +374,6 @@ val exportMeshMemoryView( const Mesh& meshToExport )
 
 EMSCRIPTEN_BINDINGS( UtilsModule )
 {
-	class_<MRJS::GeometryBuffer>( "GeometryBuffer" )
-        .smart_ptr<std::shared_ptr<MRJS::GeometryBuffer>>(" GeometryBuffer ")
-        .constructor<val, val>()
-		.property( "vertices", &MRJS::GeometryBuffer::vertices )
-		.property( "indices", &MRJS::GeometryBuffer::indices );
-
-	function( "exportGeometryBuffer", &MRJS::exportGeometryBuffer );
 	function( "exportMeshMemoryView", &MRJS::exportMeshMemoryView );
 
 	function( "findLookingFaces", &MRJS::findLookingFaces );
