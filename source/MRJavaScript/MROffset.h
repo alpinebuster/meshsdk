@@ -13,9 +13,5 @@ using namespace emscripten;
 using namespace MR;
 
 namespace MRJS {
-
-val thickenMeshImpl( const Mesh& mesh, float offset, const GeneralOffsetParameters& params );
-val thickenMeshFilledImpl( const Mesh& mesh, float offset, bool smooth, const GeneralOffsetParameters& params );
-val thickenMeshWithTensionImpl( const Mesh& mesh, float offset, bool smooth, float tension, const GeneralOffsetParameters& params );
-
+    
 } // namespace MRJS

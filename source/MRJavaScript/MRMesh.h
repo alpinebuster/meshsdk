@@ -25,8 +25,5 @@ using emscripten::val;
 
 namespace MRJS
 {
-
-val createMaxillaGypsumBaseImpl( Mesh& mesh, EdgeId maxAreaHole, VertId minVert, Vector3f dir, float extensionBottom, float extensionBottomToGypsumBase );
-val createMandibleGypsumBaseImpl( Mesh& mesh, EdgeId maxAreaHole, Vector3f dir, float extension );
-
+    
 } // namespace MRJS

@@ -126,7 +126,7 @@ EMSCRIPTEN_BINDINGS( OneMeshContoursModule )
     function( "convertSurfacePathWithEndsToMeshContour", &convertSurfacePathWithEndsToMeshContour );
     function( "convertSurfacePathsToMeshContours", &convertSurfacePathsToMeshContours );
 
-    ///
+    /// Impl
     function( "createSortIntersectionsDataImpl", &createSortIntersectionsDataImpl, allow_raw_pointers() );
     ///
 }

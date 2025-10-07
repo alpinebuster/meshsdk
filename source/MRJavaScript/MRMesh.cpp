@@ -69,90 +69,6 @@ using namespace MeshBuilder;
 
 namespace MRJS 
 {
-
-///
-val createMaxillaGypsumBaseImpl( Mesh& mesh, EdgeId maxAreaHole, VertId minVert, Vector3f dir, float extensionBottom, float extensionBottomToGypsumBase )
-{
-	assert( extensionBottom >= 0 && "extensionBottom must be a positive value or 0" );
-	assert( extensionBottomToGypsumBase > 0 && "extensionBottomToGypsumBase must be a positive value" );
-
-	if ( dir.length() != 1.0f ) dir = dir.normalized();
-	Vector3f transEBottom = mesh.points[minVert] - extensionBottom * dir;
-
-	val obj = val::object();
-	if ( extensionBottomToGypsumBase > 0 )
-	{
-		Vector3f transEBottomToGypsumBase = mesh.points[minVert] - ( extensionBottom + extensionBottomToGypsumBase ) * dir;
-
-		///
-		Mesh mMaxillaBase = findLookingSilhouetteConvexHull( mesh, dir );
-		auto moveMaxillaBaseDistance = dot( dir, transEBottomToGypsumBase );
-		mMaxillaBase.transform( MR::AffineXf3f::translation( moveMaxillaBaseDistance * dir ) );
-		
-		auto eGypsumBase = mMaxillaBase.topology.findHoleRepresentiveEdges();
-		// EdgeId curREGypsumBase = extendHole( mMaxillaBase, eGypsumBase[0], Plane3f::fromDirAndPt( -dir, transEBottom ) );
-		extendHole( mMaxillaBase, eGypsumBase[0], Plane3f::fromDirAndPt( -dir, transEBottom ) );
-		// Flip normals
-		mMaxillaBase.topology.flipOrientation();
-		///
-
-
-		///
-		// NOTE: `extenHole()` will change the `mesh`
-		// EdgeId curRE = extendHole( mesh, maxAreaHole, Plane3f::fromDirAndPt( dir, transEBottom ) );
-		extendHole( mesh, maxAreaHole, Plane3f::fromDirAndPt( dir, transEBottom ) );
-		///
-
-
-		// Connect two meshes
-		mesh.addMesh( mMaxillaBase );
-
-
-		buildCylinderBetweenTwoHoles( mesh );
-
-
-		///
-		// these holes have exact matching by vertices
-		MeshBuilder::uniteCloseVertices( mesh, 0.0f, true );
-		///
-	
-
-		val meshData = MRJS::exportMeshMemoryView( mesh );
-
-		obj.set( "success", true );
-		obj.set( "mesh", mesh );
-		obj.set( "meshMV", meshData );
-	}
-	else
-	{
-		EdgeId newE = extendHole( mesh, maxAreaHole, Plane3f::fromDirAndPt( dir, transEBottom ) );
-		fillHole( mesh, newE );
-		val meshData = MRJS::exportMeshMemoryView( mesh );
-
-		obj.set( "success", true );
-		obj.set( "mesh", mesh );
-		obj.set( "meshMV", meshData );
-	}
-
-	return obj;
-}
-
-val createMandibleGypsumBaseImpl( Mesh& mesh, EdgeId maxAreaHole, Vector3f dir, float extension )
-{
-	EdgeId newEdgeId = buildBottom( mesh, maxAreaHole, dir, extension );
-	fillHole( mesh, newEdgeId );
-	
-	val meshData = MRJS::exportMeshMemoryView( mesh );
-
-	val obj = val::object();
-	obj.set( "success", true );
-	obj.set( "mesh", mesh );
-	obj.set( "meshMV", meshData );
-
-	return obj;
-}
-///
-
 }
 
 
@@ -639,11 +555,5 @@ EMSCRIPTEN_BINDINGS( MeshModule )
 		.function( "heapBytes", &Mesh::heapBytes )
 		.function( "shrinkToFit", &Mesh::shrinkToFit )
 		.function( "mirror", &Mesh::mirror );
-	///
-
-
-	///
-	function( "createMaxillaGypsumBaseImpl", &MRJS::createMaxillaGypsumBaseImpl );
-	function( "createMandibleGypsumBaseImpl", &MRJS::createMandibleGypsumBaseImpl );
 	///
 }
