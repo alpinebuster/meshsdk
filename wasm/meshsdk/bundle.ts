@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 
 import { fileURLToPath } from 'url';
-import { dirname, join, normalize } from 'path';
+import path, { dirname, join, normalize } from 'path';
 import {
 	existsSync, rmSync, mkdirSync, copyFileSync,
-	readdirSync, readFileSync, writeFileSync, unlinkSync 
+	readdirSync, readFileSync, writeFileSync, unlinkSync, 
+	symlinkSync
 } from 'fs';
-import { execSync } from 'child_process';
 
 // Get current directory (equivalent to cd "$(dirname "$0")")
 const __filename = fileURLToPath(import.meta.url);
@@ -21,7 +21,7 @@ async function build(): Promise<void> {
 		// Find WASM bin directory
 		const debugBin = join(__dirname, '../../build/Debug/bin');
 		const releaseBin = join(__dirname, '../../build/Release/bin');
-		const binDir = existsSync(debugBin) ? debugBin : releaseBin;
+		const binDir = existsSync(releaseBin) ? releaseBin : debugBin;
 		console.log(`\n************ Using WASM Bin Directory: ${binDir} ************`);
 
 
@@ -89,13 +89,6 @@ async function build(): Promise<void> {
 		}
 		mkdirSync(OUT_DIRECTORY, { recursive: true });
 
-		// Compile TypeScript
-		console.log('\n************ Compiling TypeScript ************');
-		execSync('npx tsc --project tsconfig.bundle.json', {
-			stdio: 'inherit',
-			cwd: process.cwd()
-		});
-
 		// Copy required files to `lib/` directory
 		console.log('\n************ Copying Required Files ************');
 		const wasmFiles = readdirSync(srcDir).filter(f => f.startsWith('MRJavaScript.'));
@@ -106,7 +99,8 @@ async function build(): Promise<void> {
 				const fileName = file.split('/').pop()!;
 				const destPath = join(__dirname, OUT_DIRECTORY, fileName);
 
-				copyFileSync(srcPath, destPath);
+				const relativePath = path.relative(path.dirname(destPath), srcPath);
+				symlinkSync(relativePath, destPath);
 
 				console.log('----------------------------------------------------------------------');
 				console.log(`Copied ${srcPath} to ${OUT_DIRECTORY}/`);

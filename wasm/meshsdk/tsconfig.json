@@ -2,8 +2,6 @@
   "include": ["src"],
   "exclude": ["src/test"],
   "compilerOptions": {
-    "baseUrl": "src",
-    "rootDir": "src",
     "outDir": "lib",
     "declarationDir": "lib",
 
