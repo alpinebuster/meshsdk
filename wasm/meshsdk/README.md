@@ -11,7 +11,7 @@ to WASM via [Emscripten](https://emscripten.org/) so that `meshsdk` features can
 and includes TypeScript definitions.
 
 ```sh
-npm install @alpinebuster/meshsdk
+npm install as-mesh
 ```
 
 ### Usage
@@ -19,7 +19,7 @@ npm install @alpinebuster/meshsdk
 To use the meshsdk, do the following:
 
 ```js
-import { createMeshSDK } from '@alpinebuster/meshsdk';
+import { createMeshSDK } from 'as-mesh';
 
 const mrmesh = await createMeshSDK();
 ```

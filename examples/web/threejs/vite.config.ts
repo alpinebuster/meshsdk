@@ -19,7 +19,7 @@ export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
 				// NOTE: Mainly affects **production** construction, suitable for controlling which dependencies are not packaged
 				// Tell Vite that these modules are external and not to try to package them
 				external: [
-					'@alpinebuster/meshsdk',
+					'as-mesh',
 				],
 				output: {
 					format: 'esm',
@@ -61,7 +61,7 @@ export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
 			// Explicitly excluding these dependencies prevents Vite from trying to pre-build them
 			exclude: [
 				// FIXME: Why windows needs this but unix systems not?
-				'@alpinebuster/meshsdk',
+				'as-mesh',
 				'@ffmpeg/ffmpeg',
 				'@ffmpeg/util',
 			],

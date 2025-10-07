@@ -3,7 +3,7 @@ import {
 	computeBoundsTree, disposeBoundsTree,
 	computeBatchedBoundsTree, disposeBatchedBoundsTree, acceleratedRaycast,
 } from 'three-mesh-bvh';
-import { createMeshSDK } from '@alpinebuster/meshsdk';
+import { createMeshSDK } from 'as-mesh';
 
 import { Config } from './Config.js';
 import { Loader } from './Loader.js';

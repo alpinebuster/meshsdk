@@ -42,7 +42,7 @@
     "vite": "^6.3.5"
   },
   "dependencies": {
-    "@alpinebuster/meshsdk": "file:../../../wasm/meshsdk/",
+    "as-mesh": "file:../../../wasm/meshsdk/",
     "@ffmpeg/ffmpeg": "^0.12.15",
     "@ffmpeg/util": "^0.12.2",
     "@types/express": "^5.0.3",
