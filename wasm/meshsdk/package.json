@@ -8,10 +8,10 @@
   "main": "lib/index.js",
   "browser": "lib/index.js",
   "scripts": {
-    "build:src": "tsc -p tsconfig.json",
     "build:bundle": "tsc -p tsconfig.bundle.json",
     "bundle": "node ./bundle.js",
-    "build": "npm run build:bundle && npm run bundle && npm run build:src",
+    "build": "npm run build:bundle && npm run bundle",
+    "build:src": "tsc -p tsconfig.json",
     "//": "npm run build",
     "test": "jest"
   },
