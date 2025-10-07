@@ -411,54 +411,6 @@ val exportMeshMemoryView( const Mesh& meshToExport )
 
     return meshData;
 };
-val exportMeshMemoryViewTest( const Mesh& meshToExport ) {
-    // === Export point data ===
-    const auto& points_ = meshToExport.points;
-    size_t pointCount = points_.size();
-    size_t vertexElementCount = pointCount * 3;
-    const float* pointDataPtr = reinterpret_cast<const float*>( points_.data() );
-
-	/// WORKING
-	// 
-	// NOTE: `val::array` + loop set: 1) non-contiguous, dynamic; 2) N cross-language operations
-    // val pointsArray = val::array();
-    // // Pre-allocate the array length to improve performance
-    // pointsArray.set( "length", vertexElementCount );
-    // // Batch setting values - faster than pushing them one by one
-    // for (size_t i = 0; i < vertexElementCount; ++i) {
-    //     pointsArray.set( i, val( pointDataPtr[i] ) );
-    // }
-	//
-	// NOTE: `typed_memory_view` + `TypedArray.set`: 1) compact, contiguous; 2) 1 cross-language operation
-    val pointsArray = val::global( "Float32Array" ).new_( vertexElementCount );
-	pointsArray.call<void>( "set", val( typed_memory_view( vertexElementCount, pointDataPtr ) ) );
-	///
-
-
-    // === Export triangle data ===
-    const auto& tris_ = meshToExport.topology.getTriangulation();
-    size_t triangleCount = tris_.size();
-    size_t indexElementCount = triangleCount * 3;
-    const uint32_t* triDataPtr = reinterpret_cast<const uint32_t*>( tris_.data() );
-
-	/// WORKING
-	// val triangleArray = val::array();
-    // triangleArray.set( "length", indexElementCount );
-	// for ( size_t i = 0; i < indexElementCount; ++i ) {
-	// 	triangleArray.set( i, val(triDataPtr[i]) );
-	// }
-	//
-    val triangleArray = val::global( "Uint32Array" ).new_( indexElementCount );
-	triangleArray.call<void>( "set", val( typed_memory_view( indexElementCount, triDataPtr ) ) );
-	///
-
-
-    val meshData = val::object();
-    meshData.set( "vertices", pointsArray );
-    meshData.set( "indices", triangleArray );
-
-    return meshData;
-};
 
 }
 
@@ -473,7 +425,6 @@ EMSCRIPTEN_BINDINGS( UtilsModule )
 
 	function( "exportGeometryBuffer", &MRJS::exportGeometryBuffer );
 	function( "exportMeshMemoryView", &MRJS::exportMeshMemoryView );
-	function( "exportMeshMemoryViewTest", &MRJS::exportMeshMemoryViewTest );
 
 	function( "findLookingFaces", &MRJS::findLookingFaces );
 	function( "findLookingSilhouetteConvexHull", &MRJS::findLookingSilhouetteConvexHull );

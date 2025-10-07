@@ -97,7 +97,6 @@ val segmentByPointsImpl( Mesh& mesh_, EdgeMetric& edgeMetric_, const std::vector
 
 		// Step 3: Create surrounding contour
 		auto contourResult = surroundingContour( mesh_, keyVertices, edgeMetric_, direction /*contourDirection*/ );
-
 		if ( !contourResult )
 		{
 			result.set( "success", false );
@@ -105,7 +104,6 @@ val segmentByPointsImpl( Mesh& mesh_, EdgeMetric& edgeMetric_, const std::vector
 
 			return result;
 		}
-
 		EdgeLoop contour = contourResult.value();
 
 		// Step 4: Convert EdgeLoop to EdgePath for `fillContourLeftByGraphCut()`
@@ -119,17 +117,10 @@ val segmentByPointsImpl( Mesh& mesh_, EdgeMetric& edgeMetric_, const std::vector
 		auto [smallerMesh, largerMesh] = MRJS::returnParts( mesh_, segmentedFaces );
 		val smallerMeshData = MRJS::exportMeshMemoryView( smallerMesh );
 		val largerMeshData = MRJS::exportMeshMemoryView( largerMesh );
-		// val meshData = MRJS::exportMeshMemoryView( segMesh );
-					
-		// Since `EdgeId` has an implicit conversion operator to int, and it is internally represented as an int
-		// We can directly reinterpret `EdgeId*` as `int*`
-		const int* contourData = reinterpret_cast<const int*>( contour.data() );
-		size_t contourSize = contour.size();
-		val contourEdgesArray = val( typed_memory_view( contourSize, contourData ) );
+
 
 		// Build the result object
 		result.set( "success", true );
-		result.set( "contourEdges", contourEdgesArray );
 		result.set( "smallerMesh", smallerMesh );
 		result.set( "largerMesh", largerMesh );
 		result.set( "smallerMeshMV", smallerMeshData );
