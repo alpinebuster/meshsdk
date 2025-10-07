@@ -2437,7 +2437,7 @@ void Viewer::resetAllCounters()
     frameCounter_->reset();
 }
 
-Image Viewer::captureSceneScreenShot( const Vector2i& resolution )
+Image Viewer::captureSceneScreenShot( const Vector2i& resolution, bool transparentBg /*= false*/ )
 {
     if ( !glInitialized_ )
         return {};
@@ -2449,6 +2449,7 @@ Image Viewer::captureSceneScreenShot( const Vector2i& resolution )
     // store old sizes
     auto vpBounbds = getViewportsBounds();
     std::vector<ViewportRectangle> rects;
+    std::vector<Viewport::Parameters> viewportParams;
     for ( auto& viewport : viewport_list )
     {
         auto rect = viewport.getViewportRect();
@@ -2459,11 +2460,24 @@ Image Viewer::captureSceneScreenShot( const Vector2i& resolution )
         rect.max.y = float( rect.max.y - vpBounbds.min.y ) / height( vpBounbds ) * newRes.y;
         viewport.setViewportRect( rect );
     }
+    if ( transparentBg )
+    {
+        for ( int i = 0; i < viewport_list.size(); ++i )
+        {
+            auto& viewport = viewport_list[i];
+            viewportParams.resize( viewport_list.size() );
+            auto viewportParamsNew = viewport.getParameters();
+            viewportParams[i] = viewportParamsNew;
+            viewportParamsNew.backgroundColor = Color::transparent();
+            viewportParamsNew.borderColor = Color::transparent();
+            viewport.setParameters( viewportParamsNew );
+        }
+    }
     if ( newRes != framebufferSize && alphaSorter_ )
         alphaSorter_->updateTransparencyTexturesSize( newRes.x, newRes.y );
 
 
-    std::vector<Color> pixels( newRes.x * newRes.x );
+    std::vector<Color> pixels( newRes.x * newRes.y );
 
     FramebufferData fd;
     fd.gen( newRes, true );
@@ -2495,9 +2509,13 @@ Image Viewer::captureSceneScreenShot( const Vector2i& resolution )
     bindSceneTexture( true );
 
     // restore sizes
-    int i = 0;
-    for ( auto& viewport : viewport_list )
-        viewport.setViewportRect( rects[i++] );
+    for ( int i = 0; i < viewport_list.size(); ++i )
+        viewport_list[i].setViewportRect(rects[i]);
+    if ( transparentBg )
+    {
+        for ( int i = 0; i < viewport_list.size(); ++i )
+            viewport_list[i].setParameters( viewportParams[i] );
+    }
     if ( newRes != framebufferSize && alphaSorter_ )
         alphaSorter_->updateTransparencyTexturesSize( framebufferSize.x, framebufferSize.y );
 

@@ -359,7 +359,7 @@ ASSUME_RAM := $(shell bash -c 'echo $$(($(shell sysctl -n hw.memsize) / 10000000
 ASSUME_NPROC := $(call safe_shell,sysctl -n hw.ncpu)
 else
 # `--giga` uses 10^3 instead of 2^10, which is actually good for us, since it overreports a bit, which counters computers typically having slightly less RAM than 2^N gigs.
-ASSUME_RAM := $(shell LANG= free --giga 2>/dev/null | gawk 'NR==2{print $$2}')
+ASSUME_RAM := $(shell LANG= free --giga 2>/dev/null | awk 'NR==2{print $$2}')
 ASSUME_NPROC := $(call safe_shell,nproc)
 endif
 
@@ -527,7 +527,9 @@ MRBIND_GEN_C_FLAGS := $(call load_file,$(makefile_dir)mrbind_gen_c_flags.txt)
 
 # Adjusting canonical types to fixed-size typedefs.
 ifeq ($(TARGET),c)
-MRBIND_FLAGS += --canonicalize-to-fixed-size-typedefs --canonicalize-size_t-to-uint64_t --implicit-enum-underlying-type-is-always-int
+# Here you can choose between `--canonicalize-to-fixed-size-typedefs` and `--canonicalize-64-to-fixed-size-typedefs` to control
+#   whether the integerl types smaller than 64 bits are replaced with the typedefs or not. The 64-bit ones always need to be replaced.
+MRBIND_FLAGS += --canonicalize-64-to-fixed-size-typedefs --canonicalize-size_t-to-uint64_t --implicit-enum-underlying-type-is-always-int
 MRBIND_GEN_C_FLAGS += --reject-long-and-long-long --use-size_t-typedef-for-uint64_t
 endif
 
@@ -821,11 +823,11 @@ $(foreach x,$(MODULES),$(foreach y,$($x_PyExtraSourceFiles),$(eval $(call extra_
 INIT_SCRIPT := $(MODULE_OUTPUT_DIR)/__init__.py
 $(INIT_SCRIPT): $(makefile_dir)__init__.py
 	@cp $< $@
-ifeq ($(IS_WINDOWS),) # If not on Windows, strip the windows-only part.
-	@gawk -i inplace '/### windows-only: \[/{x=1} {if (!x) print} x && /### \]/{x=0}' $@
+ifeq ($(IS_WINDOWS),) # If not on Windows, strip the windows-only part. Here and below we avoid `-i inplace` and use `awk` instead of `gawk` to not have to install `gawk` on MacOS, which can require building stuff from source on old MacOS.
+	@awk '/### windows-only: \[/{x=1} {if (!x) print} x && /### \]/{x=0}' $@ >$(call quote,$(MODULE_OUTPUT_DIR)/tmp.txt) && mv $(call quote,$(MODULE_OUTPUT_DIR)/tmp.txt) $@
 endif
 ifeq ($(FOR_WHEEL),) # If not on building a wheel, strip the wheel-only part.
-	@gawk -i inplace '/### wheel-only: \[/{x=1} {if (!x) print} x && /### \]/{x=0}' $@
+	@awk '/### wheel-only: \[/{x=1} {if (!x) print} x && /### \]/{x=0}' $@ >$(call quote,$(MODULE_OUTPUT_DIR)/tmp.txt) && mv $(call quote,$(MODULE_OUTPUT_DIR)/tmp.txt) $@
 endif
 override all_outputs += $(INIT_SCRIPT)
 

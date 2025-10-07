@@ -3,6 +3,7 @@
 #include "MRDirectory.h"
 #include "MRStringConvert.h"
 #include "MRPch/MRWasm.h"
+#include "MRPch/MRSpdlog.h"
 #include <algorithm>
 #include <map>
 
@@ -18,10 +19,11 @@
 #endif
 #endif
 
-namespace
+namespace MR
 {
 
-using namespace MR;
+namespace
+{
 
 #if !defined( _WIN32 ) && !defined( __EMSCRIPTEN__ )
 // If true, the resources should be loaded from the executable directory, rather than from the system directories.
@@ -46,7 +48,7 @@ std::filesystem::path defaultDirectory( SystemPath::Directory dir )
     {
         // Back out from `<AppName>.app/Contents/MacOS`. This is only needed for apps that are MacOS bundles, but we do it unconditionally for simplicity.
         // It's easier to require all apps to be bundles (which is needed to package them anyway) than to make this conditional.
-        return SystemPath::getExecutableDirectory().value_or( "/" ) / "../../..";
+        return SystemPath::getExecutableDirectory().value_or( "/" ).parent_path().parent_path().parent_path();
     }
 
     const auto libDir = SystemPath::getLibraryDirectory().value_or( "/" );
@@ -70,16 +72,31 @@ std::filesystem::path defaultDirectory( SystemPath::Directory dir )
     if ( resourcesAreNearExe() )
         return SystemPath::getExecutableDirectory().value_or( "/" );
 
-    const auto libDir = SystemPath::getLibraryDirectory().value_or( "/" );
-    // assuming libMRMesh.so is located at ${CMAKE_INSTALL_PREFIX}/lib/MeshSDK/
-    const auto installDir = libDir.parent_path().parent_path();
+    auto libDir = SystemPath::getLibraryDirectory().value_or( "/" );
+    static const auto findResourceDir = [] ( std::filesystem::path libDir ) -> std::filesystem::path
+    {
+        std::error_code ec;
+        while ( !libDir.empty() )
+        {
+            const auto resourceDir = libDir / "share" / MR_PROJECT_NAME;
+            if ( std::filesystem::is_directory( resourceDir, ec ) )
+                return resourceDir;
+
+            if ( libDir == "/" )
+                break;
+            libDir = libDir.parent_path();
+        }
+        // assuming this is a developer build
+        return SystemPath::getExecutableDirectory().value_or( "/" );
+    };
+
     using Directory = SystemPath::Directory;
     switch ( dir )
     {
         case Directory::Resources:
-            return installDir / "share" / MR_PROJECT_NAME;
+            return findResourceDir( libDir );
         case Directory::Fonts:
-            return installDir / "share" / MR_PROJECT_NAME / "fonts";
+            return findResourceDir( libDir ) / "fonts";
         case Directory::Plugins:
         case Directory::PythonModules:
             return libDir;
@@ -90,12 +107,7 @@ std::filesystem::path defaultDirectory( SystemPath::Directory dir )
 #endif
 }
 
-} // namespace
-
-namespace MR
-{
-
-Expected<std::filesystem::path> SystemPath::getExecutablePath()
+Expected<std::filesystem::path> getExecutablePath_()
 {
 #if defined( __EMSCRIPTEN__ )
     auto *jsStr = (char *)EM_ASM_PTR({
@@ -137,6 +149,43 @@ Expected<std::filesystem::path> SystemPath::getExecutablePath()
         path[size] = '\0';
     return std::filesystem::path { path };
 #endif
+}
+
+auto& directories_()
+{
+    static auto res = []
+    {
+        std::array<std::filesystem::path, (size_t)SystemPath::Directory::Count> dirs;
+        for ( auto dir = 0; dir < (int)SystemPath::Directory::Count; ++dir )
+            dirs[dir] = defaultDirectory( SystemPath::Directory( dir ) );
+        return dirs;
+    }();
+    return res;
+}
+
+} // anonymous namespace
+
+const Expected<std::filesystem::path>& SystemPath::getExecutablePath()
+{
+    static const Expected<std::filesystem::path> res = []
+    {
+        auto maybeRes = getExecutablePath_();
+        if ( maybeRes )
+        {
+            spdlog::info( "Executable path: {}", utf8string( *maybeRes ) );
+            std::error_code ec;
+            auto canonicalPath = canonical( *maybeRes, ec );
+            if ( ec )
+                spdlog::error( "Cannot make canonical executable path: {}", ec.message() );
+            else if ( *maybeRes != canonicalPath )
+            {
+                *maybeRes = canonicalPath;
+                spdlog::info( "Executable path in canonical form: {}", utf8string( *maybeRes ) );
+            }
+        }
+        return maybeRes;
+    }();
+    return res;
 }
 
 Expected<std::filesystem::path> SystemPath::getLibraryPath()
@@ -184,20 +233,14 @@ Expected<std::filesystem::path> SystemPath::getLibraryDirectory()
     return getLibraryPath().transform( [] ( auto&& path ) { return path.parent_path(); } );
 }
 
-SystemPath& SystemPath::instance_()
-{
-    static SystemPath instance;
-    return instance;
-}
-
 std::filesystem::path SystemPath::getDirectory( SystemPath::Directory dir )
 {
-    return instance_().directories_[(size_t)dir];
+    return directories_()[(size_t)dir];
 }
 
 void SystemPath::overrideDirectory( SystemPath::Directory dir, const std::filesystem::path& path )
 {
-    instance_().directories_[(size_t)dir] = path;
+    directories_()[(size_t)dir] = path;
 }
 
 const std::vector<SystemPath::SystemFontPaths>& SystemPath::getSystemFonts()
@@ -373,10 +416,3 @@ const std::vector<SystemPath::SystemFontPaths>& SystemPath::getSystemFonts()
 }
 
 } // namespace MR
-
-MR_ON_INIT
-{
-    using namespace MR;
-    for ( auto dir = 0; dir < (int)SystemPath::Directory::Count; ++dir )
-        SystemPath::overrideDirectory( SystemPath::Directory( dir ), defaultDirectory( SystemPath::Directory( dir ) ) );
-};

@@ -75,10 +75,8 @@ jobs:
           - platform: "aarch64"
             os: rockylinux8-vcpkg-arm64
             container-options: " " # empty
-            runner: [ self-hosted, linux-arm64, on-demand ]
-            # When using Clang 11 on Ubuntu Arm 20.04, we get some obscure ABI issues that fail some tests,
-            # see the comments in `test_regression/test_algorithms/test_decimate.py` for more details.
-            compiler: /usr/bin/clang++-18
+            runner: ubuntu-24.04-arm
+            compiler: /usr/bin/clang++
 
     steps:
       - name: Work-around possible permission issues
@@ -137,7 +135,7 @@ jobs:
 
       # install helper utility for Python version management
       - name: Install uv
-        uses: astral-sh/setup-uv@b75a909f75acd358c2196fb9a5f1299a9a8868a4 # v6
+        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
 
       - name: Build Python shim libs
         run: |
@@ -196,9 +194,11 @@ jobs:
 
       - name: Generate C bindings
         if: ${{ (github.event_name == 'release' || inputs.publish) && matrix.platform == 'aarch64' }}
-        env:
-          CXX: /usr/bin/clang++
-        run: make -f scripts/mrbind/generate.mk TARGET=c -B --trace
+        run: |
+          make -f scripts/mrbind/generate.mk TARGET=c -B --trace \
+            CXX_FOR_ABI=${{ matrix.compiler }} \
+            CXX_FOR_BINDINGS=${{ matrix.compiler }} \
+            DEPS_BASE_DIR=${VCPKG_ROOT}/installed/${VCPKG_TRIPLET}
 
       - name: Upload C bindings headers
         if: ${{ (github.event_name == 'release' || inputs.publish) && matrix.platform == 'aarch64' }}
@@ -367,7 +367,7 @@ jobs:
 
   macos-pip-build:
     needs: setup
-    timeout-minutes: 80
+    timeout-minutes: 100
     runs-on: ${{ matrix.instance }}
     strategy:
       fail-fast: false
@@ -375,13 +375,12 @@ jobs:
         platform: ["x86", "arm64"]
         include:
           - platform: "x86"
-            # On 12.0 x86 `brew` doesn't have binary packages for Clang.
-            plat-name: macosx_13_0_x86_64
-            instance: macos-13
+            plat-name: macosx_12_0_x86_64
+            instance: macos-15-intel
             brewpath: /usr/local
           - platform: "arm64"
             plat-name: macosx_12_0_arm64
-            instance: [ self-hosted, macos-12, arm64, build ]
+            instance: macos-14
             brewpath: /opt/homebrew
     steps:
       - name: Checkout
@@ -467,7 +466,7 @@ jobs:
             container-options: "--user root"
             container-prefix: " "
           - platform: "aarch64"
-            runner: [ self-hosted, linux-arm64, on-demand ]
+            runner: ubuntu-24.04-arm
             container-options: " " # empty
             container-prefix: "arm64v8/"
           - py-version: "3.8"
@@ -564,26 +563,20 @@ jobs:
 
   macos-pip-test:
     needs: [macos-pip-build]
-    timeout-minutes: 20
+    timeout-minutes: 40
     runs-on: ${{ matrix.instance }}
     strategy:
       fail-fast: false
       matrix:
         platform: ["arm64", "x86"]
-        py-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
-        exclude: # python 3.8 disabled on x86 macOS since 2024-10-14
-          - platform: "x86"
-            py-version: "3.8"
+        py-version: ["3.9", "3.10", "3.11", "3.12", "3.13"] # python 3.8 disabled on x86 macOS since 2024-10-14
         include:
           - platform: "x86"
-            # On 12.0 x86 `brew` doesn't have binary packages for Clang.
-            plat-name: macosx_13_0_x86_64
-            instance: macos-13
+            plat-name: macosx_12_0_x86_64
+            instance: macos-15-intel
           - platform: "arm64"
             plat-name: macosx_12_0_arm64
-            instance: [ self-hosted, macos-12, arm64, build ]
-          - py-version: "3.8"
-            py-cmd: "python3.8"
+            instance: macos-14
           - py-version: "3.9"
             py-cmd: "python3.9"
           - py-version: "3.10"
@@ -601,7 +594,7 @@ jobs:
           ref: ${{needs.setup.outputs.version_tag}}
 
       - name: Python setup
-        if: ${{ !(matrix.platform == 'x86' && ( matrix.py-version == '3.11' || matrix.py-version == '3.12' || matrix.py-version == '3.13' ) ) }}
+        if: ${{ !(matrix.platform == 'x86' && matrix.py-version == '3.11') }}
         run: brew install python@${{matrix.py-version}}
 
       - name: Create virtualenv
@@ -637,6 +630,8 @@ jobs:
   upload-to-release:
     if: ${{ github.event_name == 'release' || inputs.publish }}
     needs: [manylinux-pip-test, windows-pip-test, macos-pip-test]
+    outputs:
+      uploaded: ${{ steps.check_upload.outputs.uploaded }}
     timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
@@ -664,6 +659,10 @@ jobs:
       - name: Upload to Production PyPi
         run: twine upload ./meshsdk-*.whl -u __token__ -p ${{ secrets.PYPI_MESHINSPECTOR_TOKEN }} --skip-existing
 
+      - name: Mark Success
+        id: check_upload
+        run: echo "uploaded=true" >> $GITHUB_OUTPUT
+
   post-release-test:
     if: ${{ github.event_name == 'release' || inputs.publish }}
     needs: upload-to-release
@@ -676,6 +675,7 @@ jobs:
     if: always()
     steps:
       - name: Delete all ManyLinux
+        if: ${{ !(github.event_name == 'release' || inputs.publish) || needs.upload-to-release.outputs.uploaded == 'true' }}
         uses: geekyeggo/delete-artifact@f275313e70c08f6120db482d7a6b98377786765b # v5
         with:
           name: ManyLinux-*
@@ -697,12 +697,14 @@ jobs:
 
 
       - name: Delete all Windows
+        if: ${{ !(github.event_name == 'release' || inputs.publish) || needs.upload-to-release.outputs.uploaded == 'true' }}
         uses: geekyeggo/delete-artifact@f275313e70c08f6120db482d7a6b98377786765b # v5
         with:
           name: Windows
           failOnError: false
 
       - name: Delete all Macos
+        if: ${{ !(github.event_name == 'release' || inputs.publish) || needs.upload-to-release.outputs.uploaded == 'true' }}
         uses: geekyeggo/delete-artifact@f275313e70c08f6120db482d7a6b98377786765b # v5
         with:
           name: Macos-*

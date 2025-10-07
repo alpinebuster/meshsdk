@@ -1,13 +1,8 @@
 #pragma once
 
-#ifdef __cplusplus
-#include <cstddef>
-#include <cstdint>
-#else
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#endif
 
 #ifdef _WIN32
 #   ifdef MRMeshC_EXPORTS
@@ -53,5 +48,17 @@ typedef struct MRPointsLoadSettings MRPointsLoadSettings;
 typedef struct MRSaveSettings MRSaveSettings;
 
 typedef bool (*MRProgressCallback)( float );
+
+#ifdef __APPLE__
+typedef ptrdiff_t Int64;
+typedef size_t Uint64;
+#ifdef __cplusplus
+static_assert(sizeof(Int64) == 8);
+static_assert(sizeof(Uint64) == 8);
+#endif
+#else //!__APPLE__
+typedef int64_t Int64;
+typedef uint64_t Uint64;
+#endif
 
 MR_EXTERN_C_END
