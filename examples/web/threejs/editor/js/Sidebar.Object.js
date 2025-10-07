@@ -327,6 +327,38 @@ function SidebarObject( editor ) {
 						const result_ = editor.MeshSDK.segmentByPointsImpl( mesh, metric, _pointArr, _dirArr );
 
 
+						// const bitset = mesh.topology.getPathVertices(result_.contourPath);
+						const edgePath = result_.contourPath;
+						const pathPnts = [];
+						for (let i = 0; i < edgePath.size(); i++) {
+							let e = edgePath.get(i); // std::vector supports .get(i)
+							const orgV = mesh.topology.org(e);
+							const orgPos = mesh.orgPnt(e);
+
+							// console.log(orgV, orgPos.x, orgPos.y, orgPos.z);
+							pathPnts.push(orgPos.x);
+							pathPnts.push(orgPos.y);
+							pathPnts.push(orgPos.z);
+						}
+
+						const pathPntsCount = pathPnts.length / 3;
+						const pathPntsFA = new Float32Array(pathPntsCount * 3);
+
+						for (let i = 0; i < pathPntsCount; i++) {
+							pathPntsFA[i * 3] = pathPnts[i*3];
+							pathPntsFA[i * 3 + 1] = pathPnts[i*3 + 1];
+							pathPntsFA[i * 3 + 2] = pathPnts[i*3 + 2];
+						}
+
+						const geometry = new THREE.BufferGeometry();
+						geometry.setAttribute('position', new THREE.BufferAttribute(pathPntsFA, 3));
+
+						const material = new THREE.PointsMaterial({ color: 0x00ff00, size: 0.1 });
+						const points = new THREE.Points(geometry, material);
+
+						editor.execute( new AddObjectCommand( editor, points, editor.selected ) );
+
+
 						betweenWasmResults.push(result_.smallerMesh);
 						betweenWasmResults.push(result_.largerMesh);
 

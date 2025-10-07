@@ -125,6 +125,7 @@ val segmentByPointsImpl( Mesh& mesh_, EdgeMetric& edgeMetric_, const std::vector
 		result.set( "largerMesh", largerMesh );
 		result.set( "smallerMeshMV", smallerMeshData );
 		result.set( "largerMeshMV", largerMeshData );
+		result.set( "contourPath", contourPath );
 	}
 	catch ( const std::exception& e )
 	{

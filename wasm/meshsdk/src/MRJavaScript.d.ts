@@ -5578,11 +5578,6 @@ export interface UniteManyMeshesParams extends ClassHandle {
   progressCb: ProgressCallback;
 }
 
-export interface GeometryBuffer extends ClassHandle {
-  vertices: any;
-  indices: any;
-}
-
 export type EdgeIdBoolPair = [ EdgeId, boolean ];
 
 export type UndirectedEdgeIdBoolPair = [ UndirectedEdgeId, boolean ];
@@ -11209,10 +11204,6 @@ interface EmbindModule {
   UniteManyMeshesParams: {
     new(): UniteManyMeshesParams;
   };
-  GeometryBuffer: {
-    new(_0: any, _1: any): GeometryBuffer;
-  };
-  exportGeometryBuffer(_0: Mesh): GeometryBuffer | null;
   exportMeshMemoryView(_0: Mesh): any;
   getAllComponentsMap(_0: MeshPart, _1: FaceIncidence, _2: UndirectedEdgeBitSet | null): Face2RegionMapIntPair;
   findCollidingTriangleBitsets(_0: MeshPart, _1: MeshPart, _2: AffineXf3f | null): FaceBitSetFaceBitSetPair;
