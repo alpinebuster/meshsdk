@@ -11,17 +11,6 @@ using namespace emscripten;
 using namespace MR;
 
 
-EMSCRIPTEN_BINDINGS( __internalBoostDynamicBitsetModule )
-{
-    using BoostDynamicBitset = boost::dynamic_bitset<std::uint64_t>;
-
-    class_<BoostDynamicBitset>("__InternalDynamicBitset")
-        .constructor<>()
-        .constructor<size_t>() // Optional, for bypass construction checks only
-        .constructor<size_t, bool>();
-}
-
-
 // `BitSet` base class bindings
 EMSCRIPTEN_BINDINGS( BitSetModule )
 {

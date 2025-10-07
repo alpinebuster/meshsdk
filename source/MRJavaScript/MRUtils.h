@@ -111,7 +111,6 @@ std::shared_ptr<GeometryBuffer> exportGeometryBuffer( const Mesh& meshToExport )
 //  double*	        -> Float64Array
 // 
 val exportMeshMemoryView( const Mesh& meshToExport );
-val exportMeshMemoryViewTest( const Mesh& meshToExport );
 
 
 // Impl：Automatically registering elements `0, 1, …, N − 1` at compile time

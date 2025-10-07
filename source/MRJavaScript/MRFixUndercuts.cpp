@@ -28,80 +28,6 @@ FixParams createFixParamsImpl( const FindParams& findParams, float voxelSize, fl
 	return params;
 }
 
-val fixUndercutsImplTest( Mesh& mesh, const Vector3f& upDirection, float voxelSize = 0.0f, float bottomExtension = 0.0f )
-{
-	size_t originalVertCount = mesh.topology.numValidVerts();
-	size_t originalFaceCount = mesh.topology.numValidFaces();
-
-	val returnObj = val::object();
-
-	Mesh meshCopy;
-	meshCopy = mesh;
-
-	size_t copyVertCount = meshCopy.topology.numValidVerts();
-	size_t copyFaceCount = meshCopy.topology.numValidFaces();
-
-	if ( copyVertCount != originalVertCount || copyFaceCount != originalFaceCount )
-	{
-		returnObj.set( "success", false );
-		returnObj.set( "error", "Mesh copy failed!" );
-		return returnObj;
-	}
-
-	FixParams fixParams;
-	fixParams.findParameters.upDirection = upDirection.normalized();
-	fixParams.voxelSize = voxelSize;
-	fixParams.bottomExtension = bottomExtension;
-
-	int progressSteps = 0;
-	fixParams.cb = [&progressSteps, &returnObj] ( float progress ) -> bool
-	{
-		progressSteps++;
-		if ( progress > 0.7 )
-		{
-			returnObj.set( ( "debug_progress_" + std::to_string( progressSteps ) ).c_str(), progress );
-		}
-		return true;
-	};
-	auto result = fix( meshCopy, fixParams );
-	meshCopy.invalidateCaches();
-
-	if ( result )
-	{
-		size_t processedVertCount = meshCopy.topology.numValidVerts();
-		size_t processedFaceCount = meshCopy.topology.numValidFaces();
-
-		returnObj.set( "debug_originalVertCount", ( int )originalVertCount );
-		returnObj.set( "debug_originalFaceCount", ( int )originalFaceCount );
-		returnObj.set( "debug_copiedVertCount", ( int )copyVertCount );
-		returnObj.set( "debug_copiedFaceCount", ( int )copyFaceCount );
-		returnObj.set( "debug_processedVertCount", ( int )processedVertCount );
-		returnObj.set( "debug_processedFaceCount", ( int )processedFaceCount );
-
-		try
-		{
-			val meshData = MRJS::exportMeshMemoryView( meshCopy );
-			val originalMeshData = MRJS::exportMeshMemoryView( mesh );
-
-			returnObj.set( "success", true );
-			returnObj.set( "mesh", meshData );
-			returnObj.set( "originalMesh", originalMeshData );
-		}
-		catch ( const std::exception& e )
-		{
-			returnObj.set( "success", false );
-			returnObj.set( "error", std::string( "Export failed: " ) + e.what() );
-		}
-	}
-	else
-	{
-		returnObj.set( "success", false );
-		returnObj.set( "error", std::string( result.error() ) );
-	}
-
-	return returnObj;
-}
-
 val fixUndercutsImpl( Mesh& mesh, const Vector3f& upDirection, float voxelSize = 0.0f, float bottomExtension = 0.0f )
 {
 	// NOTE: We're passing the mesh by reference - it gets modified in place
@@ -156,7 +82,6 @@ EMSCRIPTEN_BINDINGS( FixUndercutsModule )
 
 
 	function( "fixUndercutsImpl", &fixUndercutsImpl, allow_raw_pointers() );
-	function( "fixUndercutsImplTest", &fixUndercutsImplTest, allow_raw_pointers() );
 	function( "fixUndercutsImplThrows", &fixUndercutsImplThrows, allow_raw_pointers() );
 
 	function( "calculateRecommendedVoxelSizeImpl", optional_override( [] ( const Mesh& mesh, float qualityFactor = 1.0f ) -> float
