@@ -31,16 +31,6 @@ std::function<bool( float )> createProgressCallback( val jsCallback );
 
 Vector3f arrayToVector3f( const val& arr );
 val vector3fToArray( const Vector3f& v );
-val box3fToObject( const Box<Vector3<float>>& box );
-
-template<typename T>
-val expectedToJs( const Expected<T>& expected );
-
-
-// Convert C++ vector to JavaScript `Float32Array`
-// REF: [Memory Views](`https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html#memory-views`)
-[[nodiscard]] val verticesToFloat32ArrayMemoryView( const VertCoords& vec );
-[[nodiscard]] val indicesToUint32ArrayMemoryView( const Triangulation& vec );
 
 
 /**
@@ -68,36 +58,6 @@ FaceBitSet findLookingFaces( const Mesh& mesh, const AffineXf3f& meshToWorld, Ve
 Mesh findLookingSilhouetteConvexHull( const Mesh& mesh, Vector3f lookDirection );
 ///
 
-
-struct GeometryBuffer
-{
-    val vertices;
-    val indices;
-
-    GeometryBuffer( val verts, val inds )
-        : vertices( std::move( verts ) ), indices( std::move( inds ) ) {}
-
-    static std::shared_ptr<GeometryBuffer> fromMesh( const Mesh& meshToExport )
-    {
-        // === Export point data ===
-        const auto& points_ = meshToExport.points;
-        size_t pointCount = points_.size();
-        size_t vertexElementCount = pointCount * 3;
-        const float* pointDataPtr = reinterpret_cast< const float* >( points_.data() );
-        // FIXME!!!
-        val pointsArray = val( typed_memory_view( vertexElementCount, pointDataPtr ) );
-
-        // === Export triangle data ===
-        const Triangulation& tris_ = meshToExport.topology.getTriangulation();
-        size_t triangleCount = tris_.size();
-        size_t triElementCount = triangleCount * 3;
-        const uint32_t* triDataPtr = reinterpret_cast< const uint32_t* >( tris_.data() );
-        val triangleArray = val( typed_memory_view( triElementCount, triDataPtr ) );
-
-        return std::make_shared<GeometryBuffer>( pointsArray, triangleArray );
-    }
-};
-std::shared_ptr<GeometryBuffer> exportGeometryBuffer( const Mesh& meshToExport );
 
 // NOTE: Export mesh data using `typed_memory_view()`
 // 
