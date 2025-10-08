@@ -1,4 +1,4 @@
-# Fix Undercuts（消除下凹）
+# Fix Undercuts（消除倒凹）
 
 在 `MR::FixUndercuts` 命名空间下提供了消除“下凹”区域的函数。主要函数是：
 

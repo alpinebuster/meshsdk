@@ -5,8 +5,8 @@ import type * as Preset from '@docusaurus/preset-classic';
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
-  title: 'AS 😍🦷',
-  tagline: 'Stomatology modeling with AI!',
+  title: 'MeshSDK 😍🦷',
+  tagline: 'Advanced algorithms for 3D data processing!',
   favicon: 'img/favicon.ico',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
@@ -15,7 +15,7 @@ const config: Config = {
   },
 
   // Set the production url of your site here
-  url: 'https://ai-stomatology.tech',
+  url: 'https://meshsdk.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/',
@@ -23,7 +23,7 @@ const config: Config = {
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
   organizationName: 'alpinebuster', // Usually your GitHub org/user name.
-  projectName: 'as-mesh', // Usually your repo name.
+  projectName: 'meshsdk', // Usually your repo name.
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
@@ -45,7 +45,7 @@ const config: Config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/alpinebuster/as-mesh/tree/main/packages/create-docusaurus/templates/shared/',
+            'https://github.com/alpinebuster/meshsdk/tree/main/packages/create-docusaurus/templates/shared/',
         },
         blog: {
           showReadingTime: true,
@@ -56,7 +56,7 @@ const config: Config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/alpinebuster/as-mesh/tree/main/packages/create-docusaurus/templates/shared/',
+            'https://github.com/alpinebuster/meshsdk/tree/main/packages/create-docusaurus/templates/shared/',
           // Useful options to enforce blogging best practices
           onInlineTags: 'warn',
           onInlineAuthors: 'warn',
@@ -73,9 +73,9 @@ const config: Config = {
     // Replace with your project's social card
     image: 'img/docusaurus-social-card.jpg',
     navbar: {
-      title: 'AI Stomatology',
+      title: 'MeshSDK',
       logo: {
-        alt: 'AS Logo',
+        alt: 'MeshSDK Logo',
         src: 'img/logo.svg',
       },
       items: [
@@ -87,7 +87,7 @@ const config: Config = {
         },
         {to: '/blog', label: 'Blog', position: 'left'},
         {
-          href: 'https://github.com/alpinebuster/as-mesh',
+          href: 'https://github.com/alpinebuster/meshsdk',
           label: 'GitHub',
           position: 'right',
         },
@@ -117,12 +117,12 @@ const config: Config = {
           title: 'Community',
           items: [
             {
-              label: 'Stack Overflow',
-              href: 'https://stackoverflow.com/questions/tagged/asmesh',
+              label: 'Github',
+              href: 'https://github.com/alpinebuster',
             },
             {
-              label: 'Discord',
-              href: 'https://discordapp.com/invite/asmesh',
+              label: 'Chat Server',
+              href: 'https://chat.alpinebuster.top/',
             },
           ],
         },
@@ -133,14 +133,10 @@ const config: Config = {
               label: 'Blog',
               to: '/blog',
             },
-            {
-              label: 'GitHub',
-              href: 'https://github.com/alpinebuster/as-mesh',
-            },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} AS, Inc. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} alpinebuster. Built with Docusaurus.`,
     },
     prism: {
       theme: prismThemes.github,

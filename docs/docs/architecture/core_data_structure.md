@@ -1,9 +1,39 @@
 # Core Data Structures
 
-Mesh, points, edges, triangles.
+> Mesh, Points, Edges, Triangles
 
-## Terminology 
+The `meshsdk` library employs a **Half-Edge data structure** to represent the topology of triangular meshes. Its core classes include:
 
-- **"component"** is part of the Mesh that has no connection with other parts of same Mesh
-- **"merge"** operation in MeshLib is adding several independent Meshes into one Mesh making components from them (addMesh and addMeshPart functions)
-- **"boolean union"** operation stitches intersecting Meshes making new Mesh that is composition of input meshes (it cannot work with some bad defined cases like non closed intersection contours or self-intersections in this zone) (also if meshes does not intersect this operation works a lot like merge but with respect to meshes orientations)
+- **Vertex (Vert)**, represented by the type `MR::VertId`, stored in a contiguous array (`Mesh.points`), allowing coordinate access via `VertId` indexing.
+- **Triangle (Face)**, formed by the closure of three half-edges and storing vertex indices, is denoted by `MR::FaceId`.
+- **Edge**, represented through half-edges, where each undirected edge comprises two bidirectional half-edges. The half-edges connect vertices and triangles, facilitating rapid access to adjacent edges, triangles, and related information through adjacency pointers. Directed edges utilize `MR::EdgeId`, while undirected edges employ `MR::UndirectedEdgeId`.
+- **`MR::Mesh`** is the primary mesh class, encapsulating vertex coordinates (`points`), topology (`MeshTopology topology`), and cached acceleration structures like the AABB tree. It provides interfaces for various operations such as loading/saving (`MeshLoad`/`MeshSave`), geometric queries (e.g., `projectPoint`, `getClosestEdge`/`Vertex`), and more.
+  - **`MeshTopology`** stores and manages the topological information of the mesh (half-edge structure). It maintains internal relationships among vertices to half-edges, half-edges to faces, and faces to half-edges, offering methods for traversing cycles, identifying hole edges (`findHoleRepresentiveEdges()`), and generating auxiliary selections (BitSet).
+  - **`MeshBuilder`** is responsible for constructing `MR::Mesh` objects from raw geometric data (vertex lists, triangle lists, polygonal facets, etc.) through a collection of static methods, including the aforementioned `fromPointTriples` and `fromTriangles`.
+  - **`MR::MeshLoad`/`MR::MeshSave`** comprise a file I/O module. `MeshLoad::fromAnySupportedFormat` identifies and parses various formats (STL/OBJ/PLY, etc.), feeding the data into `MeshBuilder` to construct the mesh. Conversely, `MeshSave` exports `MR::Mesh` to the specified format.
+  - **`MR::AABBTree`/`MR::AABBTreePoints`** serve as spatial indexing structures that enable accelerated queries on meshes and sets of vertices. Typically constructed and cached internally by `MR::Mesh`, they are accessible for various algorithmic calls.
+  - **Other geometric algorithm modules**, including `MR::MeshFillHole` (hole filling), `MR::MeshExtrude` (extrusion), boolean operations, projection, and reconstruction, are implemented based on the aforementioned data structures, utilizing topological and geometric tools to perform an array of operations.
+
+This structure supports dynamic insertion and deletion operations. For instance, the series of functions `MR::Mesh::addPart` can merge part or all of another mesh's triangles into the current mesh (creating new vertices, edges, and faces); whereas `MR::Mesh::deleteFaces(const FaceBitSet &fs, …)` allows for the deletion of a specified set of triangles and automatically removes any edges and vertices no longer shared by remaining faces. Post-deletion, methods such as `pack()` or `packOptimally()` can be invoked to tighten the data indices, enhancing storage locality and reclaiming space. These classes operate synergistically: during STL loading, `MeshLoad` calls `MeshBuilder` to sequentially add facets to `MR::Mesh`; after mesh creation, `MeshTopology` can traverse holes and invoke `fillHole`; projection and interaction operations leverage the AABB tree to expedite the localization of neighboring triangles.
+
+## STL File Triangulation Processing
+
+The loading interface `MR::MeshLoad::fromAnySupportedFormat(path)` enables the reading of various formats, including STL. For STL files, whether in ASCII or binary format, the library parses the vertex coordinates and normal information of each facet and subsequently employs the internal mesh builder to generate a triangular mesh. Specifically, `meshsdk` encompasses `MeshBuilder` functionalities; for instance, one can construct a mesh using `MR::Mesh::fromPointTriples(std::vector<Triangle3f>)`. This function accepts a set of triangle vertices (`Triangle3f`), directly generating the vertices and triangles of the mesh, with the option to duplicate vertices at non-manifold points to ensure manifold integrity by default.
+
+In more general scenarios, `meshsdk` also accommodates "face soup," meaning that even when the input polygonal facets possess an arbitrary number of vertices, the constructor will **automatically triangulate non-triangle faces**. This implies that when users provide a list of polygons, the system will perform internal triangulation. In the context of STL, since each face is already a triangle, this step can typically be perceived as a direct insertion of triangular facets. However, this mechanism guarantees that any imported mesh is converted into a stable triangular mesh representation. Once construction is complete, `meshsdk` assigns unique vertex IDs, edge IDs, and face IDs to the mesh, ensuring that the global indices remain contiguous while retaining remapping information to support subsequent geometric queries or topological operations.
+
+## Implementation and Utilization of AABB Trees
+
+The `meshsdk` library constructs **Axis-Aligned Bounding Box (AABB) trees** as an acceleration data structure to support spatial queries and collision detection. Internally, the `MR::Mesh` class caches two AABB trees: one is an `AABBTree` for the collection of triangles (indices), while the other is an `AABBTreePoints` for the set of vertices. When invoking `mesh.getAABBTree()`, if the tree has not yet been constructed, it is automatically generated and cached for subsequent use; similarly, `getAABBTreePoints()` serves the same purpose for vertices.
+
+These AABB trees play a pivotal role in various tasks:
+
+- **Mesh Projection**: When executing the nearest point projection from a point to a mesh, the algorithm first employs the AABB tree for broad-phase elimination to swiftly identify candidate triangles, and subsequently calculates precise distances. This enables functions such as `MR::Mesh::projectPoint(…)` to efficiently resolve nearest points on complex meshes. In fact, the bounding box calculations for the mesh are facilitated through `getAABBTree()`, highlighting the dependency of projections and nearest point queries on AABB trees.
+  
+- **Mesh Repair**: When detecting and eliminating self-intersections, algorithms necessitate identifying potentially intersecting pairs of triangles. Here, the AABB tree significantly minimizes the number of pairing checks, allowing for more refined triangle-triangle intersection tests only within the regions where the bounding boxes intersect, thereby enhancing performance. The boolean operations and self-intersection repair tools in `meshsdk` utilize this strategy, akin to common broad-phase/narrow-phase collision detection methods.
+  
+- **Mesh Splitting**: When dividing a mesh along a specified plane or another geometric entity, it is crucial to ascertain which triangles are being cut. The AABB tree can similarly expedite the identification of triangles intersecting the cutting entity, reducing unnecessary computations and accelerating splitting algorithms.
+  
+- **Hole Filling**: While locating hole edges primarily relies on topological traversal (`MeshTopology::findHoleRepresentiveEdges()`), the filling algorithm may necessitate calculating the positions of new vertices and their distances from the original mesh. These operations also indirectly leverage the AABB tree to accelerate spatial searches.
+
+AABBs serve as a widely used spatial acceleration structure for broad-phase elimination (rapidly excluding regions that cannot possibly intersect) and nearest neighbor queries, significantly improving geometric processing efficiency. For instance, the `getBoundingBox()` method is implemented based on AABB trees, underscoring their central role in the geometric query process.
