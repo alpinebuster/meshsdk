@@ -8,8 +8,8 @@
 
 <p align="center">
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/docs/img/segment_by_points5.png">
-  <source media="(prefers-color-scheme: light)" srcset="docs/docs/img/segment_by_points5.png">
+  <source media="(prefers-color-scheme: dark)" srcset="front_page.png">
+  <source media="(prefers-color-scheme: light)" srcset="front_page.png">
   <img alt="Front Page" width="544">
 </picture>
 </p>
