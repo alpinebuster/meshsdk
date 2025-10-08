@@ -3,9 +3,9 @@
 import { fileURLToPath } from 'url';
 import path, { dirname, join, normalize } from 'path';
 import {
-	existsSync, rmSync, mkdirSync, copyFileSync,
+	existsSync, rmSync, mkdirSync, copyFileSync, renameSync,
 	readdirSync, readFileSync, writeFileSync, unlinkSync, 
-	symlinkSync
+	symlinkSync,
 } from 'fs';
 import { execSync } from 'child_process';
 
@@ -116,11 +116,17 @@ async function build(): Promise<void> {
 				const fileName = file.split('/').pop()!;
 				const destPath = join(__dirname, OUT_DIRECTORY, fileName);
 
-				const relativePath = path.relative(path.dirname(destPath), srcPath);
-				symlinkSync(relativePath, destPath);
+
+				// Move the file from srcPath to destPath
+				renameSync(srcPath, destPath);
+
+				// Create a symbolic link at srcPath pointing to the relative version of destPath
+				const relativeLinkPath = path.relative(path.dirname(srcPath), destPath);
+				symlinkSync(relativeLinkPath, srcPath);
+
 
 				console.log('----------------------------------------------------------------------');
-				console.log(`Copied ${srcPath} to ${OUT_DIRECTORY}/`);
+				console.log(`Moved ${srcPath} to ${OUT_DIRECTORY}/`);
 			} else {
 				console.log('----------------------------------------------------------------------');
 				console.warn(`Warning: ${srcPath} not found, skipping...`);
