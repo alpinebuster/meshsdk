@@ -1,4 +1,5 @@
-# REF: `https://docusaurus.io/docs/deployment#triggering-deployment-with-github-actions`
+# REF: `https://docusaurus.io/docs/deployment#triggering-deployment-with-github-actions`,
+#      `https://jaimestill.github.io/docusaur-gh/deploy`
 name: Deploy Docusaurus to GitHub Pages
 
 on:
