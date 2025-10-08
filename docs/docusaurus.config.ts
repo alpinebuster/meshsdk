@@ -15,15 +15,17 @@ const config: Config = {
   },
 
   // Set the production url of your site here
-  url: 'https://meshsdk.github.io',
+  url: 'https://alpinebuster.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/',
+  baseUrl: '/meshsdk',
+  trailingSlash: false,
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
   organizationName: 'alpinebuster', // Usually your GitHub org/user name.
   projectName: 'meshsdk', // Usually your repo name.
+  deploymentBranch: 'meshsdk', 
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
