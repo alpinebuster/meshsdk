@@ -1,13 +1,12 @@
-# MeshSDK - Javascript/Typescript Binding for the meshsdk
+# AS MeshSDK - Javascript/Typescript Binding
 
-`meshsdk` JS/TS implementation. It supports compilation
-to WASM via [Emscripten](https://emscripten.org/) so that `meshsdk` features can be used in a browser.
+MeshSDK JS/TS wrapper by compiling to WASM via [Emscripten](https://emscripten.org/) so that all native features can be used in browser/nodejs environments.
 
-## Using `meshsdk` in JavaScript/TypeScript
+## Using `as-mesh` in JavaScript/TypeScript
 
 ### Install
 
-`meshsdk` is available as a UMD module compatible with both NodeJS and browsers,
+`as-mesh` is available as a UMD module compatible with both NodeJS and browsers,
 and includes TypeScript definitions.
 
 ```sh
@@ -16,7 +15,7 @@ npm install as-mesh
 
 ### Usage
 
-To use the meshsdk, do the following:
+To use the `as-mesh`, do the following:
 
 ```js
 import { createMeshSDK } from 'as-mesh';
@@ -62,7 +61,9 @@ server {
 ## Local Development
 
 ```sh
-npm install
+# npm install
+npm install  --registry=https://registry.npmmirror.com
+
 npm run build
 ```
 
@@ -80,7 +81,6 @@ npm config set https-proxy http://127.0.0.1:7890
 
 npm config set registry https://registry.npmmirror.com
 npm config set registry https://registry.npmmirror.com --location=project
-
 npm config set registry https://registry.npmjs.org/
 
 npm login
