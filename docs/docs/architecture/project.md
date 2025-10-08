@@ -1,3 +1,5 @@
-# 点到网格投影与 AABB 加速
+# Point-to-Mesh Projection and AABB Acceleration
 
-点到网格最近点投影的功能通常利用 AABB 树进行加速。典型流程是：首先为整个网格构建一个 `MR::AABBTree`，然后在投影或距离计算时，调用 AABB 树的查询接口（如寻找最近三角面的函数）快速筛选候选三角形。之后仅对这些候选面逐个计算点到面的精确距离，找到真正的最近点。这种分层空间索引大幅减少了遍历所有三角形的开销。对于点到点最近邻（如点云匹配），可以对网格的顶点集使用 `MR::AABBTreePoints`，原理类似：构建一个顶点的 AABB 树，再在树上进行邻近查询。整个点到面的函数链通常跨越 `MRMeshIntersect`、`MRMeshDistance` 等模块，从顶层接口到底层的 AABB 查询依次调用。
+The functionality for projecting points to the nearest point on a mesh is typically accelerated using AABB trees. The typical workflow involves first constructing an `MR::AABBTree` for the entire mesh. During projection or distance calculations, the querying interface of the AABB tree (such as functions to find the nearest triangle) is invoked to rapidly filter candidate triangles. Subsequently, the precise distance from the point to each of these candidate faces is computed individually to identify the true nearest point. This hierarchical spatial indexing significantly reduces the overhead of traversing all triangles.
+
+For nearest neighbor searches between points (e.g., point cloud matching), the same principle applies using `MR::AABBTreePoints` for the set of vertices in the mesh: an AABB tree for the vertices is built, allowing for proximity queries within that structure. The entire function chain for point-to-face operations typically traverses modules such as `MRMeshIntersect` and `MRMeshDistance`, invoking calls sequentially from high-level interfaces down to the underlying AABB queries.

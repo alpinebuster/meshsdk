@@ -4,13 +4,13 @@ sidebar_position: 1
 
 # 教程简介
 
-让我们快速上手 **AS**。
+让我们快速上手 **MeshSDK**。
 
 ## 开始
 
 通过**创建一个新的桌面构建**来开始。
 
-或者通过[网页版](https://ai-stomatology.tech)立即尝试 **AS**。
+或者通过[网页版](https://threemesh.alpinebuster.top)立即尝试 **MeshSDK**。
 
 ## 所需环境
 

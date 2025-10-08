@@ -1,10 +1,12 @@
-# Fix Undercuts（消除下凹）
+# Fix Undercuts
 
-在 `MR::FixUndercuts` 命名空间下提供了消除“下凹”区域的函数。主要函数是：
+Within the `MR::FixUndercuts` namespace, functions are provided to eliminate "undercut" regions. The primary function is:
 
 ```cpp
 void MR::FixUndercuts::fixUndercuts(Mesh &mesh, const Vector3f &upDirection,
-                                   float voxelSize=0.0f, float bottomExtension=0.0f);
+                                     float voxelSize=0.0f, float bottomExtension=0.0f);
 ```
 
-以及带选区的重载，将 `selectedArea` 参数限制在网格的一部分。函数接受一个网格、一个“上升方向”向量（通常指重力相反方向），以及体素分辨率 `voxelSize` 和底部延伸厚度 `bottomExtension`。其实现方法类似各向异性偏移：先将网格在给定方向上按照 `voxelSize` 分辨率体素化，然后向上“填充”空洞，使得所有面相对于 `upDirection` 方向都能得到支撑。调用 `fixUndercuts` 后，原先的下凹/悬垂区域会被内部填充体素占据并重建为实体网格。可以在调用前用 `MR::FixUndercuts::findUndercuts(mesh, upDir, outFaces)` 识别那些下凹面（或顶点），并通过 `getUndercutAreaMetric` 等函数评估下凹面积。总体上，`fixUndercuts` 相当于将网格沿指定方向膨胀或偏移，从而消除过大的下凹角度。
+An overloaded version includes a `selectedArea` parameter that restricts the operation to a specific part of the mesh. This function accepts a mesh, an "upward direction" vector (typically opposite to the direction of gravity), along with the voxel resolution `voxelSize` and a bottom extension thickness `bottomExtension`. 
+
+The implementation approach is analogous to anisotropic offsetting: first, the mesh is voxelized along the specified direction with the resolution defined by `voxelSize`, and then voids are "filled" upward, ensuring that all faces receive support relative to the `upDirection`. Following the invocation of `fixUndercuts`, the previously undercut or overhanging regions will be filled with voxels and reconstructed into a solid mesh. Prior to calling, one can utilize `MR::FixUndercuts::findUndercuts(mesh, upDir, outFaces)` to identify the undercut faces (or vertices) and assess the undercut area using functions like `getUndercutAreaMetric`. Overall, `fixUndercuts` effectively expands or offsets the mesh in the specified direction, thereby eliminating excessive undercut angles.

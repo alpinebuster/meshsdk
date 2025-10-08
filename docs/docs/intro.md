@@ -4,13 +4,13 @@ sidebar_position: 1
 
 # Tutorial Intro
 
-Let's discover **AS in less than 5 minutes**.
+Let's discover **MeshSDK in less than 5 minutes**.
 
 ## Getting Started
 
 Get started by **creating a new Desktop build**.
 
-Or **try AS immediately** with **[Web APP](https://ai-stomatology.tech)**.
+Or **try MeshSDK immediately** with **[Web APP](https://threemesh.alpinebuster.top)**.
 
 ### What you'll need
 

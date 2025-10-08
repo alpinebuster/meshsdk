@@ -19,15 +19,16 @@
 
 | 参数               | Uniform 名  | 含义                                         | 相机矩阵中的对应项                |
 | ---------------- | ---------- | ------------------------------------------ | ------------------------ |
-| `distortion`     | `uK0`      | 径向畸变系数 (K1, K2...) 的第一个参数（如 K1，用于 $r^2$ 项） | N/A (用于畸变函数)             |
-| `principalPoint` | `uCc`      | 主点（成像中心），单位像素。通常是图像中心附近，例如 (cx, cy)        | 相机内参矩阵中的偏移项 $(c_x, c_y)$ |
-| `focalLength`    | `uFc`      | 焦距，单位像素。通常是 $(f_x, f_y)$，与图像的水平/垂直缩放有关     | 相机内参矩阵中的 $f_x, f_y$      |
+| `distortion`     | `uK0`      | 径向畸变系数 (K1, K2...) 的第一个参数（如 K1，用于 `$r^2$` 项） | N/A (用于畸变函数)             |
+| `principalPoint` | `uCc`      | 主点（成像中心），单位像素。通常是图像中心附近，例如 (cx, cy)        | 相机内参矩阵中的偏移项 `$(c_x, c_y)$` |
+| `focalLength`    | `uFc`      | 焦距，单位像素。通常是 `$(f_x, f_y)$`，与图像的水平/垂直缩放有关     | 相机内参矩阵中的 `$f_x, f_y$`      |
 | `skew`           | `uAlpha_c` | 像素之间的非正交性，正常为 0，仅在特殊镜头或传感器倾斜时非零            | 相机内参矩阵中的 skew（α）项        |
 
 ---
 
 ### 📷 相机内参矩阵 (K) 对应关系：
 
+```latex
 $$
 K =
 \begin{bmatrix}
@@ -36,12 +37,13 @@ f_x & \alpha & c_x \\
 0   & 0      & 1
 \end{bmatrix}
 $$
+```
 
 PS：
 
-* `focalLength` → $f_x, f_y$
-* `skew` → $\alpha$
-* `principalPoint` → $c_x, c_y$
+* `focalLength` → `$f_x, f_y$`
+* `skew` → `$\alpha$`
+* `principalPoint` → `$c_x, c_y$`
 
 
 ### 💡 从相机标定工具（如 OpenCV 的 cv::calibrateCamera()）中获取参数
