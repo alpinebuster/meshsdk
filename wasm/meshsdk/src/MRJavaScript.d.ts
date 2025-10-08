@@ -10233,7 +10233,6 @@ interface EmbindModule {
   findTwinUndirectedEdgeHashMap(_0: Mesh, _1: number): UndirectedEdgeHashMap;
   makeConvexHull(_0: Mesh): Mesh;
   smoothExtractedRegionBoundary(_0: Mesh, _1: number): any;
-  calculateRecommendedVoxelSizeImpl(_0: Mesh, _1: number): number;
   BooleanResult: {
     new(): BooleanResult;
   };
@@ -10302,8 +10301,6 @@ interface EmbindModule {
     new(): MakeBridgeResult;
   };
   buildCylinderBetweenTwoHoles(_0: Mesh, _1: StitchHolesParams): boolean;
-  fillHoleWithSizeLimitImpl(_0: Mesh, _1: number): Mesh;
-  fillAllHolesImpl(_0: Mesh): any;
   duplicateMultiHoleVertices(_0: Mesh): number;
   fixMultipleEdges(_0: Mesh): void;
   FixMeshDegeneraciesParams: {
@@ -10344,8 +10341,6 @@ interface EmbindModule {
   fillHole(_0: Mesh, _1: EdgeId, _2: FillHoleParams): void;
   makeDegenerateBandAroundHole(_0: Mesh, _1: EdgeId, _2: FaceBitSet | null): EdgeId;
   makeSmoothBridge(_0: Mesh, _1: EdgeId, _2: EdgeId, _3: number, _4: FaceBitSet | null): MakeBridgeResult;
-  extendHoleWithFuncBasicImpl(_0: Mesh, _1: EdgeId, _2: any): EdgeId;
-  extendHoleWithFuncAndOutputImpl(_0: Mesh, _1: EdgeId, _2: any): any;
   VoxelId: {
     new(): VoxelId;
     new(_0: number): VoxelId;
@@ -10858,9 +10853,6 @@ interface EmbindModule {
   sharpOffsetMesh(_0: MeshPart, _1: number, _2: SharpOffsetParameters): ExpectedMesh;
   generalOffsetMesh(_0: MeshPart, _1: number, _2: GeneralOffsetParameters): ExpectedMesh;
   offsetOneDirection(_0: MeshPart, _1: number, _2: GeneralOffsetParameters): ExpectedMesh;
-  thickenMeshImpl(_0: Mesh, _1: number, _2: GeneralOffsetParameters): any;
-  thickenMeshFilledImpl(_0: Mesh, _1: number, _2: boolean, _3: GeneralOffsetParameters): any;
-  thickenMeshWithTensionImpl(_0: Mesh, _1: number, _2: boolean, _3: number, _4: GeneralOffsetParameters): any;
   SortIntersectionsData: {};
   OneMeshContour: {
     new(): OneMeshContour;
@@ -10939,9 +10931,6 @@ interface EmbindModule {
   SpacingSettings: {
     new(): SpacingSettings;
   };
-  generateOrthodonticBiteImpl(_0: Mesh, _1: Mesh, _2: number, _3: number, _4: number, _5: InflateSettings, _6: GeneralOffsetParameters): any;
-  generateOrthodonticBiteWithFillHoleMetricImpl(_0: Mesh, _1: number, _2: number, _3: InflateSettings, _4: FillHoleMetric): any;
-  buildCylinderBetweenTwoHolesImpl(_0: Mesh, _1: InflateSettings, _2: FillHoleMetric): any;
   PositionVertsSmoothlyParams: {
     new(): PositionVertsSmoothlyParams;
   };
@@ -10954,7 +10943,6 @@ interface EmbindModule {
   inflate(_0: Mesh, _1: VertBitSet, _2: InflateSettings): void;
   inflateWithTopology(_0: MeshTopology, _1: VertCoords, _2: VertBitSet, _3: InflateSettings): void;
   inflate1WithTopology(_0: MeshTopology, _1: VertCoords, _2: VertBitSet, _3: number): void;
-  inflateToothRootImpl(_0: Mesh, _1: InflateSettings): any;
   ConvertToFloatVector: {};
   ConvertToIntVector: {};
   createConvertToIntVector(_0: any): ConvertToIntVector;
@@ -11214,9 +11202,6 @@ interface EmbindModule {
   StdVectorf: {
     new(): StdVectorf;
   };
-  cutMeshByContourImpl(_0: Mesh, _1: StdVectorf): any;
-  cutMeshWithPolylineImpl(_0: Mesh, _1: StdVectorf): any;
-  cutAndExtrudeMeshWithPolylineImpl(_0: Mesh, _1: StdVectorf): any;
   getSumSqDistToPoint(_0: IPointPairs, _1?: number): NumSum;
   getSumSqDistToPlane(_0: IPointPairs, _1?: number): NumSum;
   StdVectord: {
@@ -11932,7 +11917,6 @@ interface EmbindModule {
   fillContourLeftByGraphCut(_0: MeshTopology, _1: VectorEdgeId, _2: EdgeMetric, _3: ProgressCallback): FaceBitSet;
   fillContourLeftByGraphCutByContours(_0: MeshTopology, _1: VectorEdgePath, _2: EdgeMetric, _3: ProgressCallback): FaceBitSet;
   segmentByGraphCut(_0: MeshTopology, _1: FaceBitSet, _2: FaceBitSet, _3: EdgeMetric, _4: ProgressCallback): FaceBitSet;
-  segmentByPointsImpl(_0: Mesh, _1: EdgeMetric, _2: StdVectorf, _3: StdVectorf): any;
   UndirectedEdgeMetric: {
     new(): UndirectedEdgeMetric;
   };
@@ -12320,14 +12304,9 @@ interface EmbindModule {
   to3dimVecf(_0: Vector2f): Vector3f;
   to2dimVecf(_0: Vector3f): Vector2f;
   makeArrow(_0: Vector3f, _1: Vector3f, _2: number, _3: number, _4: number, _5: number): Mesh;
-  createFindParamsImpl(_0: number, _1: number, _2: number, _3: number): FindParams;
-  createFixParamsImpl(_0: FindParams, _1: number, _2: number, _3: boolean): FixParams;
-  fixUndercutsImpl(_0: Mesh, _1: Vector3f, _2: number, _3: number): any;
   fixUndercutsImplThrows(_0: Mesh, _1: Vector3f, _2: number, _3: number): void;
   getAligningXf(_0: PointToPlaneAligningTransform, _1: ICPMode, _2: number, _3: number, _4: Vector3f): AffineXf3f;
   closestPointOnLineSegm3f(_0: Vector3f, _1: LineSegm3f): Vector3f;
-  createMaxillaGypsumBaseImpl(_0: Mesh, _1: EdgeId, _2: VertId, _3: Vector3f, _4: number, _5: number): any;
-  createMandibleGypsumBaseImpl(_0: Mesh, _1: EdgeId, _2: Vector3f, _3: number): any;
   buildBottom(_0: Mesh, _1: EdgeId, _2: Vector3f, _3: number, _4: FaceBitSet | null): EdgeId;
   createVerticalStitchMetric(_0: Mesh, _1: Vector3f): FillHoleMetricWrapper;
   getVerticalStitchMetric(_0: Mesh, _1: Vector3f): FillHoleMetric;
