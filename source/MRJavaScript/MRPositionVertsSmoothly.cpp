@@ -9,6 +9,7 @@
 #include <MRMesh/MRId.h>
 #include <MRMesh/MRFillHoleNicely.h>
 #include <MRMesh/MRRegionBoundary.h>
+#include <MRMesh/MRRingIterator.h>
 #include <MRMesh/MRPositionVertsSmoothly.h>
 
 #include "MRPositionVertsSmoothly.h"
@@ -38,6 +39,7 @@ val inflateToothRootImpl( Mesh& mesh, const InflateSettings& inflateSettings )
             maxAreaHole = e;
         }
     }
+    returnObj.set( "contourPath", mesh.topology.getLeftRing(maxAreaHole) );
     ///
 
 
@@ -56,12 +58,13 @@ val inflateToothRootImpl( Mesh& mesh, const InflateSettings& inflateSettings )
             inflate( mesh, newVerts, inflateSettings );
 
 
-	        Mesh newFacesMesh;
+            Mesh newFacesMesh;
             auto newInflatedFaces = getInnerFaces( mesh.topology, newVerts );
             newFacesMesh.addMeshPart( {mesh, &newInflatedFaces} );
             val newFacesMeshData = MRJS::exportMeshMemoryView( newFacesMesh );
             returnObj.set( "rootMesh", newFacesMesh );
             returnObj.set( "rootMeshMV", newFacesMeshData );
+            returnObj.set( "maxAreaHole", maxAreaHole );
         }
     }
 
