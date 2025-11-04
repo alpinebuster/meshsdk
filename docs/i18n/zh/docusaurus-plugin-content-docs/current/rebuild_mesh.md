@@ -100,6 +100,6 @@ There is also a single function that fixes holes, self-intersections, multiple e
 ```python
 params = mm.RebuildMeshSettings()
 params.voxelSize = mm.suggestVoxelSize(mesh, 5e6)
-params.fwn = mc.FastWindingNumber(mesh)  # Enables CUDA (mc = `from meshlib import mrcudapy as mc`)
+params.fwn = mc.FastWindingNumber(mesh)  # Enables CUDA (mc = `from meshsdk import mrcudapy as mc`)
 mesh = mm.rebuildMesh(mesh, params)
 ```

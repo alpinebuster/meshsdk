@@ -87,8 +87,14 @@ public:
     MRMESH_API const ViewportProperty<Color>& getEdgesColorsForAllViewports() const;
     MRMESH_API virtual void setEdgesColorsForAllViewports( ViewportProperty<Color> val );
 
+    MRMESH_API const ViewportProperty<Color>& getPointsColorsForAllViewports() const;
+    MRMESH_API virtual void setPointsColorsForAllViewports( ViewportProperty<Color> val );
+
     MRMESH_API const ViewportProperty<Color>& getBordersColorsForAllViewports() const;
     MRMESH_API virtual void setBordersColorsForAllViewports( ViewportProperty<Color> val );
+
+    /// set all object solid colors (front/back/etc.) from other object for all viewports
+    MRMESH_API void copyAllSolidColors( const ObjectMeshHolder& other );
 
     /// Edges on mesh, that will have sharp visualization even with smooth shading
     const UndirectedEdgeBitSet& creases() const { return data_.creases; }
@@ -250,6 +256,9 @@ public:
     /// reset all object colors to their default values from the current theme
     MRMESH_API void resetColors() override;
 
+    MRMESH_API virtual size_t getModelHash() const override;
+    MRMESH_API virtual bool sameModels( const Object& other ) const override;
+
     /// signal about face selection changing, triggered in selectFaces
     using SelectionChangedSignal = Signal<void()>;
     SelectionChangedSignal faceSelectionChangedSignal;
@@ -291,6 +300,7 @@ protected:
     MRMESH_API void deserializeFields_( const Json::Value& root ) override;
 
     MRMESH_API Expected<void> deserializeModel_( const std::filesystem::path& path, ProgressCallback progressCb = {} ) override;
+    MRMESH_API virtual Expected<void> setSharedModel_( const Object& other ) override;
 
     /// set all visualize properties masks
     MRMESH_API void setAllVisualizeProperties_( const AllVisualizeProperties& properties, std::size_t& pos ) override;

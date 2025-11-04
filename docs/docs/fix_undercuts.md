@@ -1,7 +1,7 @@
 # Undercuts
 
 ```py
-from meshlib import mrmeshpy as mm
+from meshsdk import mrmeshpy as mm
 
 mesh = mm.loadMesh("path_to_mesh.stl")
 direction = mm.Vector3f(0,0,-1)

@@ -16,7 +16,7 @@ IF(MR_EMSCRIPTEN_WASM64)
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s MEMORY64=1")
 ENDIF()
 
-project(MeshLib_thirdparty CXX)
+project(MeshSDK_thirdparty CXX)
 
 # all binaries will be located in ./build/Release/bin
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
