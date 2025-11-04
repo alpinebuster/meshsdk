@@ -1,4 +1,4 @@
-#ifndef MESHLIB_NO_VOXELS
+#ifndef MESHSDK_NO_VOXELS
 
 #include <MRMesh/MRGTest.h>
 #include <MRMesh/MRMesh.h>

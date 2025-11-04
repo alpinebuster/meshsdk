@@ -5,7 +5,6 @@
 #include "MRAppendHistory.h"
 #include "MRMouse.h"
 #include "MRPalette.h"
-#include "MRProjectMeshAttributes.h"
 #include "MRViewer/MRGladGlfw.h"
 #include "MRMesh/MRObjectMesh.h"
 #include "MRMesh/MRMesh.h"
@@ -32,6 +31,8 @@
 #include "MRSceneCache.h"
 #include "MRMesh/MRAABBTreePoints.h"
 #include "MRMesh/MRPointsProject.h"
+#include "MRMesh/MRProjectionMeshAttribute.h"
+#include "MRMesh/MRChangeMeshDataAction.h"
 
 namespace MR
 {
@@ -429,12 +430,18 @@ bool SurfaceManipulationWidget::onMouseUp_( Viewer::MouseButton button, int /*mo
 
             // newFaces include both faces inside the patch and subdivided faces around
             const FaceBitSet newFaces = newMesh->topology.getValidFaces() - oldFaces;
-            auto meshAttribs = projectMeshAttributes( *obj_, MeshPart( *newMesh, &newFaces ) );
-
-            appendMeshChangeHistory_( std::move( newMesh ), newFaces );
-
-            if ( meshAttribs )
-                emplaceMeshAttributes( obj_, std::move( *meshAttribs ) );
+            ObjectMeshData newMeshData;
+            newMeshData.mesh = newMesh;
+            auto projRes = projectObjectMeshData( obj_->data(), newMeshData, &newFaces );
+            if ( projRes.has_value() )
+            {
+                // appendMeshChangeHistory_( std::move( newMesh ), newFaces ); -> Partial
+                AppendHistory<PartialChangeMeshDataAction>( "mesh data", obj_, std::move( newMeshData ) );
+            }
+            else
+            {
+                assert( false );
+            }
 
             reallocData_( obj_->mesh()->topology.lastValidVert() + 1 );
             sameValidVerticesAsInOriginMesh_ = originalMesh_->topology.getValidVerts() == obj_->mesh()->topology.getValidVerts();
@@ -681,7 +688,7 @@ void SurfaceManipulationWidget::updateRegion_( const Vector2f& mousePos )
         {
             if ( lastStableObjMesh_ && visualObjectsS[i] == obj_ )
                 visualObjectsP.push_back( lastStableObjMesh_.get() );
-            else if ( visualObjectsS[i]->isVisible( viewportId ) )
+            else if ( visualObjectsS[i]->globalVisibility( viewportId ) )
                 visualObjectsP.push_back( visualObjectsS[i].get() );
         }
         movedPosPick = getViewerInstance().viewport().multiPickObjects( visualObjectsP, viewportPoints );

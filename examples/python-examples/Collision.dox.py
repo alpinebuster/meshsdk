@@ -1,4 +1,4 @@
-from meshlib import mrmeshpy as mm
+from meshsdk import mrmeshpy as mm
 
 meshA = mm.makeUVSphere() # make mesh A
 meshB = mm.makeUVSphere() # make mesh B

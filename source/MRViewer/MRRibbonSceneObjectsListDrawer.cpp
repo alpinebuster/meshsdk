@@ -29,6 +29,7 @@
 #include "MRColorTheme.h"
 #include "MRViewport.h"
 #include "MRImGuiImage.h"
+#include "ImGuiHelpers.h"
 #include "imgui_internal.h"
 
 #ifndef MRVIEWER_NO_VOXELS
@@ -217,7 +218,7 @@ bool RibbonSceneObjectsListDrawer::drawTreeOpenedState_( Object& object, bool le
 
     const ImGuiTreeNodeFlags flags =
         ImGuiTreeNodeFlags_AllowOverlap |
-        ( !leaf ? ImGuiTreeNodeFlags_DefaultOpen : ImGuiTreeNodeFlags_Bullet );
+        ( !leaf ? sDefaultGroupState : ImGuiTreeNodeFlags_Bullet );
 
 
     auto startScreenPos = ImGui::GetCursorScreenPos();
@@ -275,7 +276,7 @@ void RibbonSceneObjectsListDrawer::drawObjectLine_( Object& object, const std::s
     makeDragDropSource_( selected );
     makeDragDropTarget_( object, false, false, uniqueStr );
 
-    context->LastItemData.InFlags |= ImGuiItemFlags_AllowOverlap; // needed so hover check respect overlap
+    context->LastItemData.ItemFlags |= ImGuiItemFlags_AllowOverlap; // needed so hover check respect overlap
 
     bool frameHovered = ImGui::IsItemHovered();
     if ( frameHovered )

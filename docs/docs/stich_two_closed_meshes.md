@@ -10,7 +10,7 @@ How to delete or remove this overlapping (colliding) area (the red part)?
 
 ## Basic Methods
 
-1.Use `MeshLib/source/MRMesh/MROverlappingTris.h`
+1.Use `MeshSDK/source/MRMesh/MROverlappingTris.h`
 
 Lines 21 to 22 in d145d95
 
@@ -21,7 +21,7 @@ Lines 21 to 22 in d145d95
 
 to find overlapping faces and mesh.deleteFaces to remove them.
 
-2.Use `MeshLib/source/MRMesh/MRMeshCollide.h`
+2.Use `MeshSDK/source/MRMesh/MRMeshCollide.h`
 
 Lines 38 to 41 in d145d95
 
@@ -36,7 +36,7 @@ Set `touchIsIntersection  = true` to find overlapping faces and mesh.deleteFaces
 I suggest the best way is do detect this faces before merging two meshes, or avoid building them (it looks like these faces are side effect of some cutting algorithm).
 Also, it seems that uniteCloseVertices will not work it this case, so you will need to use
 
-`MeshLib/source/MRMesh/MRMeshFillHole.h`
+`MeshSDK/source/MRMesh/MRMeshFillHole.h`
 
 Line 108 in d145d95
 
