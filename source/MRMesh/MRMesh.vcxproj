@@ -156,6 +156,7 @@
     <ClInclude Include="MRNormalDenoising.h" />
     <ClInclude Include="MRNormalsToPoints.h" />
     <ClInclude Include="MRObjectMeshData.h" />
+    <ClInclude Include="MRObjectSaveSettings.h" />
     <ClInclude Include="MROffsetContours.h" />
     <ClInclude Include="MROneMeshContours.h" />
     <ClInclude Include="MROutlierPoints.h" />
@@ -249,6 +250,7 @@
     <ClInclude Include="MRSymMatrix4.h" />
     <ClInclude Include="MRSystemPath.h" />
     <ClInclude Include="MRTbbTaskArenaAndGroup.h" />
+    <ClInclude Include="MRTelemetry.h" />
     <ClInclude Include="MRTiffIO.h" />
     <ClInclude Include="MRRectIndexer.h" />
     <ClInclude Include="MRRestoringStreamsSink.h" />
@@ -349,6 +351,7 @@
     <ClInclude Include="MRUnionFindParallel.h" />
     <ClInclude Include="MRUniquePtr.h" />
     <ClInclude Include="MRUniteManyMeshes.h" />
+    <ClInclude Include="MRUnitInfo.h" />
     <ClInclude Include="MRUnorientedTriangle.h" />
     <ClInclude Include="MRUnsigned.h" />
     <ClInclude Include="MRUVSphere.h" />
@@ -437,6 +440,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MRAlignContoursToMesh.cpp" />
+    <ClCompile Include="MRChangeMeshDataAction.cpp" />
     <ClCompile Include="MRDirMax.cpp" />
     <ClCompile Include="MRDirMaxBruteForce.cpp" />
     <ClCompile Include="MREdgeLengthMesh.cpp" />
@@ -445,6 +449,7 @@
     <ClCompile Include="MRMeshMath.cpp" />
     <ClCompile Include="MRMeshOrPointsObject.cpp" />
     <ClCompile Include="MRMeshDoubleLayer.cpp" />
+    <ClCompile Include="MRMeshSave3mf.cpp" />
     <ClCompile Include="MRObjectMeshData.cpp" />
     <ClCompile Include="MROneMeshContours.cpp" />
     <ClCompile Include="MROutlierPoints.cpp" />
@@ -619,6 +624,7 @@
     <ClCompile Include="MRPrism.cpp" />
     <ClCompile Include="MRProcessSelfTreeSubtasks.cpp" />
     <ClCompile Include="MRProgressReadWrite.cpp" />
+    <ClCompile Include="MRProjectionMeshAttribute.cpp" />
     <ClCompile Include="MRRadiusCompensation.cpp" />
     <ClCompile Include="MRSaveSettings.cpp" />
     <ClCompile Include="MRSceneLoad.cpp" />
@@ -629,6 +635,7 @@
     <ClCompile Include="MRStacktrace.cpp" />
     <ClCompile Include="MRSurfaceLineOffset.cpp" />
     <ClCompile Include="MRSystemPath.cpp" />
+    <ClCompile Include="MRTelemetry.cpp" />
     <ClCompile Include="MRTiffIO.cpp" />
     <ClCompile Include="MRRectIndexer.cpp" />
     <ClCompile Include="MRSceneColors.cpp" />
@@ -664,6 +671,7 @@
     <ClCompile Include="MRStringConvert.cpp" />
     <ClCompile Include="MRSurfacePath.cpp" />
     <ClCompile Include="MRTriDist.cpp" />
+    <ClCompile Include="MRUnitInfo.cpp" />
     <ClCompile Include="MRVertCoordsDiff.cpp" />
     <ClCompile Include="MRViewportId.cpp" />
     <ClCompile Include="MRVolumeIndexer.cpp" />

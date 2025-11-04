@@ -11,7 +11,7 @@ Get the faces data of the collision area of the mesh.
 
 Try to use boundaries of the selection to fill its inner part using:
 
-`MeshLib/source/MRMesh/MRRegionBoundary.h`
+`MeshSDK/source/MRMesh/MRRegionBoundary.h`
 
 Lines 27 to 31 in 2129ff0
 
@@ -25,7 +25,7 @@ Lines 27 to 31 in 2129ff0
 
 and
 
-`MeshLib/source/MRMesh/MRFillContour.h`
+`MeshSDK/source/MRMesh/MRFillContour.h`
 
 Lines 8 to 10 in 2129ff0
 
@@ -39,7 +39,7 @@ To do so, you need to find longest loop (in your case). But in common case loops
 
 Other way is to use
 
-`MeshLib/source/MRMesh/MRMeshBoolean.h`
+`MeshSDK/source/MRMesh/MRMeshBoolean.h`
 
 Lines 103 to 121 in 2129ff0
 
@@ -102,7 +102,7 @@ for point in pointVectors:
 
 ### Mode Depth
 
-In `MeshLib/source/MRMesh/MRMeshMeshDistance.h`
+In `MeshSDK/source/MRMesh/MRMeshMeshDistance.h`
 
 Lines 41 to 47 in a4345b1
 

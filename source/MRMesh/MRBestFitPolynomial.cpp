@@ -1,7 +1,8 @@
 #include "MRBestFitPolynomial.h"
 #include "MRGTest.h"
 
-#include <Eigen/Dense>
+#include <MRPch/MREigenCore.h>
+#include <Eigen/LU>
 
 #include <cmath>
 #include <complex>
@@ -359,12 +360,14 @@ Polynomial<T, degree> BestFitPolynomial<T, degree>::getBestPolynomial() const
 }
 
 
+template class BestFitPolynomial<float, 1>;
 template class BestFitPolynomial<float, 2>;
 template class BestFitPolynomial<float, 3>;
 template class BestFitPolynomial<float, 4>;
 template class BestFitPolynomial<float, 5>;
 template class BestFitPolynomial<float, 6>;
 
+template class BestFitPolynomial<double, 1>;
 template class BestFitPolynomial<double, 2>;
 template class BestFitPolynomial<double, 3>;
 template class BestFitPolynomial<double, 4>;

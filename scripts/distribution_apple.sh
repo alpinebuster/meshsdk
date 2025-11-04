@@ -2,38 +2,48 @@
 
 set -euxo pipefail
 
-if [ -d "./Library" ];
-  then rm -rf "./Library";
+VERSION=${1:-v0.0.0.0}
+VERSION=${VERSION:1}  # v1.2.3.4 -> 1.2.3.4
+
+if [ -d ./macos_distr ] ; then
+  rm -rf ./macos_distr
 fi
+mkdir ./macos_distr
 
-cd ./build/Release
-cmake --install . --prefix=../..
-cd -
-MR_VERSION=$(ls ./Library/Frameworks/MeshSDK.framework/Versions/)
-echo "version: ${MR_VERSION}"
-MR_PREFIX="./Library/Frameworks/MeshSDK.framework/Versions/${MR_VERSION}"
-echo "prefix: ${MR_PREFIX}"
+FRAMEWORK_BASE_DIR="./macos_distr/Library/Frameworks/MeshSDK.framework"
+FRAMEWORK_DIR="${FRAMEWORK_BASE_DIR}/Versions/${VERSION}"
 
-cp -rL ./lib "${MR_PREFIX}/lib/"
-cp -rL ./include "${MR_PREFIX}/include/"
+cmake --install build/Release --prefix="${FRAMEWORK_DIR}"
+echo "version: ${VERSION}"
+echo "prefix: ${FRAMEWORK_DIR}"
+
+cp -rL ./lib "${FRAMEWORK_DIR}/lib/"
+cp -rL ./include "${FRAMEWORK_DIR}/include/"
 
 cp ./LICENSE ./macos/Resources
-mkdir "${MR_PREFIX}"/requirements/
-cp ./requirements/macos.txt "${MR_PREFIX}"/requirements/
+mkdir "${FRAMEWORK_DIR}/requirements/"
+cp ./requirements/macos.txt "${FRAMEWORK_DIR}/requirements/"
 
-ln -s "/Library/Frameworks/MeshSDK.framework/Versions/${MR_VERSION}" "./Library/Frameworks/MeshSDK.framework/Versions/Current"
-ln -s "/Library/Frameworks/MeshSDK.framework/Resources" "./Library/Frameworks/MeshSDK.framework/Versions/${MR_VERSION}/Resources"
+# FIXME: this breaks CMake config
+#pushd "${FRAMEWORK_BASE_DIR}"
+#  ln -s "Versions/${VERSION}/Resources" Resources
+#popd
 
-# be carefull with pkg names! The pkg can fail to build
+pushd "${FRAMEWORK_BASE_DIR}/Versions"
+  ln -s "${VERSION}" Current
+popd
+
+# be careful with pkg names! The pkg can fail to build
 pkgbuild \
-            --root Library \
-            --identifier com.MeshInspector.MeshSDK \
-            --install-location  /Library \
-            MeshSDK.pkg
-
+  --root macos_distr/Library \
+  --identifier com.MeshInspector.MeshSDK \
+  --install-location /Library \
+  MeshSDK.pkg
 
 productbuild \
-          --distribution ./macos/Distribution.xml \
-          --package-path ./MeshSDK.pkg \
-          --resources ./macos/Resources \
-          MeshSDK_.pkg
+  --distribution ./macos/Distribution.xml \
+  --package-path ./MeshSDK.pkg \
+  --resources ./macos/Resources \
+  MeshSDK_.pkg
+
+rm -r ./macos_distr

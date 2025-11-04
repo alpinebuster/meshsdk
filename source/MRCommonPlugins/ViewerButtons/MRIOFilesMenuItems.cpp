@@ -1,10 +1,13 @@
 #include "MRIOFilesMenuItems.h"
 #include "MRMesh/MRChrono.h"
+#include "MRViewer/MRColorTheme.h"
 #include "MRViewer/MRFileDialog.h"
 #include "MRViewer/MRMouseController.h"
 #include "MRViewer/MRRecentFilesStore.h"
 #include "MRViewer/MRViewport.h"
 #include "MRViewer/MROpenObjects.h"
+#include "MRViewer/MRFileLoadOptions.h"
+#include "MRViewer/MRUnitSettings.h"
 #include "MRMesh/MRDirectory.h"
 #include "MRMesh/MRLinesLoad.h"
 #include "MRMesh/MRPointsLoad.h"
@@ -28,6 +31,7 @@
 #include "MRMesh/MRSceneRoot.h"
 #include "MRViewer/MRRibbonMenu.h"
 #include "MRViewer/MRViewer.h"
+#include "MRViewer/MRViewerSignals.h"
 #include "MRMesh/MRImageSave.h"
 #include "MRMesh/MRObjectsAccess.h"
 #include "MRViewer/MRCommandLoop.h"
@@ -499,7 +503,7 @@ void OpenDirectoryMenuItem::openDirectory( const std::filesystem::path& director
                     SceneRoot::get().addChild( obj );
                     getViewerInstance().viewport().preciseFitDataToScreenBorder( { 0.9f } );
                     getViewerInstance().recentFilesStore().storeFile( directory );
-                    getViewerInstance().objectsLoadedSignal( { obj }, {}, warnings );
+                    getViewerInstance().signals().objectsLoadedSignal( { obj }, {}, warnings );
                     if ( !warnings.empty() )
                         pushNotification( { .text = warnings, .type = NotificationType::Warning } );
                 };
@@ -739,7 +743,11 @@ bool SaveSelectedMenuItem::action()
 
         ProgressBar::orderWithMainThreadPostProcessing( "Saving selected", [savePath, rootShallowClone]()->std::function<void()>
         {
-            auto res = ObjectSave::toAnySupportedSceneFormat( *rootShallowClone, savePath, ProgressBar::callBackSetProgress );
+            auto res = ObjectSave::toAnySupportedSceneFormat( *rootShallowClone, savePath,
+                {
+                    .lengthUnit = UnitSettings::getActualModelLengthUnit(),
+                    .progress = ProgressBar::callBackSetProgress
+                } );
 
             return[savePath, res]()
             {
@@ -784,7 +792,11 @@ void SaveSceneAsMenuItem::saveScene_( const std::filesystem::path& savePath )
         if ( savePath.extension().empty() )
             return [] { showError( "File name is not set" ); };
 
-        auto res = ObjectSave::toAnySupportedSceneFormat( root, savePath, ProgressBar::callBackSetProgress );
+        auto res = ObjectSave::toAnySupportedSceneFormat( root, savePath,
+            {
+                .lengthUnit = UnitSettings::getActualModelLengthUnit(),
+                .progress = ProgressBar::callBackSetProgress
+            } );
 
         return[savePath, res]()
         {

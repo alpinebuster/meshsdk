@@ -20,12 +20,12 @@
 #include "MRClipboard.h"
 #include "MRSceneOperations.h"
 #include "MRToolbar.h"
+#include "MRStatePlugin.h"
 #include "MRMesh/MRObjectsAccess.h"
 #include <MRMesh/MRString.h>
 #include <MRMesh/MRSystem.h>
 #include <MRMesh/MRStringConvert.h>
 #include <MRMesh/MRSerializer.h>
-#include <MRMesh/MRObjectsAccess.h>
 #include <MRMesh/MRChangeXfAction.h>
 #include <MRSymbolMesh/MRObjectLabel.h>
 #include <MRMesh/MRChangeSceneObjectsOrder.h>
@@ -861,7 +861,7 @@ void RibbonMenu::drawActiveList_()
             auto childName = "##CloseItemBlock" + item->name();
 
             ImGui::PushStyleColor( ImGuiCol_ChildBg, ColorTheme::getRibbonColor( ColorTheme::RibbonColorsType::Background ).getUInt32() );
-            ImGui::BeginChild( childName.c_str(), blockSize, true,
+            ImGui::BeginChild( childName.c_str(), blockSize, ImGuiChildFlags_Borders,
                 ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse );
             ImGui::PopStyleColor();
             if ( sbFont )

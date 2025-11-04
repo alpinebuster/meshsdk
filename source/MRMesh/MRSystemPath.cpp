@@ -25,15 +25,6 @@ namespace MR
 namespace
 {
 
-#if !defined( _WIN32 ) && !defined( __EMSCRIPTEN__ )
-// If true, the resources should be loaded from the executable directory, rather than from the system directories.
-[[nodiscard]] bool resourcesAreNearExe()
-{
-    auto opt = std::getenv( "MR_LOCAL_RESOURCES" );
-    return opt && std::string_view( opt ) == "1";
-}
-#endif
-
 std::filesystem::path defaultDirectory( SystemPath::Directory dir )
 {
 #if defined( __EMSCRIPTEN__ )
@@ -43,15 +34,17 @@ std::filesystem::path defaultDirectory( SystemPath::Directory dir )
     (void)dir;
     return SystemPath::getExecutableDirectory().value_or( "\\" );
 #elif defined( __APPLE__ )
-    // TODO: use getLibraryDirectory()
-    if ( resourcesAreNearExe() )
-    {
-        // Back out from `<AppName>.app/Contents/MacOS`. This is only needed for apps that are MacOS bundles, but we do it unconditionally for simplicity.
-        // It's easier to require all apps to be bundles (which is needed to package them anyway) than to make this conditional.
-        return SystemPath::getExecutableDirectory().value_or( "/" ).parent_path().parent_path().parent_path();
-    }
+    auto libDir = SystemPath::getLibraryDirectory().value_or( "/" );
+    // detecting a developer build (all files are located in the same directory)
+    const auto execDir = SystemPath::getExecutableDirectory().value_or( "/" );
+    if ( libDir == execDir )
+        return libDir;
+    // detecting developer build's bundle (<AppName>.app/Contents/MacOS/<AppName>)
+    if ( execDir.filename() == "MacOS"
+        && execDir.parent_path().filename() == "Contents"
+        && execDir.parent_path().parent_path().parent_path() == libDir )
+        return libDir;
 
-    const auto libDir = SystemPath::getLibraryDirectory().value_or( "/" );
     using Directory = SystemPath::Directory;
     switch ( dir )
     {
@@ -68,11 +61,12 @@ std::filesystem::path defaultDirectory( SystemPath::Directory dir )
     }
     MR_UNREACHABLE
 #else
-    // TODO: use getLibraryDirectory()
-    if ( resourcesAreNearExe() )
-        return SystemPath::getExecutableDirectory().value_or( "/" );
-
     auto libDir = SystemPath::getLibraryDirectory().value_or( "/" );
+    // detecting a developer build (all files are located in the same directory)
+    const auto execDir = SystemPath::getExecutableDirectory().value_or( "/" );
+    if ( libDir == execDir )
+        return libDir;
+
     static const auto findResourceDir = [] ( std::filesystem::path libDir ) -> std::filesystem::path
     {
         std::error_code ec;
@@ -188,9 +182,27 @@ const Expected<std::filesystem::path>& SystemPath::getExecutablePath()
     return res;
 }
 
-Expected<std::filesystem::path> SystemPath::getLibraryPath()
+const Expected<std::filesystem::path>& SystemPath::getLibraryPath()
 {
-    return getLibraryPathForSymbol( (void*)MR::SystemPath::getLibraryPath );
+    static const Expected<std::filesystem::path> res = []
+    {
+        auto maybeRes = getLibraryPathForSymbol( (void*)MR::SystemPath::getLibraryPath );
+        if ( maybeRes )
+        {
+            spdlog::info( "Library path: {}", utf8string( *maybeRes ) );
+            std::error_code ec;
+            auto canonicalPath = canonical( *maybeRes, ec );
+            if ( ec )
+                spdlog::error( "Cannot make canonical library path: {}", ec.message() );
+            else if ( *maybeRes != canonicalPath )
+            {
+                *maybeRes = canonicalPath;
+                spdlog::info( "Library path in canonical form: {}", utf8string( *maybeRes ) );
+            }
+        }
+        return maybeRes;
+    }();
+    return res;
 }
 
 Expected<std::filesystem::path> SystemPath::getLibraryPathForSymbol( const void* symbol )

@@ -12,7 +12,7 @@ jobs:
     runs-on: aws-micro
     env:
       vs19_vcpkg_version: "2024.10.21"
-      vs22_vcpkg_version: "2025.04.09"
+      vs22_vcpkg_version: "2025.10.17"
     outputs:
       app_version: ${{ steps.set.outputs.app_version }}
       release_tag: ${{ steps.set.outputs.release_tag }}
@@ -28,7 +28,7 @@ jobs:
         id: set
         run: |
           TAG="${{ github.event.inputs.release_tag || github.ref_name }}"
-          APP_VERSION="${TAG#v}" # strip leading v
+          APP_VERSION="${TAG}"
           echo "app_version=$APP_VERSION" >> $GITHUB_OUTPUT
           echo "release_tag=$TAG" >> $GITHUB_OUTPUT
 
@@ -80,7 +80,7 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Download All Developer Distributives
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           pattern: Distributives*
           merge-multiple: true

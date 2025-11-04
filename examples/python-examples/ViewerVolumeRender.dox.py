@@ -1,6 +1,6 @@
 import sys
-from meshlib import mrmeshpy as mm
-from meshlib import mrviewerpy as mv
+from meshsdk import mrmeshpy as mm
+from meshsdk import mrviewerpy as mv
 import os
 
 # load volume file

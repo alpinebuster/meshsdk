@@ -16,7 +16,7 @@ then you can use `getIncidentVerts` or `getInnerVerts` function to find vertices
 ![fill_inflate_hole_desired](./img/fill_inflate_hole_desired.png)
 
 ```py
-from meshlib import mrmeshpy as mm
+from meshsdk import mrmeshpy as mm
 
 mesh = mm.loadMesh("input mesh.stl")
 

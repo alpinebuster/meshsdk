@@ -16,8 +16,7 @@ import meshsdk.mrmeshpy as mrmesh
 import meshsdk.mrmeshnumpy as mrmeshnumpy
 
 # Check if we're using the bindings of meshsdk v3.*
-is_bindings_v3 = True
 try:
     mrmesh.UniformSamplingSettings
 except AttributeError:
-    is_bindings_v3 = False
+    raise AttributeError("UniformSamplingSettings not available - bindings v3 required")

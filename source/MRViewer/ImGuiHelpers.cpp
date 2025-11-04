@@ -23,6 +23,7 @@
 #include "MRMesh/MRConfig.h"
 #include "MRMesh/MRObjectMesh.h"
 #include "MRPch/MRSpdlog.h"
+#include <imgui_internal.h>
 
 namespace ImGui
 {
@@ -238,7 +239,7 @@ void PlotCustomHistogram( const char* str_id,
         const ImU32 col_hovered_top = GetColorU32(ImGuiCol_TabHovered);
         ImVec4 col{ 1.0f, 0.2f, 0.2f, 1.0f };
         const ImU32 col_selected = GetColorU32(col);
-        const ImU32 col_selected_top = GetColorU32(ImGuiCol_TabActive);
+        const ImU32 col_selected_top = GetColorU32( ImGuiCol_TabSelected );
         const ImU32 col_grid = GetColorU32(ImGuiCol_PlotLines, 0.5f);
         const ImU32 col_labels = GetColorU32(ImGuiCol_Text);
 
@@ -591,6 +592,11 @@ std::pair<ImVec2, bool> LoadSavedWindowPos( const char* label, ImGuiWindow* wind
     return { initialWindowPos, haveSavedWindowPos };
 }
 
+std::pair<ImVec2, bool> LoadSavedWindowPos( const char* label, float width, const ImVec2* position )
+{
+    return LoadSavedWindowPos( label, FindWindowByName( label ), width, position );
+}
+
 void SaveWindowPosition( const char* label, ImGuiWindow* window )
 {
     if ( window )
@@ -600,6 +606,11 @@ void SaveWindowPosition( const char* label, ImGuiWindow* window )
         serializeToJson( Vector2i{ int( window->Pos.x ), int( window->Pos.y ) }, dpJson[label] );
         config.setJsonValue( "DialogPositions", dpJson );
     }
+}
+
+void SaveWindowPosition( const char* label )
+{
+    SaveWindowPosition( label, FindWindowByName( label ) );
 }
 
 bool BeginSavedWindowPos( const std::string& name, bool* open, const SavedWindowPosParams& params )
@@ -1083,14 +1094,14 @@ bool DragInputInt( const char* label, int* value, float speed /*= 1*/, int min /
     DragInt( labelStr.c_str(), value, speed, min, max, format, flags );
     drawTooltip( min, max );
     ImGui::SameLine( 0, style.ItemInnerSpacing.x );
-    ImGui::PushButtonRepeat( true );
+    ImGui::PushItemFlag( ImGuiItemFlags_ButtonRepeat, true );
 
     if ( MR::UI::button( "-", MR::Vector2f( sizeSide, sizeSide ) ) )
         --valueRef;
     ImGui::SameLine( 0, style.ItemInnerSpacing.x );
     if ( MR::UI::button( "+", MR::Vector2f( sizeSide, sizeSide ) ) )
         ++valueRef;
-    ImGui::PopButtonRepeat();
+    ImGui::PopItemFlag();
     valueRef = std::clamp( valueRef, min, max );
 
     PopID();
@@ -1155,8 +1166,6 @@ PaletteChanges Palette(
     using namespace MR;
     PaletteChanges changes = PaletteChanges::None;
     float scaledWidth = width * UI::scale();
-
-    const auto& style = ImGui::GetStyle();
 
     ImGui::PushStyleVar( ImGuiStyleVar_ItemInnerSpacing, { cDefaultInnerSpacing * UI::scale(), cDefaultInnerSpacing * UI::scale() } );
     const auto& presets = PalettePresets::getPresetNames();
@@ -1354,7 +1363,24 @@ PaletteChanges Palette(
     ImGui::PopStyleVar();
     ImGui::PushStyleVar( ImGuiStyleVar_ItemSpacing, { ImGui::GetStyle().ItemSpacing.x, cSeparateBlocksSpacing * UI::scale() } );
 
-    std::string popupName = std::string( "Save Palette##Config" ) + std::string( label );
+
+    UI::CustomConfigModalSettings saveModalSettings;
+    saveModalSettings.configName = "Palette";
+    saveModalSettings.configDirectory = PalettePresets::getPalettePresetsFolder();
+    saveModalSettings.imGuiIdKey = std::string( label );
+    saveModalSettings.warnExisting = true;
+    saveModalSettings.onSave = [&] ( const std::string& name )-> bool
+    {
+        auto res = PalettePresets::savePreset( name, palette );
+        if ( !res.has_value() )
+        {
+            showError( res.error() );
+            return false;
+        }
+        presetName = name;
+        return true;
+    };
+
 
     auto textSize = ImGui::CalcTextSize( "Reset Palette" );
     float widthButton = ( ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x ) / 2.0f;
@@ -1365,6 +1391,7 @@ PaletteChanges Palette(
         buttonOnOneLine = false;
     }
 
+    auto popupName = saveModalSettings.popupName();
     if ( UI::button( "Save Palette as", Vector2f( widthButton, 0 ) ) )
         ImGui::OpenPopup( popupName.c_str() );
     UI::setTooltipIfHovered( "Save the current palette settings to file. You can load it later as a preset." );
@@ -1372,93 +1399,7 @@ PaletteChanges Palette(
         ImGui::SameLine();
     ImGui::PopStyleVar();
 
-    ModalDialog saveDialog( popupName.c_str(), {
-        .headline = "Save Palette",
-    } );
-    if ( saveDialog.beginPopup() )
-    {
-        ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, { style.FramePadding.x, cInputPadding * UI::scale() } );
-        static std::string currentPaletteName;
-
-        ImGui::SetNextItemWidth( saveDialog.windowWidth() - 2 * style.WindowPadding.x - style.ItemInnerSpacing.x - CalcTextSize( "Palette Name" ).x );
-        UI::inputText( "Palette Name", currentPaletteName );
-        ImGui::PopStyleVar();
-
-        const float btnWidth = cModalButtonWidth * UI::scale();
-
-        ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, { style.FramePadding.x, cButtonPadding * UI::scale() } );
-        bool valid = !currentPaletteName.empty() && !hasProhibitedChars( currentPaletteName );
-        if ( UI::button( "Save", valid, Vector2f( btnWidth, 0 ) ) )
-        {
-            std::error_code ec;
-            if ( std::filesystem::is_regular_file( PalettePresets::getPalettePresetsFolder() / ( currentPaletteName + ".json" ), ec ) )
-            {
-                OpenPopup( "Palette already exists##PaletteHelper" );
-            }
-            else
-            {
-                auto res = PalettePresets::savePreset( currentPaletteName, palette );
-                if ( res.has_value() )
-                {
-                    presetName = currentPaletteName;
-                    ImGui::CloseCurrentPopup();
-                }
-                else
-                {
-                    showError( res.error() );
-                }
-            }
-        }
-        ImGui::PopStyleVar();
-        if ( !valid )
-        {
-            UI::setTooltipIfHovered( currentPaletteName.empty() ?
-                "Cannot save palette with empty name" :
-                "Please do not use any of these symbols: \? * / \\ \" < >" );
-        }
-
-        bool closeTopPopup = false;
-        ModalDialog warningPopup( "Palette already exists##PaletteHelper", {
-            .text = "Palette preset with this name already exists, override?",
-        } );
-        if ( warningPopup.beginPopup() )
-        {
-            auto w = GetContentRegionAvail().x;
-            auto p = GetStyle().FramePadding.x;
-            if ( UI::buttonCommonSize( "Yes", Vector2f( ( w - p ) * 0.5f, 0 ), ImGuiKey_Enter ) )
-            {
-                auto res = PalettePresets::savePreset( currentPaletteName, palette );
-                if ( res.has_value() )
-                {
-                    presetName = currentPaletteName;
-                    closeTopPopup = true;
-                    ImGui::CloseCurrentPopup();
-                }
-                else
-                {
-                    showError( res.error() );
-                }
-            }
-            ImGui::SameLine( 0, p );
-            if ( UI::buttonCommonSize( "No", Vector2f( ( w - p ) * 0.5f, 0 ),ImGuiKey_Escape ) )
-            {
-                ImGui::CloseCurrentPopup();
-            }
-            warningPopup.endPopup();
-        }
-        if ( closeTopPopup )
-            ImGui::CloseCurrentPopup();
-
-        ImGui::SameLine();
-
-        ImGui::SetCursorPosX( saveDialog.windowWidth() - btnWidth - style.WindowPadding.x );
-        ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, { style.FramePadding.x, cButtonPadding * UI::scale() } );
-        if ( UI::buttonCommonSize( "Cancel", Vector2f( btnWidth, 0 ), ImGuiKey_Escape ) )
-            ImGui::CloseCurrentPopup();
-        ImGui::PopStyleVar();
-
-        saveDialog.endPopup();
-    }
+    UI::saveCustomConfigModal( saveModalSettings );
 
     if ( UI::button( "Reset Palette", Vector2f( widthButton, 0 ) ) )
     {
@@ -1543,7 +1484,7 @@ void Plane( MR::PlaneWidget& planeWidget, PlaneWidgetFlags flags )
 
     ImGui::SetNextItemWidth( 200.0f * UI::scale() );
     UI::drag<NoUnit>( "Normal", plane.n, 0.001f );
-    ImGui::PushButtonRepeat( true );
+    ImGui::PushItemFlag( ImGuiItemFlags_ButtonRepeat, true );
 
     const float arrowButtonSize = 2.0f * MR::cGradientButtonFramePadding * UI::scale() + ImGui::GetTextLineHeight();
     ImFont* iconsFont = MR::RibbonFontManager::getFontByTypeStatic( MR::RibbonFontManager::FontType::Icons );
@@ -1571,7 +1512,7 @@ void Plane( MR::PlaneWidget& planeWidget, PlaneWidgetFlags flags )
     }
 
     ImGui::SameLine();
-    ImGui::PopButtonRepeat();
+    ImGui::PopItemFlag();
 
     ImGui::SetNextItemWidth( 80.0f * UI::scale() );
     UI::drag<LengthUnit>( "Shift", shift, dragspeed );
@@ -1632,7 +1573,7 @@ void Image( const MR::ImGuiImage& image, const ImVec2& size, const MR::Color& mu
 
 void Image( const MR::ImGuiImage& image, const ImVec2& size, const ImVec4& multColor )
 {
-    Image( image.getImTextureId(), size, ImVec2( 0, 1 ), ImVec2( 1, 0 ), multColor );
+    ImageWithBg( image.getImTextureId(), size, ImVec2( 0, 1 ), ImVec2( 1, 0 ), ImVec4(0, 0, 0, 0), multColor );
 }
 
 MR::Vector2i GetImagePointerCoord( const MR::ImGuiImage& image, const ImVec2& size, const ImVec2& imagePos )
@@ -1707,5 +1648,15 @@ bool ModalExitButton()
     ImGui::PopStyleVar();
     return false;
 }
+
+#ifdef IMGUI_DISABLE_OBSOLETE_FUNCTIONS
+
+ImVec2 GetWindowContentRegionMax()
+{
+    ImGuiWindow* window = GImGui->CurrentWindow;
+    return window->ContentRegionRect.Max - window->Pos;
+}
+
+#endif
 
 } // namespace ImGui

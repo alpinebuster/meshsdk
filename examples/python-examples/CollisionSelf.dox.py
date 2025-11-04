@@ -1,4 +1,4 @@
-from meshlib import mrmeshpy as mm
+from meshsdk import mrmeshpy as mm
 
 mesh = mm.makeTorusWithSelfIntersections() # make torus with self-intersections
 

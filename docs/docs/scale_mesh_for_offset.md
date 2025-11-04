@@ -3,7 +3,7 @@
 Use `xfAround` function tor this purpose:
 
 ```py
-from meshlib import mrmeshpy as mm
+from meshsdk import mrmeshpy as mm
 mesh = mm.loadMesh( "path/to/mesh.stl" )
 
 scaleFactor = 2
