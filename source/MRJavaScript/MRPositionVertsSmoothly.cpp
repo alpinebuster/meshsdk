@@ -54,12 +54,12 @@ val inflateToothRootImpl( Mesh& mesh, const InflateSettings& inflateSettings )
         if ( e == maxAreaHole )
         {
             // Find the newly generated internal vertices
-            auto newVerts = getInnerVerts( mesh.topology, newFaces );
+            auto newVerts = getIncidentVerts( mesh.topology, newFaces );
             inflate( mesh, newVerts, inflateSettings );
 
 
             Mesh newFacesMesh;
-            auto newInflatedFaces = getInnerFaces( mesh.topology, newVerts );
+            auto newInflatedFaces = getIncidentFaces( mesh.topology, newVerts );
             newFacesMesh.addMeshPart( {mesh, &newInflatedFaces} );
             val newFacesMeshData = MRJS::exportMeshMemoryView( newFacesMesh );
             returnObj.set( "rootMesh", newFacesMesh );
