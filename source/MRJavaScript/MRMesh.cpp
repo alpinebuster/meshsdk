@@ -166,7 +166,7 @@ EMSCRIPTEN_BINDINGS( MeshModule )
 					///
 					int numTris = indicesLength / 3;
 					MeshBuilder::VertexIdentifier vi = MRJS::createVertexIdentifier( verticesPtr, indicesPtr, numTris );
-    				auto t = vi.takeTriangulation();
+					auto t = vi.takeTriangulation();
 					///
 
 
@@ -239,7 +239,7 @@ EMSCRIPTEN_BINDINGS( MeshModule )
 					///
 					int numTris = indicesLength / 3;
 					MeshBuilder::VertexIdentifier vi = MRJS::createVertexIdentifier( verticesPtr, indicesPtr, numTris );
-    				auto t = vi.takeTriangulation();
+					auto t = vi.takeTriangulation();
 					///
 
 

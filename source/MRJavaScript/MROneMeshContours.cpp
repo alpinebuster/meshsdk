@@ -17,32 +17,10 @@
 using namespace emscripten;
 using namespace MR;
 
-std::unique_ptr<SortIntersectionsData> createSortIntersectionsDataImpl(
-    const Mesh& otherMesh,
-    const ContinuousContours& contours,
-    CoordinateConverters& converters,
-    const AffineXf3f* xf,
-    size_t vertsNum,
-    bool isOtherA )
-{
-    return std::make_unique<SortIntersectionsData>(
-        SortIntersectionsData{
-            otherMesh,
-            contours,
-            converters.toInt,
-            xf,
-            vertsNum,
-            isOtherA
-        }
-    );
-}
-
-
 EMSCRIPTEN_BINDINGS( OneMeshContoursModule )
 {
     class_<SortIntersectionsData>( "SortIntersectionsData" )
         // NOTE: NO constructor!
-        // Use `createSortIntersectionsDataImpl()` to create it
 
         .property( "rigidB2A", &SortIntersectionsData::rigidB2A, return_value_policy::reference() )
         .property( "meshAVertsNum", &SortIntersectionsData::meshAVertsNum )
@@ -125,8 +103,4 @@ EMSCRIPTEN_BINDINGS( OneMeshContoursModule )
     function( "convertMeshTriPointsToClosedContour", &convertMeshTriPointsToClosedContour, allow_raw_pointers() );
     function( "convertSurfacePathWithEndsToMeshContour", &convertSurfacePathWithEndsToMeshContour );
     function( "convertSurfacePathsToMeshContours", &convertSurfacePathsToMeshContours );
-
-    /// Impl
-    function( "createSortIntersectionsDataImpl", &createSortIntersectionsDataImpl, allow_raw_pointers() );
-    ///
 }
