@@ -47,6 +47,7 @@
 #include "MRViewer/MRUIStyle.h"
 #include "MRViewer/MRLambdaRibbonItem.h"
 #include "MRIOExtras/MRPng.h"
+#include "MRViewer/MRRibbonFontHolder.h"
 
 #ifndef MESHSDK_NO_VOXELS
 #include "MRVoxels/MRObjectVoxels.h"
@@ -341,9 +342,7 @@ void OpenFilesMenuItem::preDraw_()
         ( addAreaHovered ? secondColor : mainColor ).scaledAlpha( 0.8f ).getUInt32(), 10.0f * UI::scale() );
     drawList->AddRect( min, max, ColorTheme::getRibbonColor( ColorTheme::RibbonColorsType::Borders ).getUInt32(), 10.0f * UI::scale(), 0, 2.0f * UI::scale() );
 
-    auto bigFont = RibbonFontManager::getFontByTypeStatic( RibbonFontManager::FontType::Headline );
-    if ( bigFont )
-        ImGui::PushFont( bigFont );
+    RibbonFontHolder bigFont( RibbonFontManager::FontType::Headline );
 
     auto textSize = ImGui::CalcTextSize( "Load as Scene" );
     auto textPos = ImVec2( 0.5f * ( max.x + min.x - textSize.x ), 0.5f * ( max.y + min.y - textSize.y ) );
@@ -362,8 +361,7 @@ void OpenFilesMenuItem::preDraw_()
         drawList->AddText( textPos, ImGui::GetColorU32( ImGuiCol_Text ), "Add Files" );
     }
 
-    if ( bigFont )
-        ImGui::PopFont();
+    bigFont.popFont();
 }
 
 void OpenFilesMenuItem::parseLaunchParams_()
@@ -549,14 +547,20 @@ template<typename T>
 std::optional<SaveInfo> getSaveInfo( const std::vector<std::shared_ptr<T>> & objs )
 {
     std::optional<SaveInfo> res;
-    if ( objs.empty() )
+    // return nullopt if there is no single VisualObject in objs
+    if ( std::none_of( objs.begin(), objs.end(), [&]( const auto & pObj )
+        { return dynamic_cast<const VisualObject*>( pObj.get() ); } ) )
         return res;
 
     auto checkObjects = [&]<class U>( SaveInfo info )
     {
         for ( const auto & obj : objs )
+        {
+            if ( !dynamic_cast<const VisualObject*>( obj.get() ) )
+                continue; // skip not VisualObjects
             if ( !dynamic_cast<const U*>( obj.get() ) )
                 return false;
+        }
         res.emplace( info );
         return true;
     };
@@ -594,7 +598,10 @@ std::string SaveObjectMenuItem::isAvailable( const std::vector<std::shared_ptr<c
 
 bool SaveObjectMenuItem::action()
 {
-    const auto objs = getAllObjectsInTree<VisualObject>( &SceneRoot::get(), ObjectSelectivityType::Selected );
+    auto objs = getAllObjectsInTree<VisualObject>( &SceneRoot::get(), ObjectSelectivityType::Selected );
+    // erase not VisualObjects from objs
+    std::erase_if( objs, [&]( const auto & pObj )
+        { return !dynamic_cast<const VisualObject*>( pObj.get() ); } );
     if ( objs.empty() )
         return false;
     const auto optInfo = getSaveInfo( objs );
@@ -633,6 +640,7 @@ bool SaveObjectMenuItem::action()
             | IOFilters( baseFilters.begin() + firstFilterNum + 1, baseFilters.end() );
     }
 
+    auto name = objs[0]->name(); // won't be able to get after moving objs into callback
     saveFileDialogAsync( [objs = std::move( objs ), objType, settingsManager] ( const std::filesystem::path& savePath0 ) mutable
     {
         if ( savePath0.empty() )
@@ -683,7 +691,7 @@ bool SaveObjectMenuItem::action()
             };
         } );
     }, {
-        .fileName = objs[0]->name(),
+        .fileName = std::move( name ),
         .filters = std::move( filters ),
     } );
     return false;

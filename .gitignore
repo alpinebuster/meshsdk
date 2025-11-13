@@ -45,3 +45,4 @@ examples/python-examples/*.ctm
 /source/MeshSDKC2/src
 /source/MeshSDKC2/temp
 compile_commands.json
+/source/CustomMRPlatform.props

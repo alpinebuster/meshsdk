@@ -5,6 +5,7 @@
 #include "MRId.h"
 #include "MRVector.h"
 #include "MRUnitInfo.h"
+#include "MRColor.h"
 #include <cassert>
 #include <optional>
 
@@ -28,6 +29,9 @@ struct SaveSettings
     /// optional per-vertex color to save with the geometry
     const VertColors * colors = nullptr;
 
+    /// per-face colors for meshes, per-undirected-edge colors for polylines, unused for point clouds and other
+    const std::vector<Color> * primitiveColors = nullptr;
+
     /// optional per-vertex uv coordinate to save with the geometry
     const VertUVCoords * uvMap = nullptr;
 
@@ -42,6 +46,9 @@ struct SaveSettings
 
     /// units of input coordinates and transformation, to be serialized if the format supports it
     std::optional<LengthUnit> lengthUnit;
+
+    /// the color of whole object
+    std::optional<Color> solidColor;
 
     /// to report save progress and cancel saving if user desires
     ProgressCallback progress;

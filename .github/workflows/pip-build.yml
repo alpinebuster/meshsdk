@@ -518,13 +518,13 @@ jobs:
           ${{ env.PYTHON_CMD }} -m pip install --upgrade -r ./requirements/python.txt
           ${{ env.PYTHON_CMD }} -m pip install pytest
 
-      - name: Download Meshlib wheel from Artifact
+      - name: Download MeshSDK wheel from Artifact
         uses: actions/download-artifact@v6
         with:
           name: ManyLinux-${{matrix.platform}}
           merge-multiple: true
 
-      - name: Meshlib wheel install
+      - name: MeshSDK wheel install
         run: ${{ env.PYTHON_CMD }} -m pip install ${{ matrix.pip-options }} ./meshsdk-*.whl
 
       - name: Run Python tests
@@ -545,7 +545,7 @@ jobs:
         with:
           ref: ${{needs.setup.outputs.version_tag}}
 
-      - name: Download Meshlib wheel from Artifact
+      - name: Download MeshSDK wheel from Artifact
         uses: actions/download-artifact@v6
         with:
           name: Windows
@@ -563,7 +563,7 @@ jobs:
           py -${{matrix.py-version}} -m pip install --upgrade -r ./requirements/python.txt
           py -${{matrix.py-version}} -m pip install pytest
 
-      - name: Install Meshlib wheel
+      - name: Install MeshSDK wheel
         shell: pwsh
         run: $wheel_file=Get-ChildItem -Filter meshsdk*win*.whl; py -${{matrix.py-version}} -m pip install $wheel_file
 
@@ -605,25 +605,9 @@ jobs:
         with:
           ref: ${{needs.setup.outputs.version_tag}}
 
-      # TODO: remove after GitHub runner update
-      - name: Prepare Python 3.14 installation
-        if: ${{ matrix.py-version == '3.14' }}
-        run: |
-          # check when it's time to remove this step
-          if [ $(brew list | grep python@3.14) ] ; then 
-            echo "The runner has been updated and already contains Python 3.14; remove this step from the workflow"
-            exit 1
-          fi
-          brew update
-          # more info: https://github.com/actions/runner-images/issues/9966
-          if [[ ${{ matrix.platform }} == 'x86' ]] ; then
-            brew unlink python@3.13 
-            brew link --overwrite python@3.13
-          fi
-
       - name: Python setup
         if: ${{ !(matrix.platform == 'x86' && matrix.py-version == '3.11') }}
-        run: brew install python@${{matrix.py-version}}
+        run: brew install --overwrite python@${{matrix.py-version}}
 
       - name: Create virtualenv
         run: |
@@ -642,13 +626,13 @@ jobs:
           ${{ matrix.py-cmd }} -m pip install --upgrade -r ./requirements/python.txt
           ${{ matrix.py-cmd }} -m pip install pytest
 
-      - name: Download Meshlib wheel from Artifact
+      - name: Download MeshSDK wheel from Artifact
         uses: actions/download-artifact@v6
         with:
           name: Macos-${{matrix.platform}}
           merge-multiple: true
 
-      - name: Meshlib wheel install
+      - name: MeshSDK wheel install
         run: ${{ matrix.py-cmd }} -m pip install ${{ matrix.pip-options }} ./meshsdk-*${{matrix.platform}}*.whl
 
       - name: Run Python tests
