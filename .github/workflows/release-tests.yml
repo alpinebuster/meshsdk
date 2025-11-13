@@ -69,7 +69,7 @@ jobs:
           ${{ matrix.py-cmd }} -m pip install --upgrade pip
           ${{ matrix.py-cmd }} -m pip install pytest
 
-      - name: Meshlib wheel install
+      - name: MeshSDK wheel install
         run:  ${{ matrix.py-cmd }} -m pip install meshsdk
 
       - name: Run Python tests
@@ -128,7 +128,7 @@ jobs:
           python${{matrix.py-version}} -m pip install --upgrade pip
           python${{matrix.py-version}} -m pip install pytest
 
-      - name: Meshlib wheel install
+      - name: MeshSDK wheel install
         run:  python${{matrix.py-version}} -m pip install meshsdk
 
       - name: Run Python tests

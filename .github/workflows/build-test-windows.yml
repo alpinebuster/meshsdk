@@ -58,8 +58,12 @@ jobs:
           # Download sub-submodules for certain submodules. We don't recurse above in Checkout to improve build performance. See: https://github.com/actions/checkout/issues/1779
           git submodule update --init --recursive --depth 1 thirdparty/mrbind
 
+      - name: Get AWS instance type
+        uses: ./.github/actions/get-aws-instance-type
+
       - name: Collect runner's system stats
         if: ${{ inputs.internal_build }}
+        id: collect-runner-stats
         continue-on-error: true
         uses: ./.github/actions/collect-runner-stats
         with:
@@ -68,6 +72,7 @@ jobs:
           cxx_compiler: ${{ matrix.os }} # os name will be transformed to MSVC name (e.g. windows-2022 -> msvc-2022)
           build_config: ${{ matrix.config }}
           build_system: ${{ matrix.build_system }}
+          aws_instance_type: ${{ env.AWS_INSTANCE_TYPE }}
 
       - name: Clean Vcpkg Directory
         if: ${{ matrix.os == 'windows-2022' }}
@@ -279,6 +284,47 @@ jobs:
           if exist source\x64\Debug\pybind11nonlimitedapi_meshsdk_3*.dll del /Q source\x64\Debug\pybind11nonlimitedapi_meshsdk_3*.dll
           if exist source\x64\Release\pybind11nonlimitedapi_meshsdk_3*.dll del /Q source\x64\Release\pybind11nonlimitedapi_meshsdk_3*.dll
 
+      - name: Find CMake
+        run: |
+          # https://github.com/microsoft/vswhere/wiki/Start-Developer-Command-Prompt#using-powershell
+          $installationPath = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath
+          & "${env:COMSPEC}" /s /c "`"$installationPath\Common7\Tools\vsdevcmd.bat`" -no_logo && set" | foreach-object {
+            $name, $value = $_ -split '=', 2
+            set-content env:\"$name" $value
+          }
+          $env:CMAKE_EXE = (Get-Command cmake.exe).Path
+          & $env:CMAKE_EXE --version
+          # https://github.com/actions/runner-images/issues/5251#issuecomment-1071030822
+          echo "CMAKE_EXE=$env:CMAKE_EXE" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Build C++ examples
+        if: ${{ matrix.config == 'Release' }}  # debug builds not supported due to missing file 'tbb12_debug.lib'
+        env:
+          VCPKG_ROOT: C:\vcpkg
+        run: |
+          & $env:CMAKE_EXE `
+            -S examples/cpp-examples `
+            -B cpp-examples-build `
+            -D MESHSDK_INCLUDE_DIRS="$pwd/source;$pwd/thirdparty/parallel-hashmap;$env:VCPKG_ROOT/installed/x64-windows-meshsdk/include" `
+            -D MESHSDK_LIB_DIRS="$pwd/source/x64/${{ matrix.config }};$env:VCPKG_ROOT/installed/x64-windows-meshsdk/lib"
+          & $env:CMAKE_EXE `
+            --build cpp-examples-build `
+            --config ${{ matrix.config }} `
+            --parallel $env:NUMBER_OF_PROCESSORS
+
+      - name: Build C examples
+        if: ${{ inputs.mrbind_c && matrix.build_system == 'CMake' }}
+        run: |
+          & $env:CMAKE_EXE `
+            -S examples/c-examples `
+            -B c-examples-build `
+            -D MESHSDK_INCLUDE_DIRS="$pwd/source/MeshSDKC2/include" `
+            -D MESHSDK_LIB_DIRS="$pwd/source/x64/${{ matrix.config }}"
+          & $env:CMAKE_EXE `
+            --build c-examples-build `
+            --config ${{ matrix.config }} `
+            --parallel $env:NUMBER_OF_PROCESSORS
+
         # https://github.com/actions/download-artifact#maintaining-file-permissions-and-case-sensitive-files
       - name: Archive files
         if: ${{ inputs.upload_artifacts && matrix.os == 'windows-2019' && matrix.build_system == 'CMake' }}
@@ -295,6 +341,14 @@ jobs:
           name: WindowsArchive_${{matrix.config}}
           path: MREDist_${{matrix.config}}.zip
           retention-days: 1
+
+      - name: Collect artifact stats
+        if: ${{ inputs.internal_build && inputs.upload_artifacts }}
+        continue-on-error: true
+        uses: ./.github/actions/collect-artifact-stats
+        with:
+          artifact_path: MREDist_${{matrix.config}}.zip
+          stats_file_suffix: -${{ steps.collect-runner-stats.outputs.job_id }}
 
       - name: Upload MeshSDKC2 headers archive
         if: ${{ inputs.upload_artifacts && matrix.os == 'windows-2019' && matrix.build_system == 'CMake' && matrix.config == 'Release' && inputs.mrbind_c }}

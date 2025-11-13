@@ -23,5 +23,5 @@ Lines 53 to 60 in d64341c
 
 with CPU or GPU projector:
 
-- [MRPointsToMeshProjector](https://github.com/alpinebuster/meshlib/blob/master/source/MRMesh/MRPointsToMeshProjector.h)
-- [MRCudaPointsToMeshProjector](https://github.com/alpinebuster/meshlib/blob/master/source/MRCuda/MRCudaPointsToMeshProjector.h)
+- [MRPointsToMeshProjector](https://github.com/alpinebuster/meshsdk/blob/master/source/MRMesh/MRPointsToMeshProjector.h)
+- [MRCudaPointsToMeshProjector](https://github.com/alpinebuster/meshsdk/blob/master/source/MRCuda/MRCudaPointsToMeshProjector.h)

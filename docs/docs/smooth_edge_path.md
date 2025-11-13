@@ -39,4 +39,4 @@ Lines 86 to 106 in f9b24b4
     VertId start, const VertBitSet& finish, float maxPathMetric = FLT_MAX );
 ```
 
-You can find some basic metrics [here](https://github.com/alpinebuster/meshlib/blob/main/source/MRMesh/MREdgeMetric.h).
+You can find some basic metrics [here](https://github.com/alpinebuster/meshsdk/blob/main/source/MRMesh/MREdgeMetric.h).

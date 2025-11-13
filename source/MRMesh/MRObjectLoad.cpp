@@ -354,6 +354,15 @@ Expected<LoadedObjects> loadObjectFromFile( const std::filesystem::path& filenam
         return unexpectedOperationCanceled();
 
     Expected<LoadedObjects> result = unexpectedUnsupportedFileExtension();
+    auto tryOtherLoaders = [&result]()
+    {
+        if ( result.has_value() )
+            return false; // already loaded
+        // true if previous load attempt failed in the very beginning on extension or format check
+        return result.error() == stringUnsupportedFileExtension()
+            || result.error().starts_with( stringUnsupportedFileFormat() );
+    };
+
     bool loadedFromSceneFile = false;
 
     auto ext = std::string( "*" ) + utf8string( filename.extension().u8string() );
@@ -376,7 +385,7 @@ Expected<LoadedObjects> loadObjectFromFile( const std::filesystem::path& filenam
         result = loader( filename, callback );
     }
     // no else to support same extensions in object and mesh loaders
-    if ( !result.has_value() && result.error() != stringOperationCanceled() )
+    if ( tryOtherLoaders() )
     {
         auto maybe = makeObjectFromMeshFile( filename, callback );
         if ( maybe )
@@ -388,7 +397,7 @@ Expected<LoadedObjects> loadObjectFromFile( const std::filesystem::path& filenam
             result = unexpected( std::move( maybe.error() ) );
     }
 
-    if ( !result.has_value() && result.error() != stringOperationCanceled() )
+    if ( tryOtherLoaders() )
     {
         auto objectLines = makeObjectLinesFromFile( filename, callback );
         if ( objectLines.has_value() )
@@ -401,7 +410,7 @@ Expected<LoadedObjects> loadObjectFromFile( const std::filesystem::path& filenam
             result = unexpected( std::move( objectLines.error() ) );
     }
 
-    if ( !result.has_value() && result.error() != stringOperationCanceled() )
+    if ( tryOtherLoaders() )
     {
         auto objectPoints = makeObjectPointsFromFile( filename, callback );
         if ( objectPoints.has_value() )
@@ -414,7 +423,7 @@ Expected<LoadedObjects> loadObjectFromFile( const std::filesystem::path& filenam
             result = unexpected( std::move( objectPoints.error() ) );
     }
 
-    if ( !result.has_value() && result.error() != stringOperationCanceled() )
+    if ( tryOtherLoaders() )
     {
         auto objectDistanceMap = makeObjectDistanceMapFromFile( filename, callback );
         if ( objectDistanceMap.has_value() )
@@ -427,7 +436,7 @@ Expected<LoadedObjects> loadObjectFromFile( const std::filesystem::path& filenam
             result = unexpected( std::move( objectDistanceMap.error() ) );
     }
 
-    if ( !result.has_value() && result.error() != stringOperationCanceled() )
+    if ( tryOtherLoaders() )
     {
         auto objectGcode = makeObjectGcodeFromFile( filename, callback );
         if ( objectGcode.has_value() )
@@ -552,9 +561,24 @@ Expected<LoadedObject> deserializeObjectTreeFromFolder( const std::filesystem::p
         return unexpected( readRes.error() );
     }
     auto root = readRes.value();
+    if ( auto formatVersion = root["FormatVersion"]; formatVersion.isNumeric() && formatVersion.asDouble() >= 2 )
+    {
+        return unexpected( "Unsupported version of scene file. Please update your application." );
+    }
+
+    LoadedObject res;
+    if ( auto lengthUnits = root["LengthUnits"]; lengthUnits.isString() )
+    {
+        auto lengthUnitsStr = lengthUnits.asString();
+        for ( int i = 0; i < (int)LengthUnit::_count; ++i )
+            if ( lengthUnitsStr == getUnitInfo( (LengthUnit)i ).prettyName )
+            {
+                res.lengthUnit = (LengthUnit)i;
+                break;
+            }
+    }
 
     auto typeTreeSize = root["Type"].size();
-    LoadedObject res;
     for (int i = typeTreeSize-1;i>=0;--i)
     {
         const auto& type = root["Type"][unsigned( i )];
