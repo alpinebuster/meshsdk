@@ -36,7 +36,7 @@
 
 ## Popular open-source Mesh boolean libraries​
 	
-| Name         | Meshlib           | MCut               | Manifold   | CinoLib + RobustMesh | CGAL                     | Rhino 3D                     | Libigl       | Trimesh-Manifold | Trimesh-Blender |
+| Name         | MeshSDK           | MCut               | Manifold   | CinoLib + RobustMesh | CGAL                     | Rhino 3D                     | Libigl       | Trimesh-Manifold | Trimesh-Blender |
 |--------------|-------------------|--------------------|------------|----------------------|--------------------------|------------------------------|--------------|------------------|------------------|
 | License      | Licensing options | LGPL 3/Paid support| Apache 2.0 | MIT                  | Open-Source / Commercial | Commercial, with three models| GPL 3, MPL 2 | MIT              | MIT              |
 
@@ -48,7 +48,7 @@
 - [meshmixer](https://meshmixer.net/)
 - [openmesh](https://www.graphics.rwth-aachen.de/software/openmesh/)
 - [The Polygon Mesh Processing Library](https://github.com/pmp-library/pmp-library)
-- [MeshLib](https://github.com/MeshInspector/MeshLib.git), to setup [WASM](https://meshlib.io/documentation/MeshLibCppSetupGuide.html#CppSetupWASM)
+- [MeshSDK](https://github.com/MeshInspector/MeshSDK.git), to setup [WASM](https://meshsdk.io/documentation/MeshSDKCppSetupGuide.html#CppSetupWASM)
 - [meshlab](https://github.com/cnr-isti-vclab/meshlab.git)
 - [openscad](https://github.com/openscad/openscad/)
 - [Bforartists](https://github.com/Bforartists/Bforartists)

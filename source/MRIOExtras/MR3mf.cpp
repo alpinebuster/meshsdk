@@ -37,16 +37,20 @@ static Expected <AffineXf3f> parseAffineXf( const std::string& s )
     int row = 0, col = 0;
     while ( ss >> value )
     {
-        if ( row < 3 )
+        if ( col == 4 )
+            return unexpected( "3MF: too many elements in transform" );
+        if ( col < 3 )
             xf.A[row][col] = value;
-        else if ( row == 3 )
-            xf.b[col] = value;
-        col++;
-        if ( col == 3 )
-            col = 0, row++;
+        else
+            xf.b[row] = value;
+        if ( ++row == 3 )
+        {
+            row = 0;
+            ++col;
+        }
     }
-    if ( !( row == 4 && col == 0 ) )
-        return unexpected( "Invalid matrix format" );
+    if ( !( col == 4 && row == 0 ) )
+        return unexpected( "3MF: too few elements in transform" );
     return AffineXf3f( xf );
 }
 
@@ -336,7 +340,8 @@ Expected<Node*> ThreeMFLoader::getNodeById_( int id, const char* pathAttr )
     if ( docIt == xmlDocuments_.end() )
         return unexpected( "Cannot find file specified in p:path" );
 
-    if ( auto e = loadDocument_( docIt->second, subprogress( progress_, documentsLoaded_, xmlDocuments_.size() ) ); !e )
+    // no progress reporting because this can be called from another loadDocument_
+    if ( auto e = loadDocument_( docIt->second, {} ); !e )
         return unexpected( std::move( e.error() ) );
 
     it = nodeByIdMap_.find( id );
@@ -673,14 +678,12 @@ Expected<void> Node::loadMesh_( ThreeMFLoader& loader, const tinyxml2::XMLElemen
     if ( !verticesNode )
         return unexpected( std::string( "3DF model 'vertices' node not found" ) );
 
-    Color bgColor = Color::white();
-    bool bgColorWasRead = false;
+    std::optional<Color> bgColor;
     if ( auto refNode = pNode_; refNode && ( refNode->nodeType_ == NodeType::ColorGroup || refNode->nodeType_ == NodeType::BaseMaterials ) )
     {
         if ( pindex_ < 0 || pindex_ >= refNode->colors_.size() )
             return unexpected( "Invalid color index" );
 
-        bgColorWasRead = true;
         bgColor = refNode->colors_[pindex_];
     }
 
@@ -710,6 +713,8 @@ Expected<void> Node::loadMesh_( ThreeMFLoader& loader, const tinyxml2::XMLElemen
 
     FaceColors fColorMap;
     VertColors vColorMap;
+    bool allTrisHaveConstColors = true;
+    bool someTrisHaveNotBgColor = !bgColor.has_value();
     VertUVCoords vUVCoords;
 
     Triangulation tris;
@@ -738,6 +743,8 @@ Expected<void> Node::loadMesh_( ThreeMFLoader& loader, const tinyxml2::XMLElemen
                 hasFilamentId = triangleNode->QueryStringAttribute( "paint_color", &filamentId );
             if ( hasFilamentId == tinyxml2::XML_SUCCESS )
                 setFilamentFaceColor_( loader, tris.backId(), std::string( filamentId ), fColorMap );
+            else if ( allTrisHaveConstColors && bgColor )
+                fColorMap.push_back( *bgColor );
             continue;
         }
         
@@ -765,7 +772,7 @@ Expected<void> Node::loadMesh_( ThreeMFLoader& loader, const tinyxml2::XMLElemen
         }
         else if ( ( it->second->nodeType_ == NodeType::ColorGroup || it->second->nodeType_ == NodeType::BaseMaterials ) && vColorMap.empty() )
         {
-            vColorMap.resize( vertexCoordinates.size(), bgColor );
+            vColorMap.resize( vertexCoordinates.size(), bgColor.value_or( Color::white() ) );
         }
         else if ( it->second->nodeType_ == NodeType::Multiproperties )
         {
@@ -782,7 +789,7 @@ Expected<void> Node::loadMesh_( ThreeMFLoader& loader, const tinyxml2::XMLElemen
                 texId_ = loader.nodeByIdMap_[*pidIt]->texId_;
 
             if ( vColorMap.empty() )
-                vColorMap.resize( vertexCoordinates.size(), bgColor );
+                vColorMap.resize( vertexCoordinates.size(), bgColor.value_or( Color::white() ) );
 
             if ( vUVCoords.empty() )
                 vUVCoords.resize( vertexCoordinates.size(), { std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN() } );
@@ -835,6 +842,22 @@ Expected<void> Node::loadMesh_( ThreeMFLoader& loader, const tinyxml2::XMLElemen
                     return unexpected( std::string( "3DF model triangle node has invalid 'p' attribute" ) );
 
                 vColorMap[VertId( vs[i] )] = it->second->colors_[ps[i]];
+            }
+            if ( allTrisHaveConstColors )
+            {
+                const bool constantTriColor = ps[0] == ps[1] && ps[0] == ps[2];
+                if ( constantTriColor )
+                {
+                    const auto color = it->second->colors_[ps[0]];
+                    fColorMap.push_back( color );
+                    if ( bgColor )
+                        someTrisHaveNotBgColor = someTrisHaveNotBgColor || *bgColor != color;
+                }
+                else
+                {
+                    allTrisHaveConstColors = false;
+                    fColorMap.clear();
+                }
             }
         }
         else //it->second->nodeType == NodeType::Multiproperties
@@ -923,7 +946,7 @@ Expected<void> Node::loadMesh_( ThreeMFLoader& loader, const tinyxml2::XMLElemen
     int skippedFaceCount = 0;
     MeshBuilder::BuildSettings buildSettings{ .skippedFaceCount = &skippedFaceCount };
 
-    if ( !fColorMap.empty() )
+    if ( !loader.filamentColors_.empty() && !fColorMap.empty() )
     {
         fColorMap.resize( tris.size(), loader.filamentColors_[0] );
     }
@@ -960,6 +983,11 @@ Expected<void> Node::loadMesh_( ThreeMFLoader& loader, const tinyxml2::XMLElemen
     auto objMesh = std::make_shared<ObjectMesh>();
     obj_ = objMesh;
 
+    if ( allTrisHaveConstColors && someTrisHaveNotBgColor )
+    {
+        assert( tris.size() == fColorMap.size() );
+        vColorMap.clear();
+    }
     if ( !vColorMap.empty() )
     {
         objMesh->setVertsColorMap( std::move( vColorMap ) );
@@ -1000,10 +1028,15 @@ Expected<void> Node::loadMesh_( ThreeMFLoader& loader, const tinyxml2::XMLElemen
 
     objMesh->setMesh( resMesh );
 
-    if ( bgColorWasRead )
+    if ( bgColor )
     {
-        objMesh->setFrontColor( bgColor, true );
-        objMesh->setFrontColor( bgColor, false );
+        objMesh->setFrontColor( *bgColor, true );
+        objMesh->setFrontColor( *bgColor, false );
+
+        // set transparency of BackColor equal to the background's transparency
+        auto bc = objMesh->getBackColor();
+        bc.a = bgColor->a;
+        objMesh->setBackColor( bc );
     }
     return {};
 }
@@ -1048,25 +1081,35 @@ void Node::setFilamentFaceColor_( ThreeMFLoader& loader, FaceId f, const std::st
         return;
     if ( loader.filamentColors_.empty() )
         return;
-    if ( fColorMap.size() <= f )
-        fColorMap.resize( f + 1, loader.filamentColors_[0] );
+    fColorMap.autoResizeSet( f, loader.filamentColors_[0] );
 
     // taken from https://github.com/bambulab/BambuStudio/issues/1892#issuecomment-1628513224
-    constexpr std::array<const char*, 16> cIdMap =
+    static const HashMap<std::string, int> fId2seq
     {
-        "4", "8", "0C", "1C", "2C", "3C", "4C", "5C", "6C", "7C", "8C", "9C", "AC", "BC", "CC", "DC"
+        { "4", 0 },
+        { "8", 1 },
+        { "0C", 2 },
+        { "1C", 3 },
+        { "2C", 4 },
+        { "3C", 5 },
+        { "4C", 6 },
+        { "5C", 7 },
+        { "6C", 8 },
+        { "7C", 9 },
+        { "8C", 10 },
+        { "9C", 11 },
+        { "AC", 12 },
+        { "BC", 13 },
+        { "CC", 14 },
+        { "DC", 15 }
     };
-    int foundFilId = -1;
-    for ( int i = 0; i < cIdMap.size(); ++i )
+
+    if ( auto it = fId2seq.find( fId ); it != fId2seq.end() )
     {
-        if ( fId == cIdMap[i] )
-        {
-            foundFilId = i;
-            break;
-        }
+        auto foundFilId = it->second;
+        if ( foundFilId < loader.filamentColors_.size() )
+            fColorMap[f] = loader.filamentColors_[foundFilId];
     }
-    if ( foundFilId != -1 && foundFilId < loader.filamentColors_.size() )
-        fColorMap[f] = loader.filamentColors_[foundFilId];
 }
 
 Expected<void> Node::loadMultiproperties_( const tinyxml2::XMLElement* xmlNode )

@@ -1,6 +1,6 @@
 # Cut Meshes
 
-`asmesh` has set of functions to cut mesh, you can find it in this [header](https://github.com/alpinebuster/meshlib/blob/master/source/MRMesh/MRContoursCut.h).
+`asmesh` has set of functions to cut mesh, you can find it in this [header](https://github.com/alpinebuster/meshsdk/blob/master/source/MRMesh/MRContoursCut.h).
 
 ![Cut Meshes - 1](./img/cut_meshes-1.png)
 ![Cut Meshes - 2](./img/cut_meshes-2.png)
