@@ -41,7 +41,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distro: [ ubuntu20, ubuntu22, ubuntu24, emscripten ]
+        distro: [ ubuntu22, ubuntu24, emscripten ]
         arch: [ x64, arm64 ]
         exclude:
           - distro: emscripten
@@ -82,7 +82,7 @@ jobs:
           fi
 
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           submodules: true
 
@@ -123,7 +123,7 @@ jobs:
         run: docker system prune --force --all --volumes
 
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Login to DockerHub
         uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3
@@ -147,9 +147,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runner: [ windows-2022 ]
+        runner: [ windows-2025 ]
         include:
-          - runner: windows-2022
+          - runner: windows-2025
             vcpkg-version: ${{ inputs.vs22_vcpkg_version }}
     steps:
       - name: Setup vcpkg
@@ -161,7 +161,7 @@ jobs:
           vcpkg.exe integrate install
 
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           submodules: true
 
