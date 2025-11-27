@@ -6,12 +6,25 @@ on:
       release_tag:
         required: true
         type: string
+      test_ubuntu_x64:
+        required: true
+        type: boolean
+      test_ubuntu_arm64:
+        required: true
+        type: boolean
+      test_macos:
+        required: true
+        type: boolean
+      test_windows:
+        required: true
+        type: boolean
     secrets:
       GH_TOKEN:
         required: true
 
 jobs:
   linux-x64-test:
+    if: ${{ inputs.test_ubuntu_x64 }}
     timeout-minutes: 30
     runs-on: ubuntu-latest
     container:
@@ -19,13 +32,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ "ubuntu:20.04", "ubuntu:22.04", "ubuntu:24.04" ]
+        os: [ "ubuntu:22.04", "ubuntu:24.04" ]
         include:
-          - os: "ubuntu:20.04"
-            name: "ubuntu20"
-            compiler: clang-11
-            c-compiler: /usr/bin/clang-11
-            cxx-compiler: /usr/bin/clang++-11
           - os: "ubuntu:22.04"
             name: "ubuntu22"
             compiler: clang-14
@@ -39,7 +47,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           ref: ${{needs.setup.outputs.version_tag}}
 
@@ -118,6 +126,7 @@ jobs:
         run: python3 -m pytest -s -v
 
   linux-arm64-test:
+    if: ${{ inputs.test_ubuntu_arm64 }}
     timeout-minutes: 30
     runs-on: [ self-hosted, linux-arm64, spot ]
     container:
@@ -125,13 +134,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ "ubuntu:20.04", "ubuntu:22.04", "ubuntu:24.04" ]
+        os: [ "ubuntu:22.04", "ubuntu:24.04" ]
         include:
-          - os: "ubuntu:20.04"
-            name: "ubuntu20"
-            compiler: clang-11
-            c-compiler: /usr/bin/clang-11
-            cxx-compiler: /usr/bin/clang++-11
           - os: "ubuntu:22.04"
             name: "ubuntu22"
             compiler: clang-14
@@ -145,7 +149,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           ref: ${{needs.setup.outputs.version_tag}}
 
@@ -217,11 +221,12 @@ jobs:
         run: python3 -m pytest -s -v
 
   macos-test:
+    if: ${{ inputs.test_macos }}
     runs-on: macos-15-intel
     timeout-minutes: 30
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           ref: ${{needs.setup.outputs.version_tag}}
 
@@ -262,11 +267,12 @@ jobs:
           cmake --build build
   
   windows-test:
-    runs-on: windows-2022
+    if: ${{ inputs.test_windows }}
+    runs-on: windows-2025
     timeout-minutes: 30
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           ref: ${{needs.setup.outputs.version_tag}}
 

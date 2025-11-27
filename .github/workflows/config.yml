@@ -122,13 +122,13 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           submodules: true
 
       # install helper utility for Python version management
       - name: Install uv
-        uses: astral-sh/setup-uv@85856786d1ce8acfbcc2f13a5f3fbd6b938f9f41
+        uses: astral-sh/setup-uv@1e862dfacbd1d6d858c55d9b792c756523627244
 
       - name: Check for errors
         run: uvx --python 3.12 pre-commit run --all-files --hook-stage manual
@@ -139,12 +139,12 @@ jobs:
         with:
           filters: |
             src:
-              - 'docker/(ubuntu20|ubuntu22|ubuntu24|emscripten)Dockerfile'
+              - 'docker/(ubuntu22|ubuntu24|emscripten)Dockerfile'
               - 'requirements/(ubuntu|distribution_python).txt'
               - 'scripts/build_thirdparty.sh'
               - 'scripts/install_apt_requirements.sh'
               - 'scripts/mrbind/install_deps_ubuntu.sh'
-              - 'thirdparty/!(install.bat|vcpkg/**)'
+              - 'thirdparty/!(install.bat|vcpkg/**|mrbind|mrbind/**)'
 
       - name: Filter Linux vcpkg paths
         uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3
@@ -193,7 +193,7 @@ jobs:
 
       - name: Checkout full history
         if: ${{ env.upload_artifacts == 'true' }}
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 

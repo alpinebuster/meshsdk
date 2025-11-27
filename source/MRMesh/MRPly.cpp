@@ -3,6 +3,9 @@
 #include "MRVector3.h"
 #include "MRVector.h"
 #include "MRColor.h"
+#include "MRStringConvert.h"
+#include "MRImageLoad.h"
+#include "MRMeshTexture.h"
 #include "MRTimer.h"
 
 namespace MR
@@ -20,7 +23,6 @@ Expected<VertCoords> loadPly( std::istream& in, const PlyLoadParams& params )
     uint32_t indecies[3];
     bool gotVerts = false;
 
-    std::vector<unsigned char> colorsBuffer;
     VertCoords res;
     const auto posEnd = reader.get_end_pos();
     const float streamSize = float( posEnd - posStart );
@@ -45,10 +47,23 @@ Expected<VertCoords> loadPly( std::istream& in, const PlyLoadParams& params )
             }
             if ( params.colors && reader.find_color( indecies ) )
             {
-                Timer t( "extractColors" );
-                colorsBuffer.resize( 3 * numVerts );
+                Timer t( "extractVertColors" );
+                std::vector<unsigned char> colorsBuffer( 3 * numVerts );
                 reader.extract_properties( indecies, 3, miniply::PLYPropertyType::UChar, colorsBuffer.data() );
+                params.colors->resize( numVerts );
+                for ( VertId v{ 0 }; v < res.size(); ++v )
+                {
+                    int ind = 3 * v;
+                    ( *params.colors )[v] = Color( colorsBuffer[ind], colorsBuffer[ind + 1], colorsBuffer[ind + 2] );
+                }
             }
+            if ( params.uvCoords && reader.find_texcoord( indecies ) )
+            {
+                Timer t( "extractUVs" );
+                params.uvCoords->resize( numVerts );
+                reader.extract_properties( indecies, 2, miniply::PLYPropertyType::Float, params.uvCoords->data() );
+            }
+
             const float progress = float( in.tellg() - posStart ) / streamSize;
             if ( !reportProgress( params.callback, progress ) )
                 return unexpectedOperationCanceled();
@@ -77,6 +92,20 @@ Expected<VertCoords> loadPly( std::istream& in, const PlyLoadParams& params )
                 tris.resize( numIndices );
                 reader.extract_list_property( indecies[0], miniply::PLYPropertyType::Int, tris.data() );
             }
+
+            if ( params.faceColors && reader.find_color( indecies ) )
+            {
+                Timer t( "extractFaceColors" );
+                std::vector<unsigned char> colorsBuffer( 3 * tris.size() );
+                reader.extract_properties( indecies, 3, miniply::PLYPropertyType::UChar, colorsBuffer.data() );
+                params.faceColors->resize( tris.size() );
+                for ( FaceId f{ 0 }; f < tris.size(); ++f )
+                {
+                    int ind = 3 * f;
+                    ( *params.faceColors )[f] = Color( colorsBuffer[ind], colorsBuffer[ind + 1], colorsBuffer[ind + 2] );
+                }
+            }
+
             const auto posCurrent = in.tellg();
             // suppose  that reading is 10% of progress and building mesh is 90% of progress
             if ( !reportProgress( params.callback, ( float( posLast ) + ( posCurrent - posLast ) * 0.1f - posStart ) / streamSize ) )
@@ -100,13 +129,27 @@ Expected<VertCoords> loadPly( std::istream& in, const PlyLoadParams& params )
     if ( !gotVerts )
          return unexpected( std::string( "PLY file does not contain vertices" ) );
 
-    if ( params.colors && !colorsBuffer.empty() )
+    if ( params.texture )
     {
-        params.colors->resize( res.size() );
-        for ( VertId i{ 0 }; i < res.size(); ++i )
+        for ( const auto& comment : reader.comments() )
         {
-            int ind = 3 * i;
-            ( *params.colors )[i] = Color( colorsBuffer[ind], colorsBuffer[ind + 1], colorsBuffer[ind + 2] );
+            if ( !comment.starts_with( "TextureFile" ) )
+                continue;
+            int n = 11;
+            while ( n < comment.size() && ( comment[n] == ' ' || comment[n] == '\t' ) )
+                ++n;
+            const auto texFile = params.dir / asU8String( comment.substr( n ) );
+            std::error_code ec;
+            if ( !is_regular_file( texFile, ec ) )
+                break;
+            if ( auto image = ImageLoad::fromAnySupportedFormat( texFile ) )
+            {
+                params.texture->resolution = std::move( image->resolution );
+                params.texture->pixels = std::move( image->pixels );
+                params.texture->filter = FilterType::Linear;
+                params.texture->wrap = WrapType::Clamp;
+            }
+            break;
         }
     }
 
