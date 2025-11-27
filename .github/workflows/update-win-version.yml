@@ -13,12 +13,12 @@ on:
 jobs:
   update-win-version:
     timeout-minutes: 60
-    runs-on: [self-hosted, windows, x64, vs-2019, vcpkg-2024.10.21, meshinspector]
+    runs-on: windows-2025
     env:
       vs19_vcpkg_version: ${{ inputs.vs19_vcpkg_version }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           submodules: true
 
