@@ -8,7 +8,7 @@ In general the idea there is to build "Surrounding Contour" around picked pointe
 
 Also it might be worth mentioning that we use this metric for contouring:
 
-`asmesh/source/MRMesh/MREdgeMetric.h`
+`meshsdk/source/MRMesh/MREdgeMetric.h`
 
 Lines 32 to 37 in f3c4381
 

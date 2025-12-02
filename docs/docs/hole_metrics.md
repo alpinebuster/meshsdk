@@ -6,7 +6,7 @@ The Current Hole Metrics option in fill hole menu, how can i get this informatio
 
 Use these functions to calculate hole perimeter and area:
 
-`asmesh/source/MRMesh/MRMesh.h`
+`meshsdk/source/MRMesh/MRMesh.h`
 
 Lines 182 to 187 in 40a8983
 

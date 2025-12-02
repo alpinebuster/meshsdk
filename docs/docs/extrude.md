@@ -14,7 +14,7 @@ One thing you can try is something like this:
 2.Call `fixUndercuts`
 3.Project saved polyline to mesh and move it a little up
 
-`asmesh/source/MRMesh/MRContoursCut.h`
+`meshsdk/source/MRMesh/MRContoursCut.h`
 
 Lines 97 to 106 in d717e06
 
@@ -32,7 +32,7 @@ MRMESH_API Expected<OneMeshContours> convertMeshTriPointsSurfaceOffsetToMeshCont
 ```
 
 4.Cut mesh above old boundary
-`asmesh/source/MRMesh/MRContoursCut.h`
+`meshsdk/source/MRMesh/MRContoursCut.h`
 
 Lines 219 to 235 in d717e06
 
@@ -57,7 +57,7 @@ MRMESH_API CutMeshResult cutMesh( Mesh& mesh, const OneMeshContours& contours, c
 ```
 
 5.Stitch cut place with old boundary
-`asmesh/source/MRMesh/MRMeshFillHole.h`
+`meshsdk/source/MRMesh/MRMeshFillHole.h`
 
 Lines 85 to 106 in d717e06
 

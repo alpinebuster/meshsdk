@@ -6,7 +6,7 @@ Implement Distance Compare function.
 
 Use this function:
 
-`asmesh/source/MRMesh/MRPointsToMeshProjector.h`
+`meshsdk/source/MRMesh/MRPointsToMeshProjector.h`
 
 Lines 53 to 60 in d64341c
 

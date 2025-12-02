@@ -11,7 +11,7 @@ Get the EdgePath first, then use smooth function for EdgePath or PolyLine.
 
 Use `buildShortestPath` with different metrics.
 
-`asmesh/source/MRMesh/MREdgePaths.h`
+`meshsdk/source/MRMesh/MREdgePaths.h`
 
 Lines 86 to 106 in f9b24b4
 

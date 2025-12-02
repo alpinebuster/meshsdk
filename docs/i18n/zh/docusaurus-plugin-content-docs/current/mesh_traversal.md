@@ -217,7 +217,7 @@ Delete the faces between the contours.
 
 The area inside will be to left from both of them
 
-`asmesh/source/MRMesh/MRFillContour.h`
+`meshsdk/source/MRMesh/MRFillContour.h`
 
 Lines 8 to 10 in ae1704c
 
