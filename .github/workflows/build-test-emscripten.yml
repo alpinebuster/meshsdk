@@ -16,7 +16,7 @@ on:
 jobs:
   emscripten-build:
     timeout-minutes: 40
-    runs-on: [ self-hosted, linux-arm64, spot ]
+    runs-on: ubuntu-24.04-arm
     container:
       image: meshsdk/meshsdk-emscripten-arm64:${{ inputs.docker_image_tag }}
     strategy:
