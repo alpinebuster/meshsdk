@@ -184,7 +184,7 @@ cd vcpkg
   - Open `meshsdk/CMakeLists.txt` in Visual Studio (File - Open - CMake).
   - Build the project and run the application.
 
-### Emscripten
+### JavaScript/TypeScript
 [Emscripten](https://emscripten.org/docs/getting_started/downloads.html) is required to compile C++ code into WebAssembly. You can install Emscripten by following the steps below.
 
 ```sh
@@ -298,7 +298,7 @@ The remaining flags are for Python bindings only:
 * **`PYTHON_PKGCONF_NAME=python-3.??-embed` — select Python version.** We try to guess this one. You can set this to `python3-embed` to use whatever the OS considers to be the default version.
 
 ### Installation
-#### JS (WASM)
+#### JavaScript/TypeScript
 Install with npm or yarn:
 
 ```sh
