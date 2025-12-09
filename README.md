@@ -131,9 +131,9 @@ Compile locally from sources.
 4. **vcpkg**
   - To install `vcpkg`, follow these steps:
    1. **Open a command prompt (CMD) or PowerShell window**.
-   2. **Navigate to a directory where you want to install** `vcpkg`:
+   2. **Navigate to parent directory to install** `vcpkg`:
 ```cmd
-cd C:\path\to\your\desired\directory
+cd ../
 ```
    3. **Clone the** `vcpkg` **repository**:
 ```cmd
@@ -165,6 +165,7 @@ The following steps will require approximately 40 GB of disk space.
 
 1. **Clone the Submodules**:
 ```cmd
+cd ../meshsdk
 git submodule update --init
 ```
 2. (Optional) **Speed Up with AWS CLI**
@@ -172,7 +173,7 @@ git submodule update --init
 3. **Install Third-Party Dependencies**
   - Execute the following commands to run the third-party installation script:
 ```cmd
-cd vcpkg
+cd ../vcpkg
 ..\meshsdk\thirdparty\install.bat
 ```
   - This script automates the installation of necessary third-party dependencies.
