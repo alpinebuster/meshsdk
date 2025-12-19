@@ -44,7 +44,7 @@ MeshSDK provides a robust foundation for 3D data processing, supporting all esse
 ## Getting Started
 This guide explains how to set up MeshSDK for C++ development on Windows, Linux, macOS, and docker, and also shows how to build WebAssembly modules using MeshSDK with Emscripten. It covers all the prerequisites and setup steps for each platform, making it easy to get started.
 
-### Linux & MacOS
+### Linux
 Install Clang 20+ first.
 
 #### Clangd
@@ -113,6 +113,32 @@ git submodule update --init
 `docker compose exec meshsdk-emscripten-build-wasm64 bash`
 ```
 
+### MacOS
+> Prerequisites
+
+1. Install Homebrew
+Run the following command in your terminal to install [Homebrew](https://brew.sh/):
+`/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
+
+2. Update Homebrew
+Make sure Homebrew is up to date:
+`brew update`
+
+3. Install Git Using Homebrew
+Once Homebrew is installed and added to your PATH, you can proceed to install Git:
+`brew install git`
+
+> Compile Locally
+4. Install/Build Dependencies and Compile:
+    ```sh
+    git submodule update --init
+
+    ./scripts/build_thirdparty.sh
+    ./scripts/build_source.sh
+    ```
+
+5. Run example We suggest starting with the mesh loading and saving example, which demonstrates how to work with mesh files programmatically.
+
 ### Windows (Desktop)
 Compile locally from sources.
 
@@ -132,50 +158,48 @@ Compile locally from sources.
   - To install `vcpkg`, follow these steps:
    1. **Open a command prompt (CMD) or PowerShell window**.
    2. **Navigate to parent directory to install** `vcpkg`:
-```cmd
-cd ../
-```
+      ```cmd
+      cd ../
+      ```
    3. **Clone the** `vcpkg` **repository**:
-```cmd
-git clone https://github.com/microsoft/vcpkg.git
-```
+      ```cmd
+      git clone https://github.com/microsoft/vcpkg.git
+      ```
    4. **Navigate to the** `vcpkg` **directory**:
-```cmd
-cd vcpkg
-git checkout 2024.10.21
-```
-If you're using **Visual Studio 2022**, you can use the latest version of vcpkg:
-```cmd
-git checkout 2025.10.17
-```
-The version `2024.10.21` is required only for compatibility with **Visual Studio 2019**.
+      ```cmd
+      cd vcpkg
+      git checkout 2024.10.21
+      ```
+      If you're using **Visual Studio 2022**, you can use the latest version of vcpkg: `git checkout 2025.10.17`
+      The version `2024.10.21` is required only for compatibility with **Visual Studio 2019**.
+
    5. **Run the bootstrap script to build the** `vcpkg` **executable**:
-```cmd
-bootstrap-vcpkg.bat
-```
+      ```cmd
+      bootstrap-vcpkg.bat
+      ```
    6. **Integrate** `vcpkg` **with Visual Studio (requires Administrator access)**:
-```cmd
-vcpkg integrate install
-```
+      ```cmd
+      vcpkg integrate install
+      ```
 
 [Learn more about](https://github.com/Microsoft/vcpkg) `vcpkg`.
 
 #### Building
 The following steps will require approximately 40 GB of disk space.
 
-1. **Clone the Submodules**:
-```cmd
-cd ../meshsdk
-git submodule update --init
-```
+1. **Fetch the Submodules**:
+    ```cmd
+    cd ../meshsdk
+    git submodule update --init
+    ```
 2. (Optional) **Speed Up with AWS CLI**
   - Optionally, [install AWS CLI v2](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) to speed up the process before using the Installation Script. Restart your terminal after installation.
 3. **Install Third-Party Dependencies**
   - Execute the following commands to run the third-party installation script:
-```cmd
-cd ../vcpkg
-..\meshsdk\thirdparty\install.bat
-```
+      ```cmd
+      cd ../vcpkg
+      ..\meshsdk\thirdparty\install.bat
+      ```
   - This script automates the installation of necessary third-party dependencies.
 4. **Build and Run Visual Studio Solution**
   - Open `meshsdk/source/MeshSDK.sln` in Visual Studio.
