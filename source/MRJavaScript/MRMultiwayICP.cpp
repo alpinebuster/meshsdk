@@ -89,10 +89,10 @@ EMSCRIPTEN_BINDINGS( MultiwayICPModule )
     class_<MultiwayICP>( "MultiwayICP" )
         .constructor<const ICPObjects&, const MultiwayICPSamplingParameters&>()
 
-        .function( "calculateTransformations", select_overload<Vector<AffineXf3f, ObjId>( ProgressCallback )>( &MultiwayICP::calculateTransformations ) )
-        .function( "calculateTransformationsFixFirst", select_overload<Vector<AffineXf3f, ObjId>( ProgressCallback )>( &MultiwayICP::calculateTransformationsFixFirst ) )
+        .function( "calculateTransformations", select_overload<Vector<AffineXf3f, ObjId>( const ProgressCallback& )>( &MultiwayICP::calculateTransformations ) )
+        .function( "calculateTransformationsFixFirst", select_overload<Vector<AffineXf3f, ObjId>( const ProgressCallback& )>( &MultiwayICP::calculateTransformationsFixFirst ) )
         .function( "resamplePoints", &MultiwayICP::resamplePoints )
-        .function( "updateAllPointPairs", select_overload<bool( ProgressCallback )>( &MultiwayICP::updateAllPointPairs ) )
+        .function( "updateAllPointPairs", select_overload<bool( const ProgressCallback& )>( &MultiwayICP::updateAllPointPairs ) )
 
         .function( "setParams", &MultiwayICP::setParams )
         .function( "getParams", &MultiwayICP::getParams )

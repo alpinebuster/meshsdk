@@ -16,6 +16,8 @@
 #include "MRPly.h"
 #include "MRParallelFor.h"
 #include "MRImageLoad.h"
+#include "MRTelemetry.h"
+#include "MRTextureColors.h"
 #include "MRPch/MRFmt.h"
 #include "MRPch/MRTBB.h"
 
@@ -391,8 +393,9 @@ Expected<Mesh> fromBinaryStl( std::istream& in, const MeshLoadSettings& settings
 {
     MR_TIMER;
 
-    char header[80];
+    char header[81];
     in.read( header, 80 );
+    header[80] = '\0';
 
     std::uint32_t numTris;
     in.read( (char*)&numTris, 4 );
@@ -484,6 +487,9 @@ Expected<Mesh> fromBinaryStl( std::istream& in, const MeshLoadSettings& settings
         *settings.duplicatedVertexCount = int( dups.size() );
     if ( !reportProgress( settings.callback , 1.0f ) )
         return unexpectedOperationCanceled();
+
+    TelemetrySignal( std::string( "STL head " ) + header );
+
     return res;
 }
 
@@ -515,6 +521,7 @@ Expected<Mesh> fromASCIIStl( std::istream& in, const MeshLoadSettings& settings 
     const auto posStart = in.tellg();
     const auto streamSize = getStreamSize( in );
 
+    std::string header;
     for ( int i = 0; std::getline( in, line ); ++i )
     {
         std::istringstream iss( line );
@@ -524,7 +531,10 @@ Expected<Mesh> fromASCIIStl( std::istream& in, const MeshLoadSettings& settings 
         if ( !solidFound )
         {
             if ( prefix == "solid" )
+            {
                 solidFound = true;
+                std::getline( iss, header ); // header will include space after "solid"
+            }
             else
                 break;
         }
@@ -574,6 +584,9 @@ Expected<Mesh> fromASCIIStl( std::istream& in, const MeshLoadSettings& settings 
     const auto res = Mesh::fromTrianglesDuplicatingNonManifoldVertices( std::move( points ), t, dupsPtr, { .skippedFaceCount = settings.skippedFaceCount } );
     if ( settings.duplicatedVertexCount )
         *settings.duplicatedVertexCount = int( dups.size() );
+
+    TelemetrySignal( "STL ASCII" + header );
+
     return res;
 }
 
@@ -582,6 +595,7 @@ static Expected<Mesh> fromPly( std::istream& in, const MeshLoadSettings& setting
     MR_TIMER;
 
     std::optional<Triangulation> tris;
+    TriCornerUVCoords triCornerUvCoords;
     PlyLoadParams params =
     {
         .tris = &tris,
@@ -589,6 +603,7 @@ static Expected<Mesh> fromPly( std::istream& in, const MeshLoadSettings& setting
         .colors = settings.colors,
         .faceColors = settings.faceColors,
         .uvCoords = settings.uvCoords,
+        .triCornerUvCoords = ( settings.texture && settings.colors ) ? &triCornerUvCoords : nullptr,
         .normals = settings.normals,
         .texture = settings.texture,
         .dir = dir,
@@ -612,6 +627,14 @@ static Expected<Mesh> fromPly( std::istream& in, const MeshLoadSettings& setting
             return unexpected( "vertex id is larger than total point coordinates" );
         if ( settings.skippedFaceCount )
             *settings.skippedFaceCount += mySkippedFaceCount;
+    }
+
+    // convert per-corner UVs into per-vertex colors by keeping the last value only
+    if ( settings.texture && !settings.texture->pixels.empty() && settings.colors && tris && !tris->empty() && !triCornerUvCoords.empty() )
+    {
+        *settings.colors = sampleVertexColors( res, *settings.texture, triCornerUvCoords );
+        if ( !settings.uvCoords || settings.uvCoords->empty() )
+            *settings.texture = {}; // texture will not be used outside of this function
     }
 
     if ( !reportProgress( settings.callback, 1.0f ) )
