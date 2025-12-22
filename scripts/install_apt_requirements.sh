@@ -15,9 +15,12 @@ function checkPackage {
 }
 
 BASEDIR=$(dirname $(realpath "$0"))
-REQUIREMENTS_FILE="$BASEDIR"/../requirements/ubuntu.txt
+MESHSDK_APT_REQUIREMENTS=$(cat "$BASEDIR"/../requirements/ubuntu.txt)
+if [ -n "$MESHSDK_EXTRA_APT_REQUIREMENTS" ] ; then
+  MESHSDK_APT_REQUIREMENTS=$MESHSDK_APT_REQUIREMENTS$'\n'$MESHSDK_EXTRA_APT_REQUIREMENTS
+fi
 
-for req in `cat $REQUIREMENTS_FILE`; do
+for req in "$MESHSDK_APT_REQUIREMENTS"; do
   checkPackage "${req}"
 done
 
