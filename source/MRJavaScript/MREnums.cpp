@@ -7,6 +7,10 @@ using namespace MR;
 
 EMSCRIPTEN_BINDINGS( EnumsModule )
 {
+	enum_<RememberShape>( "RememberShape" )
+		.value( "Yes", RememberShape::Yes )
+		.value( "No", RememberShape::No );
+
 	enum_<VertexMass>( "VertexMass" )
 		.value( "Unit", VertexMass::Unit )
 		.value( "NeiArea", VertexMass::NeiArea );

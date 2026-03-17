@@ -16,10 +16,6 @@ using namespace MR;
 
 EMSCRIPTEN_BINDINGS( LaplacianModule )
 {
-	enum_<Laplacian::RememberShape>( "RememberShape" )
-		.value( "Yes", Laplacian::RememberShape::Yes )
-		.value( "No", Laplacian::RememberShape::No );
-
 	class_<Laplacian>( "Laplacian" )
 		.constructor<Mesh&>()
 		.constructor<const MeshTopology&, VertCoords&>()
