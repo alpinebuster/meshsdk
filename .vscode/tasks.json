@@ -19,7 +19,7 @@
 				"env": {
 					"MR_EMSCRIPTEN": "OFF",
 					"MESHSDK_BUILD_RELEASE": "ON",
-    				"MESHSDK_BUILD_DEBUG": "OFF",
+					"MESHSDK_BUILD_DEBUG": "OFF",
 				}
 			},
 			"command": "./scripts/build_source.sh",
@@ -32,7 +32,7 @@
 				"env": {
 					"MR_EMSCRIPTEN": "OFF",
 					"MESHSDK_BUILD_RELEASE": "OFF",
-    				"MESHSDK_BUILD_DEBUG": "ON",
+					"MESHSDK_BUILD_DEBUG": "ON",
 				}
 			},
 			"command": "./scripts/build_source.sh",
