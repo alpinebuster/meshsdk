@@ -35,6 +35,12 @@
 #include "MRViewportGlobalBasis.h"
 #include "MRImGuiMultiViewport.h"
 #include "MRShortcutManager.h"
+#include "MRViewerConfigConstants.h"
+#include "MRSpaceMouseController.h"
+#include "MRTouchpadController.h"
+#include "MRI18n.h"
+#include "MRLocale.h"
+#include "MRRibbonFontHolder.h"
 
 namespace
 {
@@ -240,6 +246,8 @@ void ViewerSettingsPlugin::drawQuickTab_( float menuWidth )
 
     drawSeparator_( "General" );
 
+    drawLanguageSelector_();
+
     drawThemeSelector_();
 
     const auto& style = ImGui::GetStyle();
@@ -277,6 +285,8 @@ void ViewerSettingsPlugin::drawApplicationTab_( float menuWidth )
 
     drawSeparator_( "Interface" );
 
+    drawLanguageSelector_();
+
     const auto& style = ImGui::GetStyle();
     ImGui::PushStyleVar( ImGuiStyleVar_ItemSpacing, { style.ItemSpacing.x, style.ItemSpacing.y * 1.5f } );
     drawThemeSelector_();
@@ -297,6 +307,15 @@ void ViewerSettingsPlugin::drawApplicationTab_( float menuWidth )
 
     if ( savedDialogsVal != savedDialogsBackUp )
         viewer->getMenuPlugin()->enableSavedDialogPositions( savedDialogsVal );
+
+    if ( viewer->isMultiViewportAvailable() )
+    {
+        auto& config = Config::instance();
+        bool value = config.getBool( cDefaultMultiViewportKey, true );
+        if ( UI::checkbox( "Enable multi-windows", &value ) )
+            config.setBool( cDefaultMultiViewportKey, value );
+        UI::setTooltipIfHovered( "Allow tool windows to be moved outside the main window. To apply the changes, need to restart the application." );
+    }
 
     if ( UI::button( "Toolbar Customize", Vector2f( btnHalfSizeX, 0 ) ) && ribbonMenu )
         ribbonMenu->openToolbarCustomize();
@@ -884,6 +903,41 @@ void ViewerSettingsPlugin::drawShadowsOptions_( float )
     }
 }
 
+void ViewerSettingsPlugin::drawLanguageSelector_()
+{
+    if ( !viewer->experimentalFeatures )
+        return;
+
+    static const auto sLanguages = Locale::getAvailableLocales();
+    static const auto sLanguageNames = [] ( const auto& languages )
+    {
+        auto results = languages;
+        for ( auto& locale : results )
+            locale = Locale::getDisplayName( locale );
+        return results;
+    } ( sLanguages );
+
+    if ( selectedLanguage_ < 0 )
+    {
+        auto it = std::find( sLanguages.begin(), sLanguages.end(), Locale::getName() );
+        if ( it == sLanguages.end() )
+        {
+            it = std::find( sLanguages.begin(), sLanguages.end(), "en" );
+            assert( it != sLanguages.end() );
+        }
+        selectedLanguage_ = (int)std::distance( sLanguages.begin(), it );
+    }
+
+    ImGui::SetNextItemWidth( 200.0f * UI::scale() );
+    if ( UI::combo( _tr( "Language" ), &selectedLanguage_, sLanguageNames ) )
+        Locale::set( sLanguages[selectedLanguage_] );
+
+    ImGui::SameLine();
+    RibbonFontHolder icons( RibbonFontManager::FontType::Icons, cMiddleIconSize / cBigIconSize );
+    ImGui::Text( "" );
+    icons.popFont();
+}
+
 void ViewerSettingsPlugin::drawThemeSelector_()
 {
     const auto& style = ImGui::GetStyle();
@@ -925,7 +979,7 @@ void ViewerSettingsPlugin::drawThemeSelector_()
         {
             item->second.item->action();
         }
-        UI::setTooltipIfHovered( item->second.tooltip );
+        UI::setTooltipIfHovered( _tr( item->second.tooltip.c_str(), item->second.localeDomainId ) );
     }
 }
 
@@ -1149,7 +1203,7 @@ void ViewerSettingsPlugin::drawSpaceMouseSettings_( float menuWidth )
         int valueAbs = int( std::fabs( value ) );
         bool inverse = value < 0.f;
         ImGui::SetNextItemWidth( menuWidth * 0.6f );
-        bool changed = UI::slider<NoUnit>( label, valueAbs, 1, 100 );
+        bool changed = UI::slider<NoUnit>( label, valueAbs, 10, 100 );
         ImGui::SameLine( menuWidth * 0.78f );
         const float cursorPosY = ImGui::GetCursorPosY();
         ImGui::SetCursorPosY( cursorPosY + ( cInputPadding - cCheckboxPadding ) * UI::scale() );
@@ -1182,22 +1236,11 @@ void ViewerSettingsPlugin::drawSpaceMouseSettings_( float menuWidth )
     drawSlider( "Oz##rotate", spaceMouseParams_.rotateScale[2] );
     ImGui::PopStyleVar( 2 );
 
-#if defined(_WIN32) || defined(__APPLE__)
-    if ( UI::checkbox( "Zoom by mouse wheel", &activeMouseScrollZoom_ ) )
-    {
-        if ( auto spaceMouseHandler = getViewerInstance().getSpaceMouseHandler() )
-        {
-            auto hidapiHandler = std::dynamic_pointer_cast< SpaceMouseHandlerHidapi >( spaceMouseHandler );
-            if ( hidapiHandler )
-            {
-                hidapiHandler->activateMouseScrollZoom( activeMouseScrollZoom_ );
-            }
-        }
-    }
-    UI::setTooltipIfHovered( "This mode is NOT recommended if you have 3Dconnexion driver installed, which sends mouse wheel fake events resulting in double reaction on SpaceMouse movement and camera tremble." );
-#endif
+    anyChanged = UI::checkboxValid( "Suppress Zoom by Mouse Scroll", &spaceMouseParams_.suppressMouseScrollZoom, viewer->spaceMouseController().canDriverSendScroll() ) || anyChanged;
+    UI::setTooltipIfHovered( "This mode is recommended if you have 3Dconnexion driver installed, which sends fake mouse scroll events resulting in double reaction on SpaceMouse movement and camera tremble." );
+    
     if ( anyChanged )
-        getViewerInstance().setSpaceMouseParameters( spaceMouseParams_ );
+        getViewerInstance().spaceMouseController().setParameters(spaceMouseParams_);
 }
 
 void ViewerSettingsPlugin::drawTouchpadSettings_()
@@ -1222,7 +1265,7 @@ void ViewerSettingsPlugin::drawTouchpadSettings_()
         updateSettings = true;
     ImGui::PopStyleVar();
     if ( updateSettings )
-        viewer->setTouchpadParameters( touchpadParameters_ );
+        viewer->touchpadController().setParameters( touchpadParameters_ );
 }
 
 void ViewerSettingsPlugin::drawMruInnerFormats_( float menuWidth )
@@ -1348,16 +1391,8 @@ void ViewerSettingsPlugin::updateDialog_()
     updateThemes();
 
     tempUserScaling_ = viewer->getMenuPlugin()->getUserScaling();
-    spaceMouseParams_ = viewer->getSpaceMouseParameters();
-    touchpadParameters_ = viewer->getTouchpadParameters();
-#if defined(_WIN32) || defined(__APPLE__)
-    if ( auto spaceMouseHandler = viewer->getSpaceMouseHandler() )
-    {
-        auto hidapiHandler = std::dynamic_pointer_cast< MR::SpaceMouseHandlerHidapi >( spaceMouseHandler );
-        if ( hidapiHandler )
-            activeMouseScrollZoom_ = hidapiHandler->isMouseScrollZoomActive();
-    }
-#endif
+    spaceMouseParams_ = viewer->spaceMouseController().getParameters();
+    touchpadParameters_ = viewer->touchpadController().getParameters();
 }
 
 void ViewerSettingsPlugin::resetSettings_()
@@ -1375,15 +1410,6 @@ void ViewerSettingsPlugin::resetSettings_()
 
     if ( auto& settingsManager = viewer->getViewerSettingsManager() )
         settingsManager->saveString( "multisampleAntiAliasing", "invalid" );// invalidate record, so next time - default value will be used
-
-#if defined(_WIN32) || defined(__APPLE__)
-    if ( auto spaceMouseHandler = viewer->getSpaceMouseHandler() )
-    {
-        auto hidapiHandler = std::dynamic_pointer_cast< MR::SpaceMouseHandlerHidapi >( spaceMouseHandler );
-        if ( hidapiHandler )
-            hidapiHandler->activateMouseScrollZoom( false );
-    }
-#endif
 
     updateDialog_();
 }

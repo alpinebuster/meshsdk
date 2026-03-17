@@ -54,7 +54,7 @@ class MRVIEWER_CLASS ImGuiMenu : public MR::ViewerPlugin,
     TouchpadRotateGestureBeginListener, TouchpadRotateGestureUpdateListener, TouchpadRotateGestureEndListener,
     TouchpadSwipeGestureBeginListener, TouchpadSwipeGestureUpdateListener, TouchpadSwipeGestureEndListener,
     TouchpadZoomGestureBeginListener, TouchpadZoomGestureUpdateListener, TouchpadZoomGestureEndListener,
-    PostResizeListener, PostRescaleListener>
+    PostResizeListener, PostRescaleListener, PostFocusListener>
 {
     using ImGuiMenuMultiListener = MultiListener<
         MouseDownListener, MouseMoveListener, MouseUpListener, MouseScrollListener,
@@ -63,7 +63,7 @@ class MRVIEWER_CLASS ImGuiMenu : public MR::ViewerPlugin,
         TouchpadRotateGestureBeginListener, TouchpadRotateGestureUpdateListener, TouchpadRotateGestureEndListener,
         TouchpadSwipeGestureBeginListener, TouchpadSwipeGestureUpdateListener, TouchpadSwipeGestureEndListener,
         TouchpadZoomGestureBeginListener, TouchpadZoomGestureUpdateListener, TouchpadZoomGestureEndListener,
-        PostResizeListener, PostRescaleListener>;
+        PostResizeListener, PostRescaleListener, PostFocusListener>;
 protected:
   // Hidpi scaling to be used for text rendering.
   float hidpi_scaling_;
@@ -105,8 +105,13 @@ protected:
   bool savedDialogPositionEnabled_{ false };
 
   std::weak_ptr<Object> lastRenameObj_;
-  Box3f selectionBbox_; // updated in drawSelectionInformation_
+  Box3f selectionLocalBox_; // updated in drawSelectionInformation_
   Box3f selectionWorldBox_;
+  enum class CoordType : int
+  {
+      Local,
+      World,
+  } coordType_{ CoordType::Local };
 
   struct LabelParams
   {
@@ -282,6 +287,9 @@ public:
 
   MRVIEWER_API void setObjectTreeState( const Object* obj, bool open );
 
+  /// expands all `obj`s parents in tree and scroll scene tree window so selection becomes visible
+  MRVIEWER_API void expandObjectTreeAndScroll( const Object* obj );
+
   //set show shortcuts state (enable / disable)
   MRVIEWER_API void setShowShortcuts( bool val );
   //return show shortcuts state (enable / disable)
@@ -378,6 +386,8 @@ protected:
     MRVIEWER_API virtual bool touchpadZoomGestureBegin_() override;
     MRVIEWER_API virtual bool touchpadZoomGestureUpdate_( float scale, bool kinetic ) override;
     MRVIEWER_API virtual bool touchpadZoomGestureEnd_() override;
+    // Other events
+    MRVIEWER_API virtual void postFocus_( bool focused ) override;
 
     // This function reset ImGui style to current theme and scale it by menu_scaling
     // called in ImGuiMenu::postRescale_()

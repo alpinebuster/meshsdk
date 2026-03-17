@@ -109,6 +109,11 @@
 #include <fmt/chrono.h>
 #endif
 
+#ifdef _WIN32
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h>
+#endif
+
 #include "MRPch/MRWinapi.h"
 
 #include <bitset>
@@ -187,7 +192,7 @@ void ImGuiMenu::init( MR::Viewer* _viewer )
 #ifdef NDEBUG
         ImGui::GetIO().ConfigDebugHighlightIdConflicts = false;
 #endif
-        if ( _viewer->isMultiViewport() )
+        if ( _viewer->isMultiViewportAvailable() && _viewer->getLaunchParams().multiViewport )
             ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Enable multi viewports in ImGui
         ImGui::StyleColorsDark();
         ImGuiStyle& style = ImGui::GetStyle();
@@ -230,6 +235,7 @@ void reserveKeyEvent( ImGuiKey key )
 
 void ImGuiMenu::startFrame()
 {
+    MR_TIMER;
     if ( pollEventsInPreDraw )
     {
         glfwPollEvents();
@@ -299,11 +305,27 @@ void ImGuiMenu::startFrame()
     bool needIncrement = false;
     if ( ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable && context_ )
     {
-        if ( !context_->InputEventsQueue.empty() )
+        const auto& eq = context_->InputEventsQueue;
+        if ( !eq.empty() )
         {
-            needIncrement = context_->InputEventsQueue.back().Type == ImGuiInputEventType_MouseButton ||
-                context_->InputEventsQueue.back().Type == ImGuiInputEventType_MouseWheel ||
-                context_->InputEventsQueue.back().Type == ImGuiInputEventType_Key;
+            needIncrement = eq.back().Type == ImGuiInputEventType_MouseButton ||
+                eq.back().Type == ImGuiInputEventType_MouseWheel ||
+                eq.back().Type == ImGuiInputEventType_Key;
+
+            // add focused event at the and if we switched from child viewport to main one
+            // in order to keep focused state valid and also don't lose valid g.IO.MousePos
+            int focused = glfwGetWindowAttrib( viewer->window, GLFW_FOCUSED );
+            if ( focused )
+            {
+                for ( int i = int( eq.size() ) - 1; i >= 0; --i )
+                {
+                    if ( eq[i].Type != ImGuiInputEventType_Focus )
+                        continue;
+                    if ( !eq[i].AppFocused.Focused )
+                        ImGui::GetIO().AddFocusEvent( true );
+                    break;
+                }
+            }
         }
     }
 
@@ -319,6 +341,7 @@ void ImGuiMenu::startFrame()
 
 void ImGuiMenu::finishFrame()
 {
+    MR_TIMER;
     draw_menu();
     prevFrameFocusPlugin_ = nullptr;
     if ( context_ && !context_->WindowsFocusOrder.empty() && !ImGui::IsPopupOpen( "", ImGuiPopupFlags_AnyPopup ) )
@@ -557,6 +580,35 @@ bool ImGuiMenu::touchpadZoomGestureUpdate_( float, bool )
 bool ImGuiMenu::touchpadZoomGestureEnd_()
 {
     return ImGui::IsPopupOpen( "", ImGuiPopupFlags_AnyPopup );
+}
+
+void ImGuiMenu::postFocus_( bool focused )
+{
+    ImGui_ImplGlfw_WindowFocusCallback( viewer->window, focused );
+#ifdef _WIN32
+    if ( focused && ImGui::isMultiViewportEnabled() )
+    {
+        std::vector<GLFWwindow*> processedWindow;
+        for ( ImGuiWindow* win : ImGui::GetCurrentContext()->Windows )
+        {
+            if ( !win->Viewport )
+                continue;
+            GLFWwindow* glfwWindow = ( GLFWwindow* )win->Viewport->PlatformHandle;
+            if ( !glfwWindow || getViewerInstance().window == glfwWindow )
+                continue;
+
+            auto findIt = std::find( processedWindow.begin(), processedWindow.end(), glfwWindow );
+            if ( findIt != processedWindow.end() )
+                continue;
+
+            processedWindow.push_back( glfwWindow );
+            {
+                HWND hwnd = glfwGetWin32Window( glfwWindow );
+                SetWindowPos( hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
+            }
+        }
+    }
+#endif
 }
 
 void ImGuiMenu::rescaleStyle_()
@@ -1004,6 +1056,12 @@ void ImGuiMenu::draw_helpers()
     drawModalMessage_();
 }
 
+void ImGuiMenu::expandObjectTreeAndScroll( const Object* obj )
+{
+    if ( sceneObjectsList_ )
+        sceneObjectsList_->expandObjectTreeAndScroll( obj );
+}
+
 UiRenderManager& ImGuiMenu::getUiRenderManager()
 {
     if ( !uiRenderManager_ )
@@ -1118,6 +1176,10 @@ void ImGuiMenu::showModalMessage( const std::string& msg, NotificationType msgTy
     storedModalMessage_ = msg;
     // this is needed to correctly resize modal window
     getViewerInstance().incrementForceRedrawFrames( 2, true );
+
+    // focus main window
+    if ( ImGui::isMultiViewportEnabled() )
+        glfwFocusWindow( getViewerInstance().window );
 }
 
 void ImGuiMenu::setupShortcuts_()
@@ -1215,8 +1277,71 @@ float ImGuiMenu::drawSelectionInformation_()
         return ImGui::GetCursorScreenPos().y - baseCursorScreenPos;
     };
 
-    if ( !drawCollapsingHeader_( "Information", ImGuiTreeNodeFlags_DefaultOpen ) || selectedObjs.empty() )
+    if ( !drawCollapsingHeader_( "Information", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_AllowOverlap ) || selectedObjs.empty() )
         return resultingHeight();
+
+    // draw World/Local toggles
+    {
+        auto pos = ImGui::GetCursorPos();
+        pos.x += ImGui::GetContentRegionAvail().x + style.WindowPadding.x * 0.5f - style.FramePadding.x;
+        pos.y -= ImGui::GetFrameHeightWithSpacing();
+        const auto frameHeight = ImGui::GetFrameHeight();
+
+        ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, { 8.f * UI::scale(), 3.f * UI::scale() } );
+        ImGui::PushStyleVar( ImGuiStyleVar_ItemSpacing, style.ItemInnerSpacing );
+        RibbonFontHolder iconsFont( RibbonFontManager::FontType::SemiBold, 0.75f );
+        const auto worldTextSize = ImGui::CalcTextSize( "WORLD" );
+        const auto localTextSize = ImGui::CalcTextSize( "LOCAL" );
+        const ImVec2 layoutSize {
+            worldTextSize.x + localTextSize.x + style.ItemSpacing.x + style.FramePadding.x * 4,
+            std::max( worldTextSize.y, localTextSize.y ) + style.FramePadding.y * 2,
+        };
+
+        // draw invisible button to prevent misclicking the header
+        ImGui::SetCursorPos( { pos.x - layoutSize.x - style.ItemSpacing.x, pos.y } );
+        ImGui::SetNextItemAllowOverlap();
+        ImGui::InvisibleButton( "##CoordToggleBackground", { layoutSize.x + style.ItemSpacing.x * 2, frameHeight } );
+
+        pos.x -= layoutSize.x;
+        pos.y += ( frameHeight - layoutSize.y ) / 2;
+        ImGui::SetCursorPos( pos );
+
+        auto showToggleButton = [&] ( const char* label, CoordType coordType )
+        {
+            const auto enabled = coordType_ == coordType;
+            if ( enabled )
+            {
+                ImGui::PushStyleColor( ImGuiCol_Text, Color::white() );
+                ImGui::PushStyleColor( ImGuiCol_Button, style.Colors[ImGuiCol_ButtonActive] );
+            }
+            else
+            {
+                if ( ColorTheme::getPreset() == ColorTheme::Preset::Dark )
+                {
+                    ImGui::PushStyleColor( ImGuiCol_Button, Color::black() * .20f );
+                    ImGui::PushStyleColor( ImGuiCol_ButtonHovered, Color::black() * .30f );
+                    ImGui::PushStyleColor( ImGuiCol_ButtonActive, Color::black() * .30f );
+                }
+                else
+                {
+                    ImGui::PushStyleColor( ImGuiCol_Button, Color::black() * .10f );
+                    ImGui::PushStyleColor( ImGuiCol_ButtonHovered, Color::black() * .05f );
+                    ImGui::PushStyleColor( ImGuiCol_ButtonActive, Color::black() * .05f );
+                }
+            }
+
+            if ( ImGui::Button( label ) )
+                coordType_ = coordType;
+
+            ImGui::PopStyleColor( enabled ? 2 : 3 );
+        };
+        showToggleButton( "WORLD", CoordType::World );
+        ImGui::SameLine();
+        showToggleButton( "LOCAL", CoordType::Local );
+
+        iconsFont.popFont();
+        ImGui::PopStyleVar( 2 );
+    }
 
     // Points info
     size_t totalPoints = 0;
@@ -1262,30 +1387,62 @@ float ImGuiMenu::drawSelectionInformation_()
     };
 #endif
     // Scene info
-    Vector3f bsize;
-    Vector3f wbsize;
-    std::string bsizeStr;
-    std::string wbsizeStr;
-    selectionBbox_ = Box3f{};
+    selectionLocalBox_ = {};
     selectionWorldBox_ = {};
+    std::optional<AffineXf3f> worldXf;
+    bool showLocalBox = true;
 
     for ( const auto& obj : selectedObjs )
     {
-        const auto xf = obj->worldXf();
-        Matrix3f q, r;
-        decomposeMatrix3( xf.A, q, r );
-        const Vector3f scale{ r.x.x, r.y.y, r.z.z };
-        const auto lengthScale = ( scale.x + scale.y + scale.z ) / 3; // correct for uniform scales only
-        const auto areaScale = sqr( lengthScale );
-        const auto volumeScale = scale.x * scale.y * scale.z; // correct for not-uniform scales as well
+        // compute units based on current coord type
+        float lengthScale{}, areaScale{}, volumeScale{};
+        switch ( coordType_ )
+        {
+        case CoordType::Local:
+            lengthScale = 1.f;
+            areaScale = 1.f;
+            volumeScale = 1.f;
+            break;
+
+        case CoordType::World:
+        {
+            const auto xf = obj->worldXf();
+            Matrix3f q, r;
+            decomposeMatrix3( xf.A, q, r );
+            const Vector3f scale{ r.x.x, r.y.y, r.z.z };
+            lengthScale = ( scale.x + scale.y + scale.z ) / 3; // correct for uniform scales only
+            areaScale = sqr( lengthScale );
+            volumeScale = scale.x * scale.y * scale.z; // correct for not-uniform scales as well
+        }
+            break;
+        }
 
         // Scene info update
         if ( auto vObj = obj->asType<VisualObject>() )
         {
             if ( auto box = vObj->getBoundingBox(); box.valid() )
-                selectionBbox_.include( box );
+                selectionLocalBox_.include( box );
             if ( auto box = vObj->getWorldBox(); box.valid() )
                 selectionWorldBox_.include( box );
+            if ( !worldXf )
+                worldXf = vObj->worldXf();
+            else if ( *worldXf != vObj->worldXf() )
+                showLocalBox = false;
+        }
+        // Compute bounding box of group
+        else if ( selectedObjs.size() == 1 )
+        {
+            for ( const auto& child : getAllObjectsInTree<VisualObject>( *obj, ObjectSelectivityType::Selectable ) )
+            {
+                if ( auto box = child->getBoundingBox(); box.valid() )
+                    selectionLocalBox_.include( box );
+                if ( auto box = child->getWorldBox(); box.valid() )
+                    selectionWorldBox_.include( box );
+                if ( !worldXf )
+                    worldXf = child->worldXf();
+                else if ( *worldXf != child->worldXf() )
+                    showLocalBox = false;
+            }
         }
 
         // Typed info
@@ -1319,7 +1476,7 @@ float ImGuiMenu::drawSelectionInformation_()
             {
                 totalVerts += polyline->topology.numValidVerts();
                 totalEdges += lObj->numUndirectedEdges();
-                totalLength += lengthScale * polyline->totalLength();
+                totalLength += lengthScale * lObj->totalLength();
                 avgEdgeLen = lengthScale * lObj->avgEdgeLen();
                 components += lObj->numComponents();
             }
@@ -1335,14 +1492,6 @@ float ImGuiMenu::drawSelectionInformation_()
             updateVoxelsInfo( voxelMaxValue, vObj->vdbVolume().max, FLT_MAX );
         }
 #endif
-    }
-
-    if ( selectionBbox_.valid() && selectionWorldBox_.valid() )
-    {
-        bsize = selectionBbox_.size();
-        bsizeStr = fmt::format( "{:.3e} {:.3e} {:.3e}", bsize.x, bsize.y, bsize.z );
-        wbsize = selectionWorldBox_.size();
-        wbsizeStr = fmt::format( "{:.3e} {:.3e} {:.3e}", wbsize.x, wbsize.y, wbsize.z );
     }
 
     ImGui::PushStyleVar( ImGuiStyleVar_ScrollbarSize, 12.0f );
@@ -1468,10 +1617,10 @@ float ImGuiMenu::drawSelectionInformation_()
         UI::readOnlyValue<Units>( label, value, textColor, {}, labelColor );
     };
 
-    auto drawDimensionsVec3 = [&] <class Units> ( const char* label, auto&& value, Units )
+    auto drawDimensionsVec3 = [&] <class Units> ( const char* label, auto&& value, Units, std::optional<ImVec4> valueColor = {} )
     {
         ImGui::SetNextItemWidth( getSceneInfoItemWidth_() );
-        UI::readOnlyValue<Units>( label, value, textColor, {}, labelColor );
+        UI::readOnlyValue<Units>( label, value, valueColor ? *valueColor : textColor, {}, labelColor );
     };
 
     if ( selectedObjs.size() == 1 )
@@ -1484,24 +1633,44 @@ float ImGuiMenu::drawSelectionInformation_()
     }
 
     // Bounding box.
-    if ( selectionBbox_.valid() && !( selectedObjs.size() == 1 && selectedObjs.front()->asType<FeatureObject>() ) )
+    if ( selectionLocalBox_.valid() && !( selectedObjs.size() == 1 && selectedObjs.front()->asType<FeatureObject>() ) )
     {
         ImGui::Spacing();
         ImGui::Spacing();
 
-        drawDimensionsVec3( "Local Box Size", bsize, LengthUnit{} );
-        UI::setTooltipIfHovered( "The edges of the tight axis-aligned bounding box in the local object space." );
+        RibbonFontHolder boldFont( RibbonFontManager::FontType::SemiBold, 1.f, false );
 
-        drawDimensionsVec3( "Local Box Min", selectionBbox_.min, LengthUnit{} );
-        UI::setTooltipIfHovered( "Lower left corner of the tight axis-aligned bounding box in the local object space." );
-
-        drawDimensionsVec3( "Local Box Max", selectionBbox_.max, LengthUnit{} );
-        UI::setTooltipIfHovered( "Upper right corner of the tight axis-aligned bounding box in the local object space." );
-
-        if ( selectionWorldBox_.valid() && bsizeStr != wbsizeStr )
+        switch ( coordType_ )
         {
-            drawDimensionsVec3( "World Box Size", wbsize, LengthUnit{} );
+        case CoordType::Local:
+            if ( showLocalBox )
+            {
+                boldFont.pushFont();
+                drawDimensionsVec3( "Local Box Size", selectionLocalBox_.size(), LengthUnit{}, labelColor );
+                boldFont.popFont();
+                UI::setTooltipIfHovered( "The edges of the tight axis-aligned bounding box in the local object space." );
+
+                drawDimensionsVec3( "Local Box Min", selectionLocalBox_.min, LengthUnit{} );
+                UI::setTooltipIfHovered( "Lower left corner of the tight axis-aligned bounding box in the local object space." );
+
+                drawDimensionsVec3( "Local Box Max", selectionLocalBox_.max, LengthUnit{} );
+                UI::setTooltipIfHovered( "Upper right corner of the tight axis-aligned bounding box in the local object space." );
+            }
+            break;
+
+        case CoordType::World:
+            boldFont.pushFont();
+            drawDimensionsVec3( "World Box Size", selectionWorldBox_.size(), LengthUnit{}, labelColor );
+            boldFont.popFont();
             UI::setTooltipIfHovered( "The edges of the tight axis-aligned bounding box in the world space." );
+
+            drawDimensionsVec3( "World Box Min", selectionWorldBox_.min, LengthUnit{} );
+            UI::setTooltipIfHovered( "Lower left corner of the tight axis-aligned bounding box in the world space." );
+
+            drawDimensionsVec3( "World Box Max", selectionWorldBox_.max, LengthUnit{} );
+            UI::setTooltipIfHovered( "Upper right corner of the tight axis-aligned bounding box in the world space." );
+
+            break;
         }
     }
 
@@ -2045,7 +2214,6 @@ bool ImGuiMenu::drawDrawOptionsCheckboxes( const std::vector<std::shared_ptr<Vis
     {
         someChanges |= make_visualize_checkbox( selectedVisualObjs, "Subfeatures", FeatureVisualizePropertyType::Subfeatures, viewportid );
     }
-    someChanges |= make_visualize_checkbox( selectedVisualObjs, "Invert Normals", VisualizeMaskType::InvertedNormals, viewportid );
     someChanges |= make_visualize_checkbox( selectedVisualObjs, "Name", VisualizeMaskType::Name, viewportid );
     if ( allIsFeatureObj )
         someChanges |= make_visualize_checkbox( selectedVisualObjs, "Extra information next to name", FeatureVisualizePropertyType::DetailsOnNameTag, viewportid );
@@ -2623,7 +2791,7 @@ float ImGuiMenu::drawTransform_()
             if ( inputChanged )
                 xf.A = Matrix3f::rotationFromEuler( ( PI_F / 180 ) * euler ) * Matrix3f::scale( scale );
 
-            const auto trSpeed = ( selectionBbox_.valid() && selectionBbox_.diagonal() > std::numeric_limits<float>::epsilon() ) ? 0.003f * selectionBbox_.diagonal() : 0.003f;
+            const auto trSpeed = ( selectionLocalBox_.valid() && selectionLocalBox_.diagonal() > std::numeric_limits<float>::epsilon() ) ? 0.003f * selectionLocalBox_.diagonal() : 0.003f;
 
             ImGui::SetNextItemWidth( getSceneInfoItemWidth_() );
             auto wbsize = selectionWorldBox_.valid() ? selectionWorldBox_.size() : Vector3f::diagonal( 1.f );

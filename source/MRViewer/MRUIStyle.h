@@ -128,6 +128,9 @@ struct PlotAxis
 /// returns imgui modifier Id based on current environment
 MRVIEWER_API ImGuiKey getImGuiModPrimaryCtrl();
 
+/// returns "Ctrl" by default or "Command" if ImGui has changed it internally for macos
+MRVIEWER_API const char* getImGuiPrimaryCtrlName();
+
 /// returns true if button is pressed in this frame, preserve its further processing in viewer keyboard events system if taken here
 MRVIEWER_API bool checkKey( ImGuiKey passedKey );
 
@@ -563,25 +566,34 @@ struct CustomConfigModalSettings
 /// Draw modal window to save user configs (for example Palettes)
 MRVIEWER_API void saveCustomConfigModal(const CustomConfigModalSettings& settings );
 
-// While this exists, it temporarily disables antialiasing for the lines drawn to this list.
-class LineAntialiasingDisabler
+// While this exists, it temporarily disables in the given list the flags with 0 bits in the given mask
+class Disabler
 {
     ImDrawList& list;
     ImDrawFlags oldFlags{};
 
 public:
-    LineAntialiasingDisabler( ImDrawList& list )
+    Disabler( ImDrawList& list, ImDrawFlags mask )
         : list( list ), oldFlags( list.Flags )
     {
-        list.Flags &= ~ImDrawListFlags_AntiAliasedLines;
+        list.Flags &= mask;
     }
 
-    LineAntialiasingDisabler( const LineAntialiasingDisabler& ) = delete;
-    LineAntialiasingDisabler& operator=( const LineAntialiasingDisabler& ) = delete;
+    Disabler( const Disabler& ) = delete;
+    Disabler& operator=( const Disabler& ) = delete;
 
-    ~LineAntialiasingDisabler()
+    ~Disabler()
     {
         list.Flags = oldFlags;
+    }
+};
+
+// While this exists, it temporarily disables antialiasing for the lines drawn to this list.
+class LineAntialiasingDisabler : Disabler
+{
+public:
+    LineAntialiasingDisabler( ImDrawList& list ) : Disabler( list, ~ImDrawListFlags_AntiAliasedLines )
+    {
     }
 };
 

@@ -25,6 +25,18 @@ install(
   DESTINATION "${MR_BIN_DIR}"
 )
 
+include(I18nHelpers)
+mr_add_translations(meshsdk_translations
+  DOMAINS
+    MeshSDK
+    MRRibbonCommonMenuStructure
+  PATHS
+    "${CMAKE_CURRENT_LIST_DIR}/../../locale"
+)
+if(TARGET meshsdk_translations)
+  add_dependencies(${PROJECT_NAME} meshsdk_translations)
+endif()
+
 file(GLOB PNGS "*.png")
 file(
   COPY ${PNGS}

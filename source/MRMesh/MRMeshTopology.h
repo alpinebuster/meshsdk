@@ -454,7 +454,8 @@ public:
 
     /// the same but copies only portion of (from) specified by fromFaces,
     MRMESH_API void addPartByMask( const MeshTopology & from, const FaceBitSet * fromFaces, const PartMapping & map = {} );
-    void addPartByMask( const MeshTopology & from, const FaceBitSet & fromFaces, const PartMapping & map = {} )
+    /// This is skipped in the bindings because it conflicts with the overload taking a pointer in C#. Since that overload is strictly more useful, we're keeping that one.
+    MR_BIND_IGNORE void addPartByMask( const MeshTopology & from, const FaceBitSet & fromFaces, const PartMapping & map = {} )
         { addPartByMask( from, &fromFaces, map ); }
 
     /// this version has more parameters
@@ -464,7 +465,9 @@ public:
     MRMESH_API void addPartByMask( const MeshTopology & from, const FaceBitSet * fromFaces, bool flipOrientation = false,
         const std::vector<EdgePath> & thisContours = {}, const std::vector<EdgePath> & fromContours = {},
         const PartMapping & map = {} );
-    void addPartByMask( const MeshTopology & from, const FaceBitSet & fromFaces, bool flipOrientation = false,
+
+    /// This is skipped in the bindings because it conflicts with the overload taking a pointer in C#. Since that overload is strictly more useful, we're keeping that one.
+    MR_BIND_IGNORE void addPartByMask( const MeshTopology & from, const FaceBitSet & fromFaces, bool flipOrientation = false,
         const std::vector<EdgePath> & thisContours = {}, const std::vector<EdgePath> & fromContours = {},
         const PartMapping & map = {} ) { addPartByMask( from, &fromFaces, flipOrientation, thisContours, fromContours, map ); }
 
@@ -542,8 +545,14 @@ private:
     /// sets new origin to the full origin ring including this edge, without updating edgePerVertex_ table
     void setOrg_( EdgeId a, VertId v );
 
+    /// writes all valid edge_.org by calling setOrg_ for each valid edgePerVertex_
+    void fillOrg_();
+
     /// sets new left face to the full left ring including this edge, without updating edgePerFace_ table
     void setLeft_( EdgeId a, FaceId f );
+
+    /// writes all valid edge_.left by calling setLeft_ for each valid edgePerFace_
+    void fillLeft_();
 
     /// data of every half-edge, align to put whole record in one cache line
     struct alignas( 16 ) HalfEdgeRecord

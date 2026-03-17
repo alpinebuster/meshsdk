@@ -20,6 +20,7 @@ constexpr int MaxErrorStringLen = 80;
 template <typename T>
 Expected<void> readFromStream( std::istream& in, T& out )
 {
+    MR_TIMER;
     const auto streamSize = getStreamSize( in );
     if ( !in )
         return unexpected( std::string( "File read error" ) );
@@ -40,6 +41,7 @@ namespace MR
 
 std::vector<size_t> splitByLines( const char* data, size_t size )
 {
+    MR_TIMER;
     constexpr size_t blockSize = 4096;
     const auto blockCount = ( size_t )std::ceil( ( float )size / blockSize );
 
@@ -328,6 +330,12 @@ Expected<void> parsePolygon( const std::string_view& str, VertId* vertId, int* n
     }
 
     return {};
+}
+
+bool hasBom( const std::string_view& str )
+{
+    constexpr auto cUtf8Bom = "\xef\xbb\xbf";
+    return str.starts_with( cUtf8Bom );
 }
 
 template <typename T>

@@ -22,6 +22,7 @@
 #include "MRToolbar.h"
 #include "MRStatePlugin.h"
 #include "MRRibbonFontHolder.h"
+#include "MRI18n.h"
 #include "MRMesh/MRObjectsAccess.h"
 #include <MRMesh/MRString.h>
 #include <MRMesh/MRSystem.h>
@@ -57,12 +58,13 @@ namespace
 
 constexpr auto cTransformContextName = "TransformContextWindow";
 
-auto getItemCaption( const std::string& name )->const std::string&
+std::string getItemCaption( const std::string& name )
 {
     auto it = RibbonSchemaHolder::schema().items.find( name );
     if ( it == RibbonSchemaHolder::schema().items.end() )
         return name;
-    return  it->second.caption.empty() ? name : it->second.caption;
+    const auto& item = it->second;
+    return Locale::translate( item.getCaption().c_str(), item.localeDomainId );
 }
 
 } //anonymous namespace
@@ -394,6 +396,9 @@ void RibbonMenu::drawHelpButton_( const std::string& url )
 
 bool RibbonMenu::drawCustomCheckBox( const std::vector<std::shared_ptr<Object>>& selected, SelectedTypesMask selectedMask )
 {
+    UI::TestEngine::pushTree( "CustomCheckBox" );
+    MR_FINALLY { UI::TestEngine::popTree(); };
+
     bool res = false;
     for ( auto& [name, custom] : customCheckBox_ )
     {
@@ -531,6 +536,7 @@ void RibbonMenu::drawHeaderPannel_()
 
     float availWidth = 0.0f;
     {
+        font.popFont();
         auto backupPos = ImGui::GetCursorPos();
         ImGui::PopStyleVar( 2 ); // draw helpers with default style
         availWidth = drawHeaderHelpers_( summaryTabPannelSize );
@@ -538,6 +544,7 @@ void RibbonMenu::drawHeaderPannel_()
         ImGui::PushStyleVar( ImGuiStyleVar_TabRounding, cTabFrameRounding * UI::scale() );
         ImGui::PushStyleVar( ImGuiStyleVar_ItemSpacing, ImVec2( 0, 0 ) );
         ImGui::SetCursorPos( backupPos );
+        font.pushFont();
     }
 
     float scrollMax = summaryTabPannelSize - availWidth;
@@ -811,6 +818,7 @@ void RibbonMenu::drawActiveList_()
         ImGuiWindowFlags_NoMove;
     ImGui::PushStyleVar( ImGuiStyleVar_PopupBorderSize, 0.0f );
     ImGui::PushStyleColor( ImGuiCol_PopupBg, ImVec4( 0, 0, 0, 0 ) );
+    ImGui::SetNextWindowViewport( ImGui::GetMainViewport()->ID );
     ImGui::Begin( nameWindow, NULL, window_flags );
     if ( popupOpened )
     {
@@ -837,7 +845,9 @@ void RibbonMenu::drawActiveList_()
         }
         sbFont.popFont();
 
-        auto blockSize = ImVec2( 2 * winPadding.x + maxSize + 2 * ImGui::GetStyle().ItemSpacing.x + btnSize.x,
+        const bool needFocusBtn = ImGui::isMultiViewportEnabled();
+
+        auto blockSize = ImVec2( 2 * winPadding.x + maxSize + 2 * itemSpacing.x + btnSize.x + ( itemSpacing.x + btnSize.x ) * needFocusBtn,
             btnSize.y + winPadding.y * 2 );
         auto dotShift = ( blockSize.y - 2 * UI::scale() ) * 0.5f;
         blockSize.x = blockSize.x - winPadding.x + dotShift;
@@ -846,7 +856,7 @@ void RibbonMenu::drawActiveList_()
         {
             if ( !item )
                 return;
-            const auto& name = getItemCaption( item->name() );
+            const auto name = getItemCaption( item->name() );
             auto childName = "##CloseItemBlock" + item->name();
 
             ImGui::PushStyleColor( ImGuiCol_ChildBg, ColorTheme::getRibbonColor( ColorTheme::RibbonColorsType::Background ).getUInt32() );
@@ -864,9 +874,34 @@ void RibbonMenu::drawActiveList_()
             ImGui::SetCursorPosY( 0.5f * ( blockSize.y - ImGui::GetFontSize() ) );
             ImGui::Text( "%s", name.c_str() );
             sbFont.popFont();
-            ImGui::SameLine( blockSize.x - btnSize.x - winPadding.x );
+            ImGui::SameLine( blockSize.x - btnSize.x - winPadding.x - ( btnSize.x + itemSpacing.x ) * needFocusBtn );
             ImGui::SetCursorPosY( savedPos );
-            auto btnText = "Close" + childName;
+            
+            std::string btnText;
+            if ( needFocusBtn )
+            {
+                btnText = "Focus" + childName;
+                if ( UI::button( btnText.c_str(), btnSize ) )
+                    [&]
+                {
+                    auto* imguiWindow = ImGui::FindWindowByName( ( item->name() + "##CustomStatePlugin" ).c_str() );
+                    if ( !imguiWindow )
+                        return;
+                    auto* imguiViewport = imguiWindow->Viewport;
+                    if ( !imguiViewport )
+                        return;
+                    auto* window = ( GLFWwindow* )imguiViewport->PlatformHandle;
+                    if ( !window )
+                        return;
+
+                    glfwFocusWindow( window );
+                }( );
+
+                ImGui::SameLine( 0.f, ImGui::GetStyle().ItemSpacing.x );
+                ImGui::SetCursorPosY( savedPos );
+            }
+
+            btnText = "Close" + childName;
             if ( UI::button( btnText.c_str(), btnSize ) )
                 close = true;
             ImGui::EndChild();
@@ -2069,14 +2104,6 @@ void RibbonMenu::setupShortcuts_()
         if ( menuUIConfig_.drawSearchBar )
             searcher_.activate();
     } } );
-    shortcutManager_->setShortcut( { GLFW_KEY_I,0 }, { ShortcutManager::Category::View, "Invert normals of selected objects",[] ()
-    {
-        auto& viewport = getViewerInstance().viewport();
-        const auto& viewportid = viewport.id;
-        const auto& selected = SceneCache::getAllObjects<VisualObject, ObjectSelectivityType::Selected>();
-        for ( const auto& sel : selected )
-            sel->toggleVisualizeProperty( VisualizeMaskType::InvertedNormals, viewportid );
-    } }  );
     shortcutManager_->setShortcut( { GLFW_KEY_L,0 }, { ShortcutManager::Category::View, "Toggle edges on selected meshes",[] ()
     {
         auto& viewport = getViewerInstance().viewport();
@@ -2249,7 +2276,7 @@ void RibbonMenu::drawShortcutsWindow_()
         for ( int i = 0; i < shortcutList.size(); ++i )
         {
             const auto& [key, category, name] = shortcutList[i];
-            const auto& caption = getItemCaption( name );
+            const auto caption = getItemCaption( name );
 
             if ( !secondColumnStarted && int( category ) >= int( ShortcutManager::Category::Count ) / 2 )
             {
@@ -2360,7 +2387,7 @@ void RibbonMenu::beginTopPanel_()
     ImGui::Begin(
         "TopPanel", nullptr,
         ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus |
-        ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse
+        ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoDocking
     );
     ImGui::PopStyleVar();
     // for all items

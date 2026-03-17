@@ -482,6 +482,7 @@ using IsoLines = SurfacePaths;
 using PlaneSection = SurfacePath;
 using PlaneSections = SurfacePaths;
 struct EdgePointPair;
+struct GeodesicPath;
 class Laplacian;
 
 using VertPair = std::pair<VertId, VertId>;
@@ -684,6 +685,7 @@ class VisualObject;
 class ObjectMeshHolder;
 class ObjectMesh;
 struct ObjectMeshData;
+struct LoadedMeshData;
 class ObjectPointsHolder;
 class ObjectPoints;
 class ObjectLinesHolder;
@@ -715,6 +717,10 @@ class ChangeMeshAction;
 class ChangeMeshDataAction;
 class ChangeMeshPointsAction;
 class ChangeMeshTopologyAction;
+class PartialChangeMeshAction;
+class PartialChangeMeshPointsAction;
+class PartialChangeMeshTopologyAction;
+class VersatileChangeMeshPointsAction;
 class ChangeXfAction;
 class CombinedHistoryAction;
 class SwapRootAction;
@@ -744,6 +750,8 @@ typedef std::function<bool( float )> ProgressCallback;
 enum class FilterType : char;
 enum class WrapType : char;
 enum class Reorder : char;
+
+struct TransparencyMode;
 
 /// squared value
 template <typename T>
@@ -788,6 +796,17 @@ struct VertDuplication;
 
 } //namespace MeshBuilder
 
+namespace Locale
+{
+
+/// special no-op inline functions to mark string literal as translatable
+constexpr inline auto translate_noop( const char* str ) noexcept { return str; }
+constexpr inline auto translate_noop( const char* ctx, const char* str ) noexcept { (void)ctx; return str; }
+constexpr inline auto translate_noop( const char* single, const char* plural, Int64 n ) noexcept { return n == 1 ? single : plural; }
+constexpr inline auto translate_noop( const char* ctx, const char* single, const char* plural, Int64 n ) noexcept { (void)ctx; return n == 1 ? single : plural; }
+
+} // namespace Locale
+
 } //namespace MR
 
 #ifdef __cpp_lib_unreachable
@@ -803,3 +822,7 @@ struct VertDuplication;
 #       define MR_UNREACHABLE_NO_RETURN assert( false );
 #   endif
 #endif
+
+#ifndef MR_NO_I18N_MACROS
+#define _t( ... ) MR::Locale::translate_noop( __VA_ARGS__ )
+#endif // MR_NO_I18N_MACROS

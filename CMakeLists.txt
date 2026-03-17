@@ -50,7 +50,7 @@ option(MESHSDK_BUILD_MRVIEWER "Build MRViewer library" ON)
 option(MESHSDK_BUILD_MESHVIEWER "Build MeshViewer application" ON)
 option(MESHSDK_BUILD_PYTHON_MODULES "Build Python modules" ON)
 option(MESHSDK_BUILD_MESHCONV "Build meshconv utility" ON)
-option(MESHSDK_EXPERIMENTAL_BUILD_C_BINDING "(experimental) Build C binding library" ON)
+option(MESHSDK_EXPERIMENTAL_BUILD_C_BINDING "(experimental) Build C binding library" OFF)
 option(MESHSDK_BUILD_SYMBOLMESH "Build symbol-to-mesh library" ON)
 option(MESHSDK_BUILD_VOXELS "Build voxels library" ON)
 option(MESHSDK_BUILD_EXTRA_IO_FORMATS "Build extra IO format support library" ON)
@@ -223,6 +223,9 @@ IF(MESHSDK_BUILD_GENERATED_C_BINDINGS)
   option(MESHSDK_C_BINDINGS_UNITY_BUILD "Use unity build for C bindings" ON)
   add_subdirectory(${PROJECT_SOURCE_DIR}/MeshSDKC2 ./MeshSDKC2)
   add_subdirectory(${PROJECT_SOURCE_DIR}/MRTestC2 ./MRTestC2)
+
+  # The Cuda is always enabled. Even if we don't want to actually build Cuda, we still need the stubs.
+  add_subdirectory(${PROJECT_SOURCE_DIR}/MeshSDKC2Cuda ./MeshSDKC2Cuda)
 ENDIF()
 
 IF(MESHSDK_BUILD_SYMBOLMESH)

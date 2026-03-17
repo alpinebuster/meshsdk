@@ -243,6 +243,14 @@ ImGuiKey getImGuiModPrimaryCtrl()
         return ImGuiMod_Super;
 }
 
+const char* getImGuiPrimaryCtrlName()
+{
+    if ( ImGui::GetIO().ConfigMacOSXBehaviors )
+        return getSuperModName();
+    else
+        return "Ctrl";
+}
+
 bool buttonEx( const char* label, const Vector2f& size_arg /*= Vector2f( 0, 0 )*/, const ButtonCustomizationParams& customParams )
 {
     bool simulateClick = customParams.enableTestEngine && TestEngine::createButton( customParams.testEngineName.empty() ? label : customParams.testEngineName );
@@ -938,7 +946,7 @@ static std::string modifiersToString( int modifiers )
 {
     std::string modsText;
     for ( const auto& [bit, name] : {
-        std::pair( ImGuiMod_Ctrl, "Ctrl" ),
+        std::pair( ImGuiMod_Ctrl, getImGuiPrimaryCtrlName() ),
         std::pair( ImGuiMod_Super, getSuperModName() ),
         std::pair( ImGuiMod_Shift, "Shift" ),
         std::pair( ImGuiMod_Alt, getAltModName() ),
@@ -2334,6 +2342,8 @@ void saveCustomConfigModal( const CustomConfigModalSettings& settings )
         {
             assert( settings.onSave );
             saved = settings.onSave && settings.onSave( currentConfigName );
+            if ( saved )
+                ImGui::CloseCurrentPopup();
         }
         ImGui::SameLine( 0, p );
         if ( UI::buttonCommonSize( "No", Vector2f( ( w - p ) * 0.5f, 0 ), ImGuiKey_Escape ) )
@@ -2378,7 +2388,7 @@ void saveCustomConfigModal( const CustomConfigModalSettings& settings )
         if ( UI::button( "Save", valid, Vector2f( btnWidth, 0 ) ) )
         {
             std::error_code ec;
-            if ( settings.warnExisting && std::filesystem::is_regular_file( settings.configDirectory / ( currentConfigName + ".json" ), ec ) )
+            if ( settings.warnExisting && std::filesystem::is_regular_file( settings.configDirectory / asU8String( currentConfigName + ".json" ), ec ) )
             {
                 ImGui::OpenPopup( existingPopupName.c_str() );
             }
@@ -2417,7 +2427,7 @@ void saveCustomConfigModal( const CustomConfigModalSettings& settings )
             currentConfigName = replaceProhibitedChars( *settings.inputName );
 
             std::error_code ec;
-            if ( settings.warnExisting && std::filesystem::is_regular_file( settings.configDirectory / ( currentConfigName + ".json" ), ec ) )
+            if ( settings.warnExisting && std::filesystem::is_regular_file( settings.configDirectory / asU8String( currentConfigName + ".json" ), ec ) )
             {
                 ImGui::OpenPopup( existingPopupName.c_str() );
             }

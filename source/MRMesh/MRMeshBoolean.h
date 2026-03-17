@@ -16,6 +16,8 @@ namespace MR
   * This chapter represents documentation of MeshSDK CSG
   */
 
+/// \ingroup BooleanGroup
+/// \{
 
 /** \struct MR::BooleanResult
   * \ingroup BooleanGroup
@@ -142,4 +144,6 @@ MRMESH_API Expected<BooleanResultPoints, std::string> getBooleanPoints( const Me
 /// newly introduced vertices on cut-contours are also converted, but we expected that they remain unchanged due to idempotent property of the conversion
 MRMESH_API void convertIntFloatAllVerts( Mesh & mesh, const CoordinateConverters& conv );
 
-} //namespace MR
+/// \}
+
+} // end namespace MR

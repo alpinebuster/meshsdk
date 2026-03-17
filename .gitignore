@@ -44,5 +44,16 @@ examples/python-examples/*.ctm
 /source/MeshSDKC2/include
 /source/MeshSDKC2/src
 /source/MeshSDKC2/temp
+/source/MeshSDKC2Cuda/include
+/source/MeshSDKC2Cuda/src
 compile_commands.json
 /source/CustomMRPlatform.props
+/source/MRDotNet2/bin
+/source/MRDotNet2/obj
+/source/MRDotNet2/src
+/source/MRDotNet2Test/obj
+# `MRDotNet2Test` places binaries there on Linux: [
+/source/Debug
+/source/Release
+# ]
+/thirdparty/boost-libs/
