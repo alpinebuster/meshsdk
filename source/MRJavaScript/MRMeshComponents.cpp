@@ -66,9 +66,6 @@ EMSCRIPTEN_BINDINGS( MeshComponentsModule )
     function( "getComponentVerts", &MeshComponents::getComponentVerts, allow_raw_pointers() );
     function( "getLargestComponentVerts", &MeshComponents::getLargestComponentVerts, allow_raw_pointers() );
     function( "getLargeComponentVerts", &MeshComponents::getLargeComponentVerts, allow_raw_pointers() );
-    // FIXME: "`int*` -> Missing binding for type: 'Pi' typeId"
-    // function( "getLargestComponent", &MeshComponents::getLargestComponent, allow_raw_pointers() );
-    function( "getComponents", &MeshComponents::getComponents, allow_raw_pointers() );
 
     function( "getLargeByAreaComponents", select_overload<FaceBitSet( const MeshPart&, float, const UndirectedEdgeBitSet* )>( &MeshComponents::getLargeByAreaComponents ), allow_raw_pointers() );
     function( "getLargeByAreaComponentsWithUnionFind", select_overload<FaceBitSet( const MeshPart&, UnionFind<FaceId>&, float, UndirectedEdgeBitSet* )>( &MeshComponents::getLargeByAreaComponents ), allow_raw_pointers() );
@@ -96,10 +93,7 @@ EMSCRIPTEN_BINDINGS( MeshComponentsModule )
     function( "hasFullySelectedComponentFromTopology", select_overload<bool( const MeshTopology&, const VertBitSet& )>( &MeshComponents::hasFullySelectedComponent ) );
 
     function( "excludeFullySelectedComponents", &MeshComponents::excludeFullySelectedComponents );
-    function( "getUnionFindStructureFaces", &MeshComponents::getUnionFindStructureFaces, allow_raw_pointers() );
-    function( "getUnionFindStructureFacesPerEdge", &MeshComponents::getUnionFindStructureFacesPerEdge, allow_raw_pointers() );
 
-    function( "getUnionFindStructureVerts", select_overload<UnionFind<VertId>( const Mesh&, const VertBitSet* )>( &MeshComponents::getUnionFindStructureVerts ), allow_raw_pointers() );
     function( "getUnionFindStructureVertsFromTopology", select_overload<UnionFind<VertId>( const MeshTopology&, const VertBitSet* )>( &MeshComponents::getUnionFindStructureVerts ), allow_raw_pointers() );
     function( "getUnionFindStructureVertsFromEdgeBitSet", select_overload<UnionFind<VertId>( const Mesh&, const EdgeBitSet& )>( &MeshComponents::getUnionFindStructureVerts ) );
     function( "getUnionFindStructureVertsWithUndirectedEdgeBitSet", select_overload<UnionFind<VertId>( const Mesh&, const UndirectedEdgeBitSet& )>( &MeshComponents::getUnionFindStructureVerts ) );

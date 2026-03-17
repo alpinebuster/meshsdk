@@ -36,8 +36,7 @@ EMSCRIPTEN_BINDINGS( BooleanOperationModule )
 		.property( "cut2origin", &BooleanResultMapper::Maps::cut2origin )
 		.property( "cut2newFaces", &BooleanResultMapper::Maps::cut2newFaces )
 		.property( "old2newEdges", &BooleanResultMapper::Maps::old2newEdges )
-		.property( "old2newVerts", &BooleanResultMapper::Maps::old2newVerts )
-		.property( "identity", &BooleanResultMapper::Maps::identity );
+		.property( "old2newVerts", &BooleanResultMapper::Maps::old2newVerts );
 
 	class_<BooleanInternalParameters>( "BooleanInternalParameters" )
 		.constructor<>()

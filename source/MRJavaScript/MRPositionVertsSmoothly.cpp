@@ -42,8 +42,6 @@ val inflateToothRootImpl( Mesh& mesh, const InflateSettings& inflateSettings )
 
 
     FillHoleNicelySettings fillHoleParams;
-    fillHoleParams.maxEdgeSplits = 1000000; // just a big number not to stop subdivision by this criteria
-    fillHoleParams.maxEdgeLen = mesh.averageEdgeLength(); // stop subdivision by this criteria
     for ( const auto& e : holeEdges )
     {
         fillHoleParams.smoothCurvature = ( e != maxAreaHole ); // The maximum aperture is not smoothed in order to facilitate subsequent expansion

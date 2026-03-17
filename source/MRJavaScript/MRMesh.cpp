@@ -108,7 +108,7 @@ val createMaxillaGypsumBaseImpl( Mesh& mesh, EdgeId maxAreaHole, VertId minVert,
 		mesh.addMesh( mMaxillaBase );
 
 
-		buildCylinderBetweenTwoHoles( mesh );
+		stitchHoles( mesh );
 
 
 		///
@@ -452,7 +452,6 @@ EMSCRIPTEN_BINDINGS( MeshModule )
 		.function( "projAreaWithFaceBitSet", select_overload<double ( const Vector3f &, const FaceBitSet & ) const>( &Mesh::projArea ) )
 
 		.function( "volume", &Mesh::volume, allow_raw_pointers() )
-		.function( "holePerimiter", &Mesh::holePerimiter )
 		.function( "holeDirArea", &Mesh::holeDirArea )
 		.function( "leftTangent", &Mesh::leftTangent )
 		.function( "leftNormal", &Mesh::leftNormal )

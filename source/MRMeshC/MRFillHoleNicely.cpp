@@ -25,9 +25,9 @@ MRFillHoleNicelyParams mrFillHoleNicelyParamsNew( void )
     params.maxEdgeSplits = defaultParams.subdivideSettings.maxEdgeSplits;
     params.maxAngleChangeAfterFlip = defaultParams.subdivideSettings.maxAngleChangeAfterFlip;
     params.smoothCurvature = defaultParams.smoothCurvature;
-    params.naturalSmooth = defaultParams.smoothSeettings.naturalSmooth;
-    params.edgeWeights = (MREdgeWeights)defaultParams.smoothSeettings.edgeWeights;
-    params.vmass = (MRVertexMass)defaultParams.smoothSeettings.vmass;
+    params.naturalSmooth = defaultParams.smoothSettings.naturalSmooth;
+    params.edgeWeights = (MREdgeWeights)defaultParams.smoothSettings.edgeWeights;
+    params.vmass = (MRVertexMass)defaultParams.smoothSettings.vmass;
 
     return params;
 }
@@ -54,9 +54,9 @@ MRFaceBitSet* mrFillHoleNicely( MRMesh* mesh_, MREdgeId holeEdge_, const MRFillH
         params.subdivideSettings.maxEdgeSplits = params_->maxEdgeSplits;
         params.subdivideSettings.maxAngleChangeAfterFlip = params_->maxAngleChangeAfterFlip;
         params.smoothCurvature = params_->smoothCurvature;
-        params.smoothSeettings.naturalSmooth = params_->naturalSmooth;
-        params.smoothSeettings.edgeWeights = (MR::EdgeWeights)params_->edgeWeights;
-        params.smoothSeettings.vmass = (MR::VertexMass)params_->vmass;
+        params.smoothSettings.naturalSmooth = params_->naturalSmooth;
+        params.smoothSettings.edgeWeights = (MR::EdgeWeights)params_->edgeWeights;
+        params.smoothSettings.vmass = (MR::VertexMass)params_->vmass;
     }
     RETURN_NEW(fillHoleNicely( mesh, holeEdge, params ) );
 }

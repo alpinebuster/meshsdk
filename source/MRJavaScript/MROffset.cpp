@@ -124,7 +124,7 @@ FaceBitSet stitchHolesWithCylinders( Mesh& mesh, const std::vector<std::vector<E
         if ( pair[0] < holes.size() && pair[1] < holes.size() )
         {
             if ( !holes[pair[0]].empty() && !holes[pair[1]].empty() )
-                buildCylinderBetweenTwoHoles( mesh, holes[pair[0]][0], holes[pair[1]][0], stitchParams );
+                stitchHoles( mesh, holes[pair[0]][0], holes[pair[1]][0], stitchParams );
         }
     }
 	

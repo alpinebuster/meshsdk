@@ -97,29 +97,6 @@ val fillAllHolesImpl( Mesh& mesh )
 
 	return geoObj;
 }
-Mesh fillHoleWithSizeLimitImpl( Mesh& mesh, int holeSizeLimit )
-{
-	///
-	// NOTE: The holes will exhibit a line connecting to the origin.
-    // 1. Find the representative edges of each hole
-    std::vector<EdgeId> holeEdges = mesh.topology.findHoleRepresentiveEdges();  
-    // 2. Iterate through all holes
-    for ( EdgeId e : holeEdges )
-    {
-        // 3. Calculate the perimeter of the hole
-        double perim = mesh.holePerimiter( e );  
-        if ( perim < holeSizeLimit )
-        {
-            // 4. Fill the hole using default parameters
-            FillHoleParams params;  
-            // 5. (Optional) If a more optimal algorithm is desired, use `fillHoleNicely(mesh,e,params)`;
-            fillHole( mesh, e, params );  
-        }
-    }
-	///
-	return mesh;
-}
-
 
 Contour3f extractHoleBoundaryPoints( const Mesh & mesh, const std::vector<EdgeId> & holeEdges )
 {
@@ -375,7 +352,7 @@ val generateOrthodonticBiteImpl(
     auto oldFaces = mesh.topology.getValidFaces();
 
     for ( int i = 0; i < int(holes.size()/2); ++i )
-        buildCylinderBetweenTwoHoles( mesh, holes[i*2], holes[i*2+1], sParams );
+        stitchHoles( mesh, holes[i*2], holes[i*2+1], sParams );
 	///
 
 
@@ -492,7 +469,7 @@ val generateOrthodonticBiteWithFillHoleMetricImpl(
     auto oldFaces = mesh.topology.getValidFaces();
 
     for ( int i = 0; i < int(holes.size()/2); ++i )
-		buildCylinderBetweenTwoHoles( mesh, holes[i*2], holes[i*2+1], sParams );
+		stitchHoles( mesh, holes[i*2], holes[i*2+1], sParams );
 	///
 
 
@@ -562,7 +539,7 @@ val buildCylinderBetweenTwoHolesImpl( Mesh& mesh, const InflateSettings& inflate
     auto oldFaces = mesh.topology.getValidFaces();
 
     for ( int i = 0; i < int(holes.size()/2); ++i )
-        buildCylinderBetweenTwoHoles( mesh, holes[i*2], holes[i*2+1], sParams );
+        stitchHoles( mesh, holes[i*2], holes[i*2+1], sParams );
 	///
 
 
@@ -656,9 +633,6 @@ EMSCRIPTEN_BINDINGS( MeshFillHoleModule )
 
 
 	///
-	function( "buildCylinderBetweenTwoHoles", select_overload<bool( Mesh&, const StitchHolesParams& )>( &buildCylinderBetweenTwoHoles ) );
-	function( "buildCylinderBetweenTwoHolesWithEdges", select_overload<void( Mesh&, EdgeId, EdgeId, const StitchHolesParams& )>( &buildCylinderBetweenTwoHoles ) );
-
 	function( "fillHole", &fillHole );
 	function( "fillHoles", &fillHoles );
 
@@ -687,7 +661,6 @@ EMSCRIPTEN_BINDINGS( MeshFillHoleModule )
 
 
 	///
-	function( "fillHoleWithSizeLimitImpl", &fillHoleWithSizeLimitImpl );
 	function( "fillAllHolesImpl", &fillAllHolesImpl );
 	function( "extendHoleWithFuncBasicImpl", &extendHoleWithFuncBasicImpl );
 	function( "extendHoleWithFuncAndOutputImpl", &extendHoleWithFuncAndOutputImpl );
