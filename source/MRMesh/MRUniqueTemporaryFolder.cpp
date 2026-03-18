@@ -26,7 +26,7 @@ UniqueTemporaryFolder::UniqueTemporaryFolder( FolderCallback onPreTempFolderDele
     auto t0 = std::time( nullptr );
     for ( int i = 0; i < MAX_ATTEMPTS; ++i )
     {
-        auto folder = tmp / ( "MeshInspectorScene" + std::to_string( t0 + i ) );
+        auto folder = tmp / ( "MRScene" + std::to_string( t0 + i ) );
         if ( create_directories( folder, ec ) )
         {
             folder_ = std::move( folder );

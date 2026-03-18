@@ -22,7 +22,7 @@ Expected<void> sceneToObj( const std::vector<NamedXfMesh> & objects, const std::
 
 Expected<void> sceneToObj( const std::vector<NamedXfMesh> & objects, std::ostream & out, VertColors* colors )
 {
-    out << "# MeshInspector.com\n";
+    out << "# alpinebuster.top\n";
     int firstVertId = 1;
     for ( auto & o : objects )
     {

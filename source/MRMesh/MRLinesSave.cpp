@@ -171,7 +171,7 @@ Expected<void> toPly( const Polyline3& polyline, std::ostream & out, const SaveS
     const VertId lastVertId = polyline.topology.lastValidVert();
     bool saveColors = settings.colors && !settings.colors->empty();
 
-    out << "ply\nformat binary_little_endian 1.0\ncomment MeshInspector.com\n"
+    out << "ply\nformat binary_little_endian 1.0\ncomment alpinebuster.top\n"
         "element vertex " << numPoints << "\nproperty float x\nproperty float y\nproperty float z\n";
     if ( saveColors )
         out << "property uchar red\nproperty uchar green\nproperty uchar blue\n";

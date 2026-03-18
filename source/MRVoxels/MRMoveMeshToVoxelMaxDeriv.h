@@ -63,7 +63,7 @@ This group provides highlevel interface of the algorithm: \ref moveMeshToVoxelMa
         and proceed to the next interation.
 -# The algorithm modifies the mesh inplace and returns the set of vertices that were moved during the correction.
 
-A nice visualization of \a why it works could be found in MeshInspector's plugin "Voxels Inspector". Just click on any vertex and you will see
+A nice visualization of \a why it works could be found in plugin "Voxels Inspector". Just click on any vertex and you will see
 the values of \f$ F, Q_i \f$ on the interval \f$ \overline{N_i} \f$, as well as points of \f$ N_i \f$.
 
 \paragraph usage Usage

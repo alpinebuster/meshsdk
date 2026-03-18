@@ -17,64 +17,6 @@
 using namespace emscripten;
 using namespace MR;
 
-namespace MRJS
-{
-
-val inflateToothRootImpl( Mesh& mesh, const InflateSettings& inflateSettings )
-{
-    val returnObj = val::object();
-
-
-    ///
-    auto holeEdges = mesh.topology.findHoleRepresentiveEdges();
-    EdgeId maxAreaHole;
-    float maxHoleAreaSq = 0.0f;
-    for ( const auto& e : holeEdges )
-    {
-        float areaSq = mesh.holeDirArea( e ).lengthSq();
-        if ( areaSq > maxHoleAreaSq )
-        {
-            maxHoleAreaSq = areaSq;
-            maxAreaHole = e;
-        }
-    }
-    ///
-
-
-    FillHoleNicelySettings fillHoleParams;
-    for ( const auto& e : holeEdges )
-    {
-        fillHoleParams.smoothCurvature = ( e != maxAreaHole ); // The maximum aperture is not smoothed in order to facilitate subsequent expansion
-        auto newFaces = fillHoleNicely( mesh, e, fillHoleParams );
-
-        if ( e == maxAreaHole )
-        {
-            // Find the newly generated internal vertices
-            auto newVerts = getInnerVerts( mesh.topology, newFaces );
-            inflate( mesh, newVerts, inflateSettings );
-
-
-	        Mesh newFacesMesh;
-            auto newInflatedFaces = getInnerFaces( mesh.topology, newVerts );
-            newFacesMesh.addMeshPart( {mesh, &newInflatedFaces} );
-            val newFacesMeshData = MRJS::exportMeshMemoryView( newFacesMesh );
-            returnObj.set( "rootMesh", newFacesMesh );
-            returnObj.set( "rootMeshMV", newFacesMeshData );
-        }
-    }
-
-
-    val meshData = MRJS::exportMeshMemoryView( mesh );
-
-    returnObj.set( "success", true );
-    returnObj.set( "mesh", mesh );
-    returnObj.set( "meshMV", meshData );
-
-    return returnObj;
-}
-
-} // namespace MRJS
-
 
 EMSCRIPTEN_BINDINGS( PositionVertsSmoothlyModule )
 {
@@ -114,7 +56,4 @@ EMSCRIPTEN_BINDINGS( PositionVertsSmoothlyModule )
     function( "inflateWithTopology", select_overload<void( const MeshTopology&, VertCoords&, const VertBitSet&, const InflateSettings& )>( &inflate ) );
     function( "inflate1WithTopology", select_overload<void( const MeshTopology&, VertCoords&, const VertBitSet&, float )>( &inflate1 ) );
     ///
-
-
-    function( "inflateToothRootImpl", &MRJS::inflateToothRootImpl );
 }

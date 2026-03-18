@@ -108,13 +108,13 @@ jobs:
     if: always()
     steps:
         # all distribution
-      - name: Delete All MeshInspector Distribution Files
+      - name: Delete All MR Distribution Files
         uses: geekyeggo/delete-artifact@176a747ab7e287e3ff4787bf8a148716375ca118 # v6.0.0
         with:
           name: Distributives*
           failOnError: false
 
-      - name: Delete All MeshInspector Distribution Files
+      - name: Delete All MR Distribution Files
         uses: geekyeggo/delete-artifact@176a747ab7e287e3ff4787bf8a148716375ca118 # v6.0.0
         with:
           name: WindowsArchive*

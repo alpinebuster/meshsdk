@@ -681,7 +681,7 @@ jobs:
         run: python3 -m pip install --upgrade pip twine packaging
 
       - name: Upload to Production PyPi
-        run: twine upload ./meshsdk-*.whl -u __token__ -p ${{ secrets.PYPI_MESHINSPECTOR_TOKEN }} --skip-existing
+        run: twine upload ./meshsdk-*.whl -u __token__ -p ${{ secrets.PYPI_MR_TOKEN }} --skip-existing
 
       - name: Mark Success
         id: check_upload

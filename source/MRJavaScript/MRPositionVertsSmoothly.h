@@ -15,6 +15,4 @@ using namespace MR;
 namespace MRJS
 {
 
-val inflateToothRootImpl( Mesh& mesh, const InflateSettings& inflateSettings );
-
 } // namespace MRJS

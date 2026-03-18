@@ -125,8 +125,4 @@ EMSCRIPTEN_BINDINGS( OneMeshContoursModule )
     function( "convertMeshTriPointsToClosedContour", &convertMeshTriPointsToClosedContour, allow_raw_pointers() );
     function( "convertSurfacePathWithEndsToMeshContour", &convertSurfacePathWithEndsToMeshContour );
     function( "convertSurfacePathsToMeshContours", &convertSurfacePathsToMeshContours );
-
-    ///
-    function( "createSortIntersectionsDataImpl", &createSortIntersectionsDataImpl, allow_raw_pointers() );
-    ///
 }

@@ -22,6 +22,7 @@ IF(MR_EMSCRIPTEN)
   add_executable(${PROJECT_NAME} ${SOURCES})
 
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_BOOST_HEADERS=1")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-command-line-argument")
   # REF:
   #   1. `https://emscripten.org/docs/tools_reference/settings_reference.html#exported-runtime-methods`
   #   2. `https://emscripten.org/docs/tools_reference/settings_reference.html#exported-functions`
@@ -29,7 +30,7 @@ IF(MR_EMSCRIPTEN)
   # Set target env: `-s ENVIRONMENT=web,worker,node` (see `../../cmake/Modules/CompilerOptions.cmake`)
   #
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lembind -s EXPORT_ES6=1 -s MODULARIZE=1 -s EXPORT_NAME=createMeshSDK -s SINGLE_FILE=0 -s 'EXPORTED_FUNCTIONS=[\"_main\", \"_malloc\", \"_free\"]' -s 'EXPORTED_RUNTIME_METHODS=[\"ccall\", \"HEAPU8\", \"HEAP32\", \"HEAPF32\", \"HEAPU32\", \"FS\"]'")
- 
+
 
   # FIXME:
   # REF: `https://github.com/emscripten-core/emscripten/issues/24620`

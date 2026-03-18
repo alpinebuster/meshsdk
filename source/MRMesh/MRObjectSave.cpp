@@ -251,6 +251,6 @@ Expected<void> serializeObjectTree( const Object& object, const std::filesystem:
     return serializeObjectTree( object, path, {}, settings );
 }
 
-MR_ADD_SCENE_SAVER_WITH_PRIORITY( IOFilter( "MeshInspector scene (.mru)", "*.mru" ), serializeObjectTree, -1 )
+MR_ADD_SCENE_SAVER_WITH_PRIORITY( IOFilter( "MR scene (.mru)", "*.mru" ), serializeObjectTree, -1 )
 
 } // namespace MR

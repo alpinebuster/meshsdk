@@ -665,6 +665,6 @@ Expected<LoadedObject> deserializeObjectTree( const std::filesystem::path& path,
     return deserializeObjectTree( path, FolderCallback{}, progressCb );
 }
 
-MR_ADD_SCENE_LOADER_WITH_PRIORITY( IOFilter( "MeshInspector scene (.mru)", "*.mru" ), deserializeObjectTree, -1 )
+MR_ADD_SCENE_LOADER_WITH_PRIORITY( IOFilter( "Mesh scene (.mru)", "*.mru" ), deserializeObjectTree, -1 )
 
 } //namespace MR

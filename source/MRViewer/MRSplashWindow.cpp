@@ -160,7 +160,7 @@ void SplashWindow::stop()
 #ifndef __EMSCRIPTEN__
 
 DefaultSplashWindow::DefaultSplashWindow() :
-    SplashWindow( "MeshInspector Splash" )
+    SplashWindow( "Splash" )
 {
 }
 

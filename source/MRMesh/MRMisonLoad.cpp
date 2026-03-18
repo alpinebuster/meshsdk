@@ -73,7 +73,7 @@ Expected<LoadedObject> fromSceneMison( std::istream& in, const ProgressCallback&
     return res;
 }
 
-MR_ADD_SCENE_LOADER( IOFilter( "MeshInSpector Object Notation (.mison)", "*.mison" ), fromSceneMison )
+MR_ADD_SCENE_LOADER( IOFilter( "Mesh Object Notation (.mison)", "*.mison" ), fromSceneMison )
 
 }
 

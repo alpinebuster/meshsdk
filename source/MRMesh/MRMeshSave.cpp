@@ -140,7 +140,7 @@ Expected<void> toObj( const Mesh & mesh, std::ostream & out, const SaveSettings 
 {
     MR_TIMER;
     const VertId lastVertId = mesh.topology.lastValidVert();
-    out << "# MeshInspector.com\n";
+    out << "# alpinebuster.top\n";
     bool saveUV = settings.uvMap && !settings.uvMap->empty();
     bool saveColors = settings.colors && !settings.colors->empty();
 
@@ -293,7 +293,7 @@ BinaryStlSaver::BinaryStlSaver( std::ostream & out, const SaveSettings & setting
     : out_( out )
     , settings_( settings )
 {
-    char header[80] = "MeshInspector.com";
+    char header[80] = "alpinebuster.top";
     out.write( header, 80 );
 
     numTrisPos_ = out.tellp();
@@ -353,7 +353,7 @@ Expected<void> toAsciiStl( const Mesh& mesh, std::ostream& out, const SaveSettin
 {
     MR_TIMER;
 
-    static const char* solid_name = "MeshInspector.com";
+    static const char* solid_name = "alpinebuster.top";
     out << "solid " << solid_name << "\n";
     auto notDegenTris = getNotDegenTris( mesh );
     const float trisNum = float( notDegenTris.count() );
@@ -423,7 +423,7 @@ Expected<void> toPly( const Mesh & mesh, std::ostream & out, const SaveSettings 
     bool saveColors = settings.colors && !settings.colors->empty();
     bool saveFaceColors = settings.primitiveColors && !settings.primitiveColors->empty();
 
-    out << "ply\nformat binary_little_endian 1.0\ncomment MeshInspector.com\n";
+    out << "ply\nformat binary_little_endian 1.0\ncomment alpinebuster.top\n";
     if ( saveUV && saveTexture )
         out << "comment TextureFile " <<  settings.materialName << ".jpg\n";
     out << "element vertex " << numPoints << "\nproperty float x\nproperty float y\nproperty float z\n";

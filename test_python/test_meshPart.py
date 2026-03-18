@@ -1,7 +1,6 @@
 import pytest
 from helper import *
 
-# This tests the bugfix for: https://github.com/MeshInspector/MeshInspectorCode/issues/6440
 # Also see: https://github.com/MeshInspector/mrbind/commit/1bd3695342c6cb448120af2a7e67d6eda7239ef3
 def test_mesh_part():
     mr_mesh = mrmesh.makeCube()

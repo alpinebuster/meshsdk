@@ -151,7 +151,7 @@ Expected<void> toPly( const PointCloud& cloud, std::ostream& out, const SaveSett
     MR_TIMER;
     const size_t totalPoints = settings.onlyValidPoints ? cloud.validPoints.count() : cloud.points.size();
 
-    out << "ply\nformat binary_little_endian 1.0\ncomment MeshInspector.com\n"
+    out << "ply\nformat binary_little_endian 1.0\ncomment alpinebuster.top\n"
         "element vertex " << totalPoints << "\nproperty float x\nproperty float y\nproperty float z\n";
 
     const bool saveNormals = cloud.points.size() <= cloud.normals.size();

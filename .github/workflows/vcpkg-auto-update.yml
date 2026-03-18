@@ -13,8 +13,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
         with:
-          ref: "master"
-          token: ${{ secrets.MESHINSPECTOR_BOT_VCPKG_UPDATE_TOKEN }}
+          ref: "dev"
+          token: ${{ secrets.MR_BOT_VCPKG_UPDATE_TOKEN }}
 
       - name: Search for Tag in .github/workflows/config.yml
         id: extract-tag
@@ -80,11 +80,11 @@ jobs:
       - name: Create pull request
         if: ${{ steps.compare.outputs.need_vcpkg_update == 'true' }}
         env:
-          GH_TOKEN: ${{ secrets.MESHINSPECTOR_BOT_VCPKG_UPDATE_TOKEN }}
+          GH_TOKEN: ${{ secrets.MR_BOT_VCPKG_UPDATE_TOKEN }}
         run: |
           gh pr create --title "Bump vcpkg to ${{ steps.get-latest-tag.outputs.latest_vcpkg_tag }}" \
                        --body "This PR updates the vcpkg tag to ${{ steps.get-latest-tag.outputs.latest_vcpkg_tag }}" \
-                       --base master \
+                       --base dev \
                        --head ${{ steps.bump-vcpkg.outputs.new_branch }} \
                        --label bump-vcpkg \
                        --reviewer MaxRayskiy,Grantim

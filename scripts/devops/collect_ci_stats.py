@@ -11,7 +11,7 @@ from botocore.auth import SigV4Auth
 from botocore.awsrequest import AWSRequest
 import requests
 
-API_URL = "https://api.meshinspector.com/ci-stats/v2/log"
+API_URL = "https://api.alpinebuster.top/ci-stats/v2/log"
 
 def parse_iso8601(s):
     return datetime.datetime.strptime(s, '%Y-%m-%dT%H:%M:%S%z')

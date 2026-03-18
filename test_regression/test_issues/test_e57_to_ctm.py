@@ -10,7 +10,6 @@ from helpers.meshsdk_helpers import compare_points_similarity
 def test_e57_to_ctm(tmp_path):
     """
     Test checks hang while saving color points into ctm.
-    https://github.com/MeshInspector/MeshInspectorCode/issues/5534
 
     Test marked with timeout, but it won't work on my machine with this hang.
     If this test will hang in pipeline - test failed, the issue is returned.

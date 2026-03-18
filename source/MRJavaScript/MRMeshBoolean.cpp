@@ -27,18 +27,6 @@ using namespace emscripten;
 using namespace MR;
 
 
-BooleanResult booleanWithCallbackImpl( 
-    const Mesh& meshA, const Mesh& meshB,
-    BooleanOperation operation,
-    const AffineXf3f* rigidB2A,
-    BooleanResultMapper* mapper,
-    val jsCallback )
-{
-    auto cb = MRJS::createProgressCallback( jsCallback );
-    return boolean( meshA, meshB, operation, rigidB2A, mapper, cb );
-}
-
-
 EMSCRIPTEN_BINDINGS( MeshBooleanModule )
 {
     class_<BooleanResult>( "BooleanResult" )
@@ -89,7 +77,4 @@ EMSCRIPTEN_BINDINGS( MeshBooleanModule )
     function( "findIntersectionContours", &findIntersectionContours, allow_raw_pointers() );
     function( "getBooleanPoints", &getBooleanPoints, allow_raw_pointers() );
     ///
-
-
-    function("booleanWithCallbackImpl", &booleanWithCallbackImpl, allow_raw_pointers());
 }

@@ -12,12 +12,12 @@
 		<dependencies>
 			<group targetFramework="netstandard2.0"/>
 		</dependencies>
-		<icon>images/MeshInspector_icon.png</icon>
+		<icon>images/meshsdk_icon.png</icon>
 		<license type="file">LICENSE.txt</license>
 		<readme>docs/readme.md</readme>
 	</metadata>
 	<files>
-		<file src="./macos/MeshInspector_icon.png" target="images/"></file>
+		<file src="./macos/meshsdk_icon.png" target="images/"></file>
 		<file src="LICENSE.txt" target=""></file>
 		<file src="./readme.md" target="docs/"></file>
 		<file src="./scripts/nuget_patch/MeshSDK.targets" target="build/"></file>

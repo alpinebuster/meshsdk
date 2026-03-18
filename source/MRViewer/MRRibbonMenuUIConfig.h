@@ -21,7 +21,7 @@ struct RibbonMenuUIConfig
     bool drawViewportTags{ true }; ///< if false - window with viewport label and id will be hidden
     bool drawNotifications{ true }; ///< if false - no notifications are drawn on screen
     bool drawSearchBar{ true }; ///< if false - hides search bar at the header panel of ribbon
-    std::string helpLink = "https://meshinspector.com/inapphelp/"; ///< help btn leads to this page, if empty - no help btn is drawn
+    std::string helpLink = "https://meshsdk.alpinebuster.top/inapphelp/"; ///< help btn leads to this page, if empty - no help btn is drawn
 
     bool operator==( const RibbonMenuUIConfig& ) const = default;
 };

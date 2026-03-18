@@ -41,7 +41,7 @@ struct CtmSaveOptions : SaveSettings
     /// LZMA compression: 0 - minimal compression, but fast; 9 - maximal compression, but slow
     int compressionLevel = 1;
     /// comment saved in the file
-    const char * comment = "MeshInspector.com";
+    const char * comment = "alpinebuster.top";
 };
 
 /// saves in .ctm file
@@ -69,7 +69,7 @@ struct CtmSavePointsOptions : SaveSettings
     /// 0 - minimal compression, but fast; 9 - maximal compression, but slow
     int compressionLevel = 1;
     /// comment saved in the file
-    const char* comment = "MeshInspector Points";
+    const char* comment = "Mesh Points";
 };
 
 /// saves in .ctm file

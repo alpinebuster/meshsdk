@@ -51,7 +51,7 @@ IF(MR_PCH)
       EIGEN_STACK_ALLOCATION_LIMIT=0
     )
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_BOOST_HEADERS=1")
-    # FIXME: the option is required for MeshInspector but not for MeshSDK
+    # FIXME: the option is required for MRViewer but not for MeshSDK
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-command-line-argument")
   ENDIF()
 

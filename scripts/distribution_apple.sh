@@ -36,7 +36,7 @@ popd
 # be careful with pkg names! The pkg can fail to build
 pkgbuild \
   --root macos_distr/Library \
-  --identifier com.MeshInspector.MeshSDK \
+  --identifier com.alpinebuster.MeshSDK \
   --install-location /Library \
   MeshSDK.pkg
 
