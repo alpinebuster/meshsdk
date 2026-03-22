@@ -33,7 +33,6 @@ else
 fi
 
 MR_EMSCRIPTEN_SINGLETHREAD=0
-MR_EMSCRIPTEN_WASM64=0
 if [[ $OSTYPE == "linux"* ]] && [ "${MR_STATE}" != "DOCKER_BUILD" ]; then
   if [ ! -n "$MR_EMSCRIPTEN" ]; then
     read -t 5 -p "Build with emscripten? Press (y) in 5 seconds to build (y/s/l/N) (s - singlethreaded, l - 64-bit)" -rsn 1
@@ -56,12 +55,13 @@ else
     MR_EMSCRIPTEN="OFF"
   fi
 fi
+echo "Emscripten ${MR_EMSCRIPTEN}, singlethread ${MR_EMSCRIPTEN_SINGLETHREAD}, 64-bit ${MR_EMSCRIPTEN_WASM64}"
 
 if [ $MR_EMSCRIPTEN == "ON" ]; then
   if [[ $MR_EMSCRIPTEN_SINGLE == "ON" ]]; then
     MR_EMSCRIPTEN_SINGLETHREAD=1
   fi
-  if [[ $MR_EMSCRIPTEN_W64 == "ON" ]]; then
+  if [[ $MR_EMSCRIPTEN_WASM64 == "ON" ]]; then
     MR_EMSCRIPTEN_WASM64=1
   fi
 elif [ -n "${INSTALL_REQUIREMENTS}" ]; then
@@ -70,8 +70,6 @@ elif [ -n "${INSTALL_REQUIREMENTS}" ]; then
 else
   echo "Unsupported system. Installing dependencies is your responsibility."
 fi
-
-echo "Emscripten ${MR_EMSCRIPTEN:-OFF}, singlethread ${MR_EMSCRIPTEN_SINGLE:-OFF}, 64-bit ${MR_EMSCRIPTEN_W64:-OFF}"
 
 # FIXME: make it optional
 rm -rf "${MESHSDK_THIRDPARTY_BUILD_DIR}"
@@ -170,4 +168,4 @@ else
 fi
 popd
 
-printf "\rThirdparty build script successfully finished. Required libs located in ./lib folder. You could run ./scripts/build_source.sh.\n\n"
+printf "\rThirdparty build script successfully finished. Required libs located in ./lib folder. You could run ./scripts/build_source.sh\n\n"

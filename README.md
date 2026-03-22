@@ -219,12 +219,12 @@ The following steps will require approximately 40 GB of disk space.
 git pull
 
 # Download and install the latest SDK tools.
-# ./emsdk install latest # ⚠️ TODO
+# ./emsdk install latest # ⚠️ NOT supported
 ./emsdk install 4.0.10
 
 # Make the "latest" SDK "active" for the current user. (writes .emscripten file)
-# ./emsdk activate latest # ⚠️ TODO
-./emsdk activate latest
+# ./emsdk activate latest # ⚠️ NOT supported
+./emsdk activate 4.0.10
 
 # Activate PATH and other environment variables in the current terminal
 source ./emsdk_env.sh
