@@ -57,9 +57,9 @@ if(DEFINED CMAKE_C_COMPILER_VERSION)
 endif()
 
 if(APPLE)
-    message("You can install required packages via brew: ' xargs brew install < /Library/Frameworks/MeshSDK.framework/Versions/Current/requirements/macos.txt '")
+  message("You can install required packages via brew: ' xargs brew install < /Library/Frameworks/MeshSDK.framework/Versions/Current/requirements/macos.txt '")
 endif(APPLE)
 
 if(EMSCRIPTEN)
-    include(EmscriptenHelpers)
+  include(EmscriptenHelpers)
 endif(EMSCRIPTEN)

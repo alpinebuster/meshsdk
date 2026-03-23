@@ -1,15 +1,15 @@
 .button {
-    background-image: linear-gradient(to bottom, #667eea, #764ba2), linear-gradient(to bottom, #667eea, #764ba2 100%);
+    background-image: linear-gradient(to bottom, #1b83ff, #004da9), linear-gradient(to bottom, #1b83ff, #1b83ff);
 }
 
 .button:hover {
     background-image: none;
-    background-color: #667eea;
+    background-color: #1b83ff;
 }
 
 .button:active {
     background-image: none;
-    background-color: #667eea;
+    background-color: #004da9;
 }
 
 .unselectable {
@@ -36,11 +36,11 @@ body {
     background-color: #1c1f24
 }
 
-@media (prefers-color-scheme: light) {
+/*@media (prefers-color-scheme: light) {
     .dark-theme.adaptive-theme {
         background-color: #eef0f5
     }
-}
+}*/
 
 .emscripten {
     padding-right: 0;
@@ -153,11 +153,11 @@ canvas.emscripten {
     background-color: #000;
 }
 
-@media (prefers-color-scheme: light) {
+/*@media (prefers-color-scheme: light) {
     .dark-progress.adaptive-progress {
         background-color: #dbdde5
     }
-}
+}*/
 
 .progress {
     position: relative;
@@ -166,5 +166,5 @@ canvas.emscripten {
     left: 0;
     top: 0;
     border-radius: 8px;
-    background-image: linear-gradient(to bottom, #667eea, #764ba2), linear-gradient(to bottom, #667eea, #764ba2);
+    background-image: linear-gradient(to bottom, #1b83ff, #004da9), linear-gradient(to bottom, #1b83ff, #004da9);
 }

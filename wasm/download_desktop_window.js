@@ -1,7 +1,7 @@
 var showDownloadWindow = function() {
     var { overlay, popup } = createOverlayPopup('show_download_window', "", 500, 300, true, true);
     var logo = document.createElement('img');
-    logo.setAttribute('src', 'assets/tool_not_supp.svg');
+    logo.setAttribute('src', 'tool_not_supp.svg');
     logo.setAttribute('style', 'position: absolute;top: 0%;left: 50%;width:72px;height:72px;transform:translate(-50%,28px);');
     popup.appendChild( logo );
 
@@ -25,7 +25,7 @@ var showDownloadWindow = function() {
     var button = document.createElement('a');
     button.setAttribute('class', "button");
     button.setAttribute('target', "_blank");
-    button.setAttribute('href', 'https://meshsdk.org/download');
+    button.setAttribute('href', 'https://3mesh.alpinebuster.top/download');
     button.innerHTML = "Download";
     button.setAttribute('style', 'text-decoration:none;font-family:SegoeUIVariable-Display;border-radius:4px;cursor:pointer;position:absolute;top:0%;left:50%;width:130px;height:28px;transform:translate( -50%, 243px);font-size:14px;font-stretch:normal;font-style:normal;line-height:normal;letter-spacing:normal;color:#fff;display:inline-flex;align-items:center;justify-content:center;');
 

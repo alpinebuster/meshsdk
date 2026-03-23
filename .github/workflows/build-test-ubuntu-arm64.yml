@@ -126,7 +126,9 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: CBindings
-          path: ./source/MeshSDKC2/include
+          path: |
+            ./source/MeshSDKC2/include
+            ./source/MeshSDKC2Cuda/include
           retention-days: 1
 
       - name: Generate C# bindings # generate only sources

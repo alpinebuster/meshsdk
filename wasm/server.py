@@ -20,7 +20,7 @@ class MRHTTPRequestHandler(server.SimpleHTTPRequestHandler):
 def run(server_class=server.HTTPServer, handler_class=MRHTTPRequestHandler, port=9310):
     server_address = ("", port)
     httpd = server_class(server_address, handler_class)
-    print(f"Server is running on http://localhost:{port}")
+    print(f"Server is running on `http://localhost:{port}`!")
     print("Current directory:", os.getcwd())
     print("Directory contents:", os.listdir("."))
     httpd.serve_forever()
