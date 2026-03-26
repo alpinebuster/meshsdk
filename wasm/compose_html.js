@@ -48,4 +48,4 @@ ComposeHTMLBody([
     "config.js",
     "error.js",
     "download_desktop_window.js"
-], ["MeshSDKViewer.js"]);
+], ["MeshViewer.js"]);
