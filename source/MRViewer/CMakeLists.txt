@@ -116,7 +116,6 @@ file(GLOB AWESOME_FONTS "${MESHSDK_THIRDPARTY_DIR}/fontawesome-free/*.ttf")
 file(GLOB IMGUI_FONTS "${MESHSDK_THIRDPARTY_DIR}/imgui/misc/fonts/*.ttf")
 file(GLOB MAIN_FONTS "${MESHSDK_THIRDPARTY_DIR}/Noto_Sans/*.*")
 IF(EMSCRIPTEN)
-  file(GLOB MAIN_FONTS "${MESHSDK_THIRDPARTY_DIR}/Noto_Sans/*.ttf")
   file(
     COPY
       ${JSONS}
