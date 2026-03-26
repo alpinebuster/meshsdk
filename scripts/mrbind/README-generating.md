@@ -63,75 +63,120 @@ This uses Brew to install Clang and some other packages.
 
 ## Generating bindings
 
-Target languages:
+This needs to be done once per each copy of the MeshSDK repository.
 
-* **Python** (`TARGET=python`): Build MeshSDK first, then run the generator script, which will both generate the sources and build them.
+You need to repeat this step if we update MRBind.
 
-  This is the default target language, if `TARGET=...` is not specified.
+### Windows
 
-* **C** (`TARGET=c`): Run the generator script first, which will generate the sources, but not build them. *Then* build MeshSDK along with the freshly generated bindings. Building C bindings is only supported with CMake, not MSBuild. Pass `-DMESHSDK_BUILD_GENERATED_C_BINDINGS=ON` to CMake to build the bindings (in addition to the rest of MeshSDK). The generated bindings are human-readable and are located in `source/MeshSDKC2`.
+* Run `scripts/mrbind/install_mrbind_windows_msys2.bat`, either by double-clicking or in the terminal (**not** in the VS developer command prompt).
 
-* **C#** (`TARGET=csharp`): Must *generate* the C bindings before C# (to produce the JSON describing their contents), but you can *build* them after C# if you prefer. Running the generator script for C# will both generate the C# sources and build them.
+### Ubuntu
 
-Platform specifics:
+* Run `scripts/mrbind/install_mrbind_ubuntu.sh`
 
-* **Windows:** Run `scripts\mrbind\generate_win.bat -B --trace TARGET=...` from the VS developer command prompt (use the `x64 Native` one!).
+### MacOS
 
-  When generating the Python bindings, the current directory matters, as this will look for MeshSDK in `./source/x64/Release`. Add `VS_MODE=Debug` at the end if you built MeshSDK in debug mode, the default is `VS_MODE=Release`. (Ignored for C#.)
+* Run `scripts/mrbind/install_mrbind_macos.sh`
 
-  The `generate_win.bat` file merely calls `generate.mk` (see below) inside of the MSYS2 shell. You can use that directly if you prefer.
+## 3.1. Generate Python bindings
 
-* **Linux:** `make -f scripts/mrbind/generate.mk -B --trace`
+After building MeshSDK, follow the OS-dependent steps below. After that we explain optional config flags.
 
-  This will look for MeshSDK in `./build/Release/bin`. Pass `MESHSDK_SHLIB_DIR=path/to/bin` for a different directory. (Ignored for C#.)
+The resulting Python modules are created next to the MeshSDK shared libraries, in the `./meshsdk` directory.
 
-* **MacOS:** Same as on Linux, but before running the command you must adjust the PATH: `export PATH="$(brew --prefix)/opt/make/libexec/gnubin:$PATH"`. (`brew --prefix` appears to default to `/opt/homebrew` on Arm and `/usr/local` on x86.). This adds the version of Make installed in Homebrew to PATH, because the default one is outdated. Confirm the version with `make --version`, it must be 4.x or newer.
+### Windows
+
+* Open the `x64 Native Tools Command Prompt for VS` terminal in the Start menu.
+
+* There, run <code>scripts\mrbind\generate_win.bat -B --trace VS_MODE=<b>\<see below\></b></code>
+
+    * If you built MeshSDK in Visual Studio in Release mode, pass `VS_MODE=Release`. If you built it in Debug mode, pass `VS_MODE=Debug`.
+    * The current directory matters, the script will look for MeshSDK in `./source/x64/Release` or `./source/x64/Debug` depending on `VS_MODE=...`.
+    * If you built MeshSDK in a different directory (e.g. if using CMake), also pass `MESHSDK_SHLIB_DIR=...`, pointing to the directory where `MRMesh.dll` was built.<br/>
+    When using CMake, `VS_MODE` has to be set to `Debug` when `CMAKE_BUILD_TYPE` is `Debug`, and to `Release` otherwise. It controls which libraries (debug vs release) we use from Vcpkg.
+
+* Windows is prone to Python version mismatches. If you see errors such as ``pybind11 non-limited-api: Failed to load library `pybind11nonlimitedapi_meshsdk_3.13` with error `126`.``, proceed to [Dealing with Python version mismatches]()
+
+### Linux
+
+* Run <code>make -f scripts\mrbind\generate.mk -B --trace MESHSDK_SHLIB_DIR=<b>\<see below\></b></code>
+
+    * `MESHSDK_SHLIB_DIR` must point to the directory containing `libMRMesh.so`, i.e. the CMake build directory plus `./bin`.
+
+       It defaults to `build/Release/bin`. This assumes the CMake build directory is `build/Release`.
+
+### MacOS
+
+* Run `export PATH="$(brew --prefix)/opt/make/libexec/gnubin:$PATH"` to temporarily add a newer version of GNU Make to the PATH (now `make --version` should report 4.x or newer).
+
+* Run <code>make -f scripts\mrbind\generate.mk -B --trace MESHSDK_SHLIB_DIR=<b>\<see below\></b></code>
+
+    * `MESHSDK_SHLIB_DIR` must point to the directory containing `libMRMesh.dylib`, i.e. the CMake build directory plus `./bin`.
+
+       It defaults to `build/Release/bin`. This assumes the CMake build directory is `build/Release`.
 
 ### Tunable flags for the generation script
 
 * **`--trace` — enable verbose logs.** Remove to get quieter logs.
 
-* **`-B` — force a full rebuild of the bindings.** Incremental builds are not very useful, because they're not perfect and can miss changes. Use incremental builds only e.g. when you're fixing linker errors.
+* **`-B` — force a full rebuild of the bindings.** Don't remove this flag. Doing so causes Make to attempt an incremental build instead of a full rebuild, but we don't have those configured correctly, so the binding generation might be skipped even when the input headers were changed. There's one valid usecase for removing this flag: making changes to fix linker errors, such as correcting `MESHSDK_SHLIB_DIR` or `VS_MODE`; in those cases removing `-B` will redo linking instead of rebuilding the entire bindings.
 
 * **`MODE=...` — optimization** setting for the Python module:
 
-  * `release` (default) — Enable optimization, disable debug symbols. Same as what goes into the production.
+  * `release` (default) — Enable optimization, disable debug symbols. This is what goes into the production.
 
   * `debug` — disable optimizations, enable debug symbols. Use this to debug the bindings.
 
   * `none` — neither enable optimizations nor enable the debug symbols. This gives the fastest build times, useful for testing bindings locally.
 
-  You can also et entirely custom C++ compiler flags, by setting `EXTRA_CFLAGS` and `EXTRA_LDFLAGS`.
-
-  The `EXTRA_...` flags are ignored for C#, and `MODE=none` is replaced with `MODE=debug` there.
+  You can also use entirely custom C++ compiler flags, by setting `EXTRA_CFLAGS` and `EXTRA_LDFLAGS`.
 
 * **`NUM_FRAGMENTS=?? -j??` — adjust RAM usage vs build speed tradeoff.**
 
   If you're running out of RAM, reduce `-j...`.
 
-  `NUM_FRAGMENTS=??` is how many translation units the bindings are split into. `-j??` is the number of parallel build threads/processes. We have some heuristics to guess good values for this, they are printed when the script starts.
+  `NUM_FRAGMENTS=??` is how many translation units the bindings are split into. `-j??` is the number of parallel build threads/processes. We have some heuristics to guess good values for this, those values are printed when the script starts.
 
   Guessing the fastest combination isn't trivial. Usually you want to maximize threads (up to the number of cores), and then minimize the number of fragments as much as your RAM allows. The number of fragments should normally be a multiple of the number of threads.
 
 * **`PYTHON_PKGCONF_NAME=python-3.??-embed` — select Python version.** We try to guess this one. You can set this to `python3-embed` to use whatever your OS considers to be the default version.
 
-### Selecting the compiler:
+* **`ENABLE_CUDA=??` — enable or disable Cuda.** If you're building MeshSDK without Cuda support, pass `ENABLE_CUDA=0` to skip the Cuda bindings. It defaults to `1` everywhere except MacOS, where Cuda doesn't work.
 
-For simplicity, we compile the Python bindings with the same Clang that we use for parsing the code. (Consult `clang_version.txt` for the current version.) But you can override this using `CXX_FOR_BINDINGS`.
+  When this is disabled, stub Cuda bindings are still generated, with a single function that reports that Cuda is not available.
 
-`CXX_FOR_BINDINGS` has an additional use that matters for both Python and C. We use it to locate the "Clang resource directory", which the parser needs. The variable must be set to the same version of Clang that provides libclang that was used to build MRBind, otherwise you might get compatibility issues. But normally we should be able to guess the value of this variable, so normally you don't have to think abou tthis.
+* **`BUILD_SHIMS=1` — support multiple Python versions.** This enables support for all Python versions found on the system, as opposed a single default one. See the relevant section in the [troubleshooting guide](#troubleshooting-python-bindings).
 
-**ABI compatibility (Python only):** Since MeshSDK is compiled using a different compiler, we must ensure the two use the same ABI. `CXX_FOR_ABI` should be set to the compiler the ABI of which we're trying to match. (Defaults to `CXX` environment variable, or `g++` if not set.) At the moment, if `CXX_FOR_ABI` is GCC 13 or older or Clang 17 or older (note that Apple Clang uses a [different version numbering scheme](https://en.wikipedia.org/wiki/Xcode#Xcode_15.0_-_(since_visionOS_support)_2)), we pass `-fclang-abi-compat=17` to our Clang 18 or newer. This flag *disables* mangling `requires` constraints into function names. If we guess incorrectly, you'll get undefined references to functions with `requires` constraints on them.
+* **`shims` — add support for multiple Python versions.** Same effect as `BUILD_SHIMS=1`, but instead of regenerating the bindings, this just adds the missing version support to existing bindings. This is great if you forgot the flag during the initial compilation.
 
-### Less common flags:
+* **`FOR_WHEEL=1` — build for wheel packaging.** This is primarily for CI, not for local use. Indicates that you want to package the resulting module into a wheel (a Python module archive for distribution), instead of using it locally. Enabling this might prevent the module from functioning until packaged into a wheel.
 
-* **Selecting MRBind installation:** if you installed MRBind to a non-default location (`MeshSDK/mrbind`), you must pass this location to `MRBIND_SOURCE=path/to/mrbind`.
+  This automatically enables `BUILD_SHIMS=1`, among other things.
 
-    Additionally, if the MRBind binary is not at `$MRBIND_SOURCE/build/mrbind`, you must pass `MRBIND_EXE=...` (path to the executable itself, not its directory).
+### Troubleshooting Python bindings
 
-You can find some undocumented flags/variables in `generate.mk`.
+* **Importing the wheel prints error ``pybind11 non-limited-api: Failed to load library `pybind11nonlimitedapi_meshsdk_3.13` with error `126`.`` or similar.**
 
-## Troubleshooting Python bindings
+  * This primarily happens on Windows.
+
+  * When built locally, Python bindings only support one speific Python version by default. If you try to import them from another version, you will get errors such as the one above.
+
+  * To check what version you built for, look for shared libraried named `pybind11nonlimitedapi_meshsdk_3.??` next to the Python modules. On Windows, those should be in `source/x64/Release/meshsdk` (or `.../Debug/...`). The number in the filename is the Python version.
+
+  * The easiest fix to use that Python version.
+
+    * On Windows, run e.g. `py -3.12` to use that specific version (`3.12` is our default for the bindings at the time of writing). You might need to install that version first, from [here](https://www.python.org/downloads/windows/).
+
+    * On Linux, just running `python3` without specifying the minor version should use the correct version by default.
+
+  * Alternatively, you can add the missing shared libraries to support your preferred Python version.
+
+    * You can build them by rerunning the generation script with the additional flag `shims`. This will build the libraries for all Python versions found on your system.
+
+      This command only builds the libraries and does nothing else. You can use `BUILD_SHIMS=1` instead of `shims` to both regenerate the bindings and build those libraries at the same time.
+
+    * You can also download the prebuilt libraries from [here](https://pypi.org/project/meshsdk/#files). Download the archive for your OS and extract the `pybind11nonlimitedapi_meshsdk_...` shared libraries next to yours.
 
 * **`could not open 'MRMesh.lib': No such file or directory`**
 
@@ -139,19 +184,19 @@ You can find some undocumented flags/variables in `generate.mk`.
 
 * **`machine type x86 conflicts with x64`**
 
-  * You opened `x86 ...` VS developer command prompt, but we need `x64 Native`. Rebuild the bindings in x64 prompt.
+  * You opened `x86 ...` VS developer command prompt, but we need `x64 Native`. Rebuild the bindings in the x64 prompt.
 
 * **`undefined symbol: void __cdecl std::_Literal_zero_is_expected(void)`**
 
   * Update your VS 2022.
 
-* **Undefined references to MeshSDK functions**.
+* **Undefined references to MeshSDK functions**
 
   * This can only happen on Linux/Mac. If you look at the offending functions in the headers, they should have `requires` on them.
 
   * You likely used a non-default compiler when compiling MeshSDK. Pass this compiler to `CXX_FOR_ABI=...` when generating Python bindings to fix the issue (e.g. `CXX_FOR_ABI=clang++-22` or `g++-15`).
 
-    MeshSDK is usually compiled using a different compiler than the Python bindings (for the bindings we use a specific version of Clang, the same that is used by the parser; using the same compiler for the bindings on all platforms makes writing them easier). Therefore, we must ensure that the two compilers use the same ABI. `CXX_FOR_ABI` should be set to the compiler the ABI of which we're trying to match. (Defaults to `CXX` environment variable, or `g++` if not set.) At the moment, if `CXX_FOR_ABI` is GCC 13 or older or Clang 17 or older (note that Apple Clang uses a [different version numbering scheme](https://en.wikipedia.org/wiki/Xcode#Xcode_15.0_-_(since_visionOS_support)_2)), we pass `-fclang-abi-compat=17` to our Clang 18 or newer (which is used to compile the bindings). This flag *disables* mangling of `requires` constraints into function names. If we guess incorrectly, you'll get undefined references to functions with `requires` constraints on them.
+    MeshSDK is usually compiled using a different compiler than the Python bindings (for the bindings we use a specific version of Clang, the same that is used by the parser; using the same compiler for the bindings on all platforms makes writing them easier). Therefore, we must ensure that the two compilers use the same ABI. `CXX_FOR_ABI` should be set to the compiler the ABI of which we're trying to match. (Defaults to the `CXX` environment variable, or `g++` if not set.) At the moment, if `CXX_FOR_ABI` is GCC 13 or older or Clang 17 or older (note that Apple Clang uses a [different version numbering scheme](https://en.wikipedia.org/wiki/Xcode#Xcode_15.0_-_(since_visionOS_support)_2)), we pass `-fclang-abi-compat=17` to our Clang 18 or newer (which is used to compile the bindings). This flag *disables* mangling of `requires` constraints into the function names. If we guess incorrectly, you'll get undefined references to functions with `requires` constraints on them.
 
 * **Importing the wheel segfaults on MacOS**
 
@@ -172,7 +217,7 @@ You can find some undocumented flags/variables in `generate.mk`.
 
 Running our script generates the code for the bindings, at `source/MeshSDKC2` and `source/MeshSDKC2Cuda`.
 
-Then you must build MeshSDK with a special CMake flag, which will build the generated bindings.
+Then you must build MeshSDK with a special CMake flag, which will build the generated bindings in addition to the rest of the MeshSDK.
 
 ### Windows
 
@@ -240,8 +285,10 @@ The steps below both generate the C# code (at `MeshSDK/source/MRDotNet2`) and co
 
 ### Less common flags for the generator script
 
-* **Selecting MRBind installation:** if you installed MRBind to a non-default location (the default is `./MeshSDK/mrbind`), you must pass this location to `MRBIND_SOURCE=path/to/mrbind`.
+* **Selecting MRBind installation:** if you installed MRBind to a non-default location (the default is `./thirdparty/mrbind`), you must pass this location to `MRBIND_SOURCE=path/to/mrbind`.
 
     Additionally, if the MRBind binary is not at `$MRBIND_SOURCE/build/mrbind`, you must pass `MRBIND_EXE=...` (path to the executable itself, not its directory).
+
+    For C and C# (but not Python), if you set `MRBIND_EXE`, then you can skip `MRBIND_SOURCE`.
 
 You can find more undocumented flags/variables in `generate.mk`.
